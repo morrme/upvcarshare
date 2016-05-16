@@ -1,0 +1,16 @@
+{
+  "name": "upvcarshare",
+  "version": "0.1.0",
+  "description": "UPV Car Share project",
+  "repository": "https://github.com/marcosgabarda/upvcarshare",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "bootstrap": "^4.0.0-alpha.2",
+    "gulp": "^3.9.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.3.1",
+    "node-sass": "^3.4.2",
+    "yuglify": "^0.1.4"
+  }
+}
