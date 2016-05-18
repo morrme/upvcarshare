@@ -10,7 +10,7 @@ from test_plus.test import TestCase
 
 from journeys import GOING, RETURN, DEFAULT_PROJECTED_SRID
 from journeys.exceptions import AlreadyAPassenger, NotAPassenger
-from journeys.models import Journey, Passenger
+from journeys.models import Journey, Passenger, Residence
 from journeys.tests.factories import ResidenceFactory, CampusFactory, TransportFactory, JourneyFactory
 from users.tests.factories import UserFactory
 
@@ -226,3 +226,14 @@ class JourneyTest(TestCase):
             user=user4,
             kind=GOING
         ).count(), 2)
+
+
+class ResidenceTest(TestCase):
+
+    def test_smart_create(self):
+        user = UserFactory(
+            default_address="bar",
+            default_position=Point(882532.74, 545437.43, srid=DEFAULT_PROJECTED_SRID)
+        )
+        residence = Residence.objects.smart_create(user)
+        self.assertIsInstance(residence, Residence)

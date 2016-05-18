@@ -15,10 +15,6 @@ DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.spatialite",
         "NAME": ":memory:",
-        "USER": "",
-        "PASSWORD": "",
-        "HOST": "",
-        "PORT": "",
     },
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True

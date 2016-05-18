@@ -27,7 +27,7 @@ logs/*
 docs/_build
 
 # SQLite3 database files:
-upvcarshare/*.db
+*.db
 
 # Pycharm
 .idea
@@ -55,10 +55,7 @@ node_modules
 # virtual environments
 .env
 
-# Ignore oracle
-oracle-xe-11.2.0-1.0.x86_64.rpm
-
 # Project specific
 upvcarshare/public
-upvcarshare/static/css/bundle.css
-upvcarshare/static/js/bundle.js
+upvcarshare/static/dist/css
+upvcarshare/static/dist/js

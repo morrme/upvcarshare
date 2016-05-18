@@ -3,13 +3,15 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib.gis.measure import D
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import GisTimeStampedModel
-from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_CAMPUS_DISTANCE, DEFAULT_PROJECTED_SRID
+from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
+from journeys.helpers import make_point_wgs84
 from journeys.managers import JourneyManager, ResidenceManager
 
 
@@ -26,9 +28,19 @@ class Place(GisTimeStampedModel):
     class Meta:
         abstract = True
 
-    def position_wgs84(self):
+    def get_position_wgs84(self):
         """Transforms position to WGS-84 system."""
-        return self.position.transform(4326)
+        destination_coord = SpatialReference(DEFAULT_WGS84_SRID)
+        origin_coord = SpatialReference(DEFAULT_PROJECTED_SRID)
+        trans = CoordTransform(origin_coord, destination_coord)
+        position = self.position
+        position.transform(trans)
+        return position
+
+    def set_position_wgs84(self, position):
+        """Transforms an input to projected coordinates."""
+        self.position = make_point_wgs84(position)
+        return self.position
 
     def nearby(self):
         """Abstract method to search nearby journeys."""
@@ -58,7 +70,7 @@ class Campus(Place):
 
     def save(self, **kwargs):
         if not self.distance:
-            self.distance = DEFAULT_CAMPUS_DISTANCE
+            self.distance = DEFAULT_DISTANCE
         super(Campus, self).save(**kwargs)
 
 

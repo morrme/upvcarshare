@@ -3,6 +3,7 @@ from os.path import basename
 from sys import path
 
 import environ
+from django.core.urlresolvers import reverse_lazy
 
 env = environ.Env()
 
@@ -145,16 +146,19 @@ DJANGO_APPS = (
     'django.contrib.humanize',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    'django.contrib.gis',
 )
 
 THIRD_PARTY_APPS = (
     'django_extensions',
+    'floppyforms',
     'rest_framework',
+    'rest_framework_gis',
     'rest_framework.authtoken',
-    'pipeline',
 )
 
 PROJECT_APPS = (
+    'pages',
     'users',
     'journeys',
 )
@@ -179,7 +183,7 @@ STATIC_URL = '/static/'
 
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
-    str(APPS_DIR.path("static")),
+    str(APPS_DIR.path("static/dist")),
 )
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-STATICFILES_STORAGE
@@ -210,7 +214,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 # Select the correct user model
 AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = 'users:redirect'
-LOGIN_URL = 'account_login'
+LOGIN_URL = reverse_lazy('users:sign-in')
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [

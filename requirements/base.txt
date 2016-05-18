@@ -1,11 +1,12 @@
-django==1.9.5
+django==1.9.6
 django-environ==0.4.0
 django-braces==1.8.1
-django-extensions==1.6.3
+django-floppyforms==1.6.2
+django-extensions==1.6.7
 logutils==0.3.3
 django-model-utils==2.5
 djangorestframework==3.3.3
+djangorestframework-gis==0.10.1
 sphinx==1.4.1
 sphinx-rtd-theme==0.1.9
 sphinxcontrib-httpdomain==1.4.0
-django-pipeline==1.6.8

@@ -18,7 +18,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY', default='o#bpi3*=nzn5r-9i!db1&h&oo0%5wmzud
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': env.db(
-        'DATABASE_URL', default='spatialite:///{}'.format(str(APPS_DIR.path('{}.db'.format(PROJECT_NAME.lower()))))
+        'DATABASE_URL', default='spatialite:///{}'.format(str(ROOT_DIR.path('{}.db'.format(PROJECT_NAME.lower()))))
     ),
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True

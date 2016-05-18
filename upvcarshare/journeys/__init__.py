@@ -11,5 +11,6 @@ JOURNEY_KINDS = (
 # Uses projected coordinate system for Spain.
 # See: https://epsg.io/2062
 DEFAULT_PROJECTED_SRID = 2062
+DEFAULT_WGS84_SRID = 4326
 # Distance in meters
-DEFAULT_CAMPUS_DISTANCE = 500
+DEFAULT_DISTANCE = 500

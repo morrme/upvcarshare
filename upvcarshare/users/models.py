@@ -4,15 +4,18 @@ from __future__ import unicode_literals, print_function, absolute_import
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, AbstractUser, UserManager
 from django.contrib.gis.db import models
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
 
-from journeys import DEFAULT_PROJECTED_SRID
+from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_DISTANCE, DEFAULT_WGS84_SRID
 
 
 class User(AbstractUser):
     """Custom user model."""
     default_address = models.TextField(null=True, blank=True)
+
+    default_distance = models.PositiveIntegerField(null=True, blank=True, default=DEFAULT_DISTANCE)
     default_position = models.PointField(null=True, blank=True, srid=DEFAULT_PROJECTED_SRID)
 
     objects = UserManager()
@@ -20,6 +23,26 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+
+    def get_default_position_wgs84(self):
+        """Transforms position to WGS-84 system."""
+        if self.default_position is None:
+            return None
+        destination_coord = SpatialReference(DEFAULT_WGS84_SRID)
+        origin_coord = SpatialReference(DEFAULT_PROJECTED_SRID)
+        trans = CoordTransform(origin_coord, destination_coord)
+        position = self.default_position
+        position.transform(trans)
+        return position
+
+    def set_default_position_wgs84(self, position):
+        """Transforms an input to projected coordinates."""
+        destination_coord = SpatialReference(DEFAULT_PROJECTED_SRID)
+        origin_coord = SpatialReference(DEFAULT_WGS84_SRID)
+        trans = CoordTransform(origin_coord, destination_coord)
+        position.transform(trans)
+        self.default_position = position
+        return self.default_position
 
     def save(self, *args, **kwargs):
         """Override to create API Token."""

@@ -7,13 +7,12 @@ from django.contrib.gis.measure import D
 from django.db.models import Count, F, Q
 from django.utils import timezone
 
-from journeys import GOING, RETURN
+from journeys import GOING, RETURN, DEFAULT_DISTANCE
 
 
 def recommended_condition(journey):
     """Creates a condition to mark a journey as recommended, based on kind and a
     needed journey.
-    :param kind:
     :param journey:
     """
     key = "residence{}" if journey.kind == GOING else "campus{}"
@@ -28,10 +27,15 @@ def recommended_condition(journey):
 class ResidenceManager(models.GeoManager):
 
     def smart_create(self, user):
-        """Smart create using data from user."""
+        """Smart create using data from user.
+        :param user:
+        :param distance:
+        """
         return self.create(
+            user=user,
             address=user.default_address,
             position=user.default_position,
+            distance=user.default_distance
         )
 
 
@@ -108,4 +112,6 @@ class JourneyManager(models.GeoManager):
         # Gets journeys needed by the user...
         needed_journeys = self.needed(user=user, kind=kind)
         conditions = [Q(**recommended_condition(journey=journey)) for journey in needed_journeys]
+        if not conditions:
+            return self.none()
         return self.available(kind=kind).exclude(user=user).filter(reduce(lambda x, y: x | y, conditions))
