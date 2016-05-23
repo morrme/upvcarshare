@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+import datetime
 from functools import reduce
+
 from django.contrib.gis.db import models
 from django.contrib.gis.measure import D
 from django.db.models import Count, F, Q
 from django.utils import timezone
 
-from journeys import GOING, RETURN, DEFAULT_DISTANCE
+from journeys import GOING, RETURN
 
 
 def recommended_condition(journey):
@@ -20,7 +22,9 @@ def recommended_condition(journey):
         key.format("__position__distance_lte"): (
             getattr(journey, key.format("")).position,
             D(m=getattr(journey, key.format("")).distance)
-        )
+        ),
+        "departure__lte": journey.departure + datetime.timedelta(minutes=journey.time_window),
+        "departure__gte": journey.departure - datetime.timedelta(minutes=journey.time_window),
     }
 
 
@@ -29,7 +33,6 @@ class ResidenceManager(models.GeoManager):
     def smart_create(self, user):
         """Smart create using data from user.
         :param user:
-        :param distance:
         """
         return self.create(
             user=user,
@@ -104,14 +107,26 @@ class JourneyManager(models.GeoManager):
             queryset = queryset.filter(kind=kind)
         return queryset
 
-    def recommended(self, user, kind=None):
+    def recommended(self, user, kind=None, journey=None):
         """Gets the journeys recommended for an user needs.
         :param user:
         :param kind:
+        :param journey:
         """
         # Gets journeys needed by the user...
-        needed_journeys = self.needed(user=user, kind=kind)
+        if journey is None:
+            needed_journeys = self.needed(user=user, kind=kind)
+        else:
+            needed_journeys = [journey]
+        # Gets conditions to search other journeys...
         conditions = [Q(**recommended_condition(journey=journey)) for journey in needed_journeys]
         if not conditions:
             return self.none()
-        return self.available(kind=kind).exclude(user=user).filter(reduce(lambda x, y: x | y, conditions))
+        now = timezone.now()
+        return self.available(kind=kind).exclude(user=user, departure__lt=now)\
+            .filter(reduce(lambda x, y: x | y, conditions))\
+            .order_by("departure")
+
+    def passenger(self, user):
+        """Gets the journeys where the given user is passenger."""
+        return self.filter(disabled=False, passengers__user=user).order_by("departure")

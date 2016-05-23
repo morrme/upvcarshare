@@ -3,7 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from braces.views import CsrfExemptMixin
 from braces.views import LoginRequiredMixin
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.generic import View
@@ -67,3 +67,11 @@ class EditProfileView(LoginRequiredMixin, View):
             form.save()
         return render(request, self.template_name, data)
 
+
+class SignOutView(LoginRequiredMixin, View):
+    """View for logout the actual logged user"""
+
+    @staticmethod
+    def get(request):
+        logout(request)
+        return redirect('home')

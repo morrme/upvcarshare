@@ -1,1 +1,17 @@
-{% extends "base.html" %}
+{% extends "journeys/create.html" %}
+{% load i18n %}
+
+{% block section_title %}
+<div class="row">
+    <div class="col-xs-12">
+        <h2>{% trans "Editar trayecto" %}</h2>
+    </div>
+</div>
+{% endblock section_title %}
+
+{% block residence_action %}
+    <div class="btn-group pull-xs-right" role="group" aria-label="{% trans "Acciones" %}">
+        <a href="{% url "journeys:edit-residence" journey.residence.pk %}" class="btn btn-secondary">{% trans "Editar lugar" %}</a>
+        <a href="{% url "journeys:create-residence" %}" class="btn btn-secondary">{% trans "Crear nuevo lugar" %}</a>
+    </div>
+{% endblock %}

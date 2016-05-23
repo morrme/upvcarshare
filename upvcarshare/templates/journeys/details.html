@@ -1,0 +1,79 @@
+{% extends "header.html" %}
+{% load i18n %}
+{% load core_tags %}
+{% load journeys_tags %}
+
+{% block section_title %}
+    <div class="row">
+        <div class="col-xs-12">
+            <h2>{% trans "Trayecto" %} {{ journey.departure }}</h2>
+        </div>
+    </div>
+{% endblock section_title %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-9">
+            <div class="row">
+                <div class="col-sm-5">
+                    <h3>{% trans "Origen" %}</h3>
+                    <p>{% if journey.kind == 1 %}{{ journey.origin.name }}{% else %}{{ journey.origin.address }}{% endif %}</p>
+                    <img src="{% google_static_map journey.origin.get_position_wgs84 300 300 14 %}" class="img-fluid">
+                    <hr />
+                    <h3>{% trans "Destino" %}</h3>
+                    <p>{% if journey.kind == 0 %}{{ journey.destination.name }}{% else %}{{ journey.destination.address }}{% endif %}</p>
+                    <img src="{% google_static_map journey.destination.get_position_wgs84 300 300 14 %}" class="img-fluid">
+                </div>
+                <div class="col-sm-7">
+                    {% if not journey.needs_driver %}
+                    <h3>{% trans "Datos del transporte" %}</h3>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row">{% trans "Conductor" %}</th>
+                                <td>{{ journey.driver.get_full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">{% trans "Plazas libres" %}</th>
+                                <td>{{ journey.current_free_places }}/{{ journey.free_places }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% else %}
+                        <h3>{% trans "Transportes recomendados" %}</h3>
+                        {% for recommended_journey in recommended %}
+                            {% journey_item recommended_journey %}
+                            {% empty %}
+                            <h4 class="text-muted">{% trans "No se ha encontrado transporte recomendado" %}</h4>
+                        {% endfor %}
+                    {% endif %}
+                    {% if journey.count_passengers > 0 %}
+                        <h3>{% trans "Pasajeros" %}</h3>
+                        <table class="table">
+                            <tbody>
+                            {% for passenger in passengers %}
+                                <td>
+                                    {{ passenger.user.get_full_name }}
+                                </td>
+                                <td>
+                                    {{ passenger.created }}
+                                </td>
+                                {% if request.user == journey.driver and request.user == journey.user %}
+                                    <td>
+                                        <a href="">{% trans "Expulsar" %}</a>
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            {% if request.user == journey.user %}
+                <a href="{% url "journeys:edit" journey.pk %}" class="btn btn-info pull-xs-right">{% trans "Editar" %}</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

@@ -58,14 +58,14 @@ class JourneyTest(TestCase):
         origin = ResidenceFactory(user=user)
         destination = CampusFactory()
         journey = JourneyFactory(user=user, residence=origin, campus=destination, kind=GOING)
-        self.assertEquals(journey.origin(), origin)
+        self.assertEquals(journey.origin, origin)
 
     def test_destination(self):
         user = UserFactory()
         origin = ResidenceFactory(user=user)
         destination = CampusFactory()
         journey = JourneyFactory(user=user, residence=origin, campus=destination, kind=GOING)
-        self.assertEquals(journey.destination(), destination)
+        self.assertEquals(journey.destination, destination)
 
     def test_join_passenger(self):
         user = UserFactory()
@@ -73,6 +73,12 @@ class JourneyTest(TestCase):
         self.assertIsInstance(journey.join_passenger(user), Passenger)
         self.assertTrue(journey.is_passenger(user))
         self.assertEquals(journey.count_passengers(), 1)
+
+    def test_passenger(self):
+        user = UserFactory()
+        journey = self._make_journey()
+        journey.join_passenger(user)
+        self.assertEquals(1, Journey.objects.passenger(user).count())
 
     def test_join_already_passenger(self):
         user = UserFactory()

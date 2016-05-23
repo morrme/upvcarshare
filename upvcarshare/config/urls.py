@@ -4,6 +4,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
+from django.utils.translation import ugettext_lazy as _
 
 from config.router import urlpatterns as api_urlpatterns
 
@@ -16,6 +17,7 @@ urlpatterns = [
 ]
 
 # Admin URLs
+admin.site.site_header = _('UPV Car Share Admin')
 urlpatterns += [
     url(r'^admin/', admin.site.urls),
 ]

@@ -33,6 +33,7 @@ class JourneyViewTests(TestCase):
                 "campus": CampusFactory().pk,
                 "kind": GOING,
                 "free_places": 4,
+                "time_window": 30,
                 "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
             }
             response = self.post(url_name="journeys:create", data=data)
@@ -57,6 +58,7 @@ class JourneyViewTests(TestCase):
                 "campus": CampusFactory().pk,
                 "kind": RETURN,
                 "free_places": 4,
+                "time_window": 30,
                 "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
             }
             response = self.post(url_name=url_name, pk=journey.pk, data=data)
@@ -71,12 +73,35 @@ class JourneyViewTests(TestCase):
             response = self.get(url_name)
             self.response_200(response=response)
 
+    def test_get_passenger_journey(self):
+        url_name = "journeys:passenger"
+        self.assertLoginRequired(url_name)
+        with self.login(self.user):
+            response = self.get(url_name)
+            self.response_200(response=response)
+
     def test_get_user_list_journey(self):
         url_name = "journeys:user-list"
         self.assertLoginRequired(url_name)
         with self.login(self.user):
             response = self.get(url_name)
             self.response_200(response=response)
+
+    def test_post_join(self):
+        journey = JourneyFactory(user=self.user, kind=GOING)
+        url_name = "journeys:join"
+        self.assertLoginRequired(url_name, pk=journey.pk)
+        with self.login(self.user):
+            response = self.post(url_name=url_name, pk=journey.pk)
+            self.response_302(response=response)
+
+    def test_post_leave(self):
+        journey = JourneyFactory(user=self.user, kind=GOING)
+        url_name = "journeys:leave"
+        self.assertLoginRequired(url_name, pk=journey.pk)
+        with self.login(self.user):
+            response = self.post(url_name=url_name, pk=journey.pk)
+            self.response_302(response=response)
 
 
 class ResidenceViewTests(TestCase):
@@ -128,3 +153,12 @@ class ResidenceViewTests(TestCase):
             self.response_200(response=response)
             residence = Residence.objects.get(pk=residence.pk)
             self.assertEquals(data["address"], residence.address)
+
+    def test_residences(self):
+        ResidenceFactory(user=self.user)
+        url_name = "journeys:residences"
+        self.assertLoginRequired(url_name)
+        with self.login(self.user):
+            response = self.get(url_name)
+            self.response_200(response=response)
+

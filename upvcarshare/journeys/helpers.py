@@ -14,8 +14,8 @@ def make_point_wgs84(point):
     return point
 
 
-def make_point_projected(point):
-    origin_coord = SpatialReference(DEFAULT_WGS84_SRID)
+def make_point_projected(point, origin_coord_srid=DEFAULT_WGS84_SRID):
+    origin_coord = SpatialReference(origin_coord_srid)
     destination_coord = SpatialReference(DEFAULT_PROJECTED_SRID)
     trans = CoordTransform(origin_coord, destination_coord)
     point.transform(trans)

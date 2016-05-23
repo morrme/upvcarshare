@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block header %}
+    <nav class="navbar navbar-light bg-faded">
+        <div class="container">
+            <a class="navbar-brand" href="{% url "home" %}">{% trans "Compartir Coche en la UPV" %}</a>
+            {% if request.user.is_authenticated %}
+                <ul class="nav navbar-nav pull-xs-right">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url "journeys:recommended" %}">{% trans "Buscador" %}</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           data-toggle="dropdown"
+                           href="#"
+                           role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">
+                            {% trans "Trayectos" %}
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url "journeys:user-list" %}">{% trans "Mis trayectos" %}</a>
+                            <a class="dropdown-item" href="{% url "journeys:passenger" %}">{% trans "Trayectos en los que viajo" %}</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url "journeys:residences" %}">{% trans "Mis lugares" %}</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           data-toggle="dropdown"
+                           href="#"
+                           role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">
+                            {{ request.user.get_full_name }}
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url "users:edit" %}">{% trans "Editar perfil" %}</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url "users:sign-out" %}">{% trans "Salir" %}</a>
+                        </div>
+                    </li>
+                </ul>
+            {% else %}
+                <ul class="nav navbar-nav pull-xs-right">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url "users:sign-in" %}">{% trans "Acceder" %}</a>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </nav>
+{% endblock header %}

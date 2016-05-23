@@ -13,16 +13,40 @@ from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_DISTANCE, DEFAULT_WGS84_SRI
 
 class User(AbstractUser):
     """Custom user model."""
-    default_address = models.TextField(null=True, blank=True)
+    default_address = models.TextField(
+        verbose_name=_("dirección por defecto"),
+        help_text=_("Dirección que por defecto se usará para crear trayectos"),
+        null=True,
+        blank=True
+    )
 
-    default_distance = models.PositiveIntegerField(null=True, blank=True, default=DEFAULT_DISTANCE)
-    default_position = models.PointField(null=True, blank=True, srid=DEFAULT_PROJECTED_SRID)
+    default_distance = models.PositiveIntegerField(
+        verbose_name=_("distancia por defecto"),
+        help_text=_("Distancia máxima que se utilizará para encontrar trayectos (metros)"),
+        null=True,
+        blank=True,
+        default=DEFAULT_DISTANCE
+    )
+    default_position = models.PointField(
+        verbose_name=_("posición en el mapa por defecto"),
+        null=True,
+        blank=True,
+        srid=DEFAULT_PROJECTED_SRID
+    )
 
     objects = UserManager()
 
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+
+    def get_full_name(self):
+        """Returns the first_name plus the last_name, with a space in between. In case there is no name,
+        returns the username"""
+        if self.first_name or self.last_name:
+            full_name = '%s %s' % (self.first_name, self.last_name)
+            return full_name.strip()
+        return self.username
 
     def get_default_position_wgs84(self):
         """Transforms position to WGS-84 system."""

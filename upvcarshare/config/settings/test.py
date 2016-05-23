@@ -18,4 +18,4 @@ DATABASES = {
     },
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True
-SPATIALITE_LIBRARY_PATH = env('DJANGO_EMAIL_BACKEND', default='/usr/local/lib/mod_spatialite.dylib')
+SPATIALITE_LIBRARY_PATH = env('SPATIALITE_LIBRARY_PATH', default='/usr/local/lib/mod_spatialite.dylib')

@@ -2,11 +2,16 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 from braces.views import LoginRequiredMixin
-from django.shortcuts import render, get_object_or_404
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 
+from journeys import GOING
+from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
 from journeys.forms import JourneyForm, ResidenceForm
-from journeys.models import Journey, Residence
+from journeys.models import Journey, Residence, Campus
 
 
 class CreateResidenceView(LoginRequiredMixin, View):
@@ -15,7 +20,12 @@ class CreateResidenceView(LoginRequiredMixin, View):
     template_name = "residences/create.html"
 
     def get(self, request):
-        form = ResidenceForm()
+        initial = {
+            "address": request.user.default_address,
+            "position": request.user.default_position,
+            "distance": request.user.default_distance,
+        }
+        form = ResidenceForm(initial=initial)
         data = {
             "form": form
         }
@@ -64,7 +74,15 @@ class CreateJourneyView(LoginRequiredMixin, View):
     template_name = "journeys/create.html"
 
     def get(self, request):
-        form = JourneyForm(user=request.user)
+        residences = Residence.objects.filter(user=request.user)
+        campuses = Campus.objects.all()
+        initial = {
+            "residence": residences.first() if residences.exists() else None,
+            "campus": campuses.first() if campuses.exists() else None,
+            "kind": GOING,
+            "departure": timezone.now().replace(second=0)
+        }
+        form = JourneyForm(initial=initial, user=request.user)
         data = {
             "form": form
         }
@@ -88,7 +106,11 @@ class EditJourneyView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         journey = get_object_or_404(Journey, pk=pk, user=request.user)
-        form = JourneyForm(instance=journey, user=request.user)
+        form = JourneyForm(
+            instance=journey,
+            initial={"i_am_driver": journey.driver is not None and journey.driver == request.user},
+            user=request.user
+        )
         data = {
             "form": form,
             "journey": journey,
@@ -104,6 +126,21 @@ class EditJourneyView(LoginRequiredMixin, View):
         }
         if form.is_valid():
             form.save()
+        return render(request, self.template_name, data)
+
+
+class JourneyView(LoginRequiredMixin, View):
+    """View to journey details."""
+
+    template_name = "journeys/details.html"
+
+    def get(self, request, pk):
+        journey = get_object_or_404(Journey, pk=pk)
+        data = {
+            "journey": journey,
+            "passengers": journey.passengers.all(),
+            "recommended": journey.recommended(),
+        }
         return render(request, self.template_name, data)
 
 
@@ -128,3 +165,56 @@ class CurrentUserJourneyView(LoginRequiredMixin, View):
             "journeys": Journey.objects.filter(user=request.user)
         }
         return render(request, self.template_name, data)
+
+
+class CurrentUserResidencesView(LoginRequiredMixin, View):
+    """View to show to the user the list of his created residences."""
+
+    template_name = "residences/list.html"
+
+    def get(self, request):
+        data = {
+            "residences": Residence.objects.filter(user=request.user)
+        }
+        return render(request, self.template_name, data)
+
+
+class PassengerJourneyView(LoginRequiredMixin, View):
+    """View to show the list of journeys where the user is passenger."""
+    template_name = "journeys/passenger.html"
+
+    def get(self, request):
+        data = {
+            "journeys": Journey.objects.passenger(user=request.user)
+        }
+        return render(request, self.template_name, data)
+
+
+class JoinJourneyView(LoginRequiredMixin, View):
+    """View to handle the action of joining a journey. """
+    return_to = "journeys:recommended"
+
+    def post(self, request, pk):
+        journey = get_object_or_404(Journey, pk=pk)
+        try:
+            journey.join_passenger(request.user)
+            messages.success(request, _('Te has unido al trayecto'))
+        except AlreadyAPassenger:
+            messages.error(request, _('¡Ya estás unido al trayecto!'))
+        except NoFreePlaces:
+            messages.error(request, _('No quedan plazas libres en el trayecto'))
+        return redirect(self.return_to)
+
+
+class LeaveJourneyView(LoginRequiredMixin, View):
+    """View to handle the action of leaving a journey. """
+    return_to = "journeys:recommended"
+
+    def post(self, request, pk):
+        journey = get_object_or_404(Journey, pk=pk)
+        try:
+            journey.leave_passenger(request.user)
+            messages.success(request, _('Has dejado el trayecto'))
+        except NotAPassenger:
+            messages.success(request, _('No estás en este trayecto'))
+        return redirect(self.return_to)

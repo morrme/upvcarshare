@@ -6,7 +6,7 @@ import factory
 from django.contrib.gis.geos import Point
 from django.utils import timezone
 
-from journeys import GOING, DEFAULT_PROJECTED_SRID
+from journeys import GOING, DEFAULT_PROJECTED_SRID, DEFAULT_TIME_WINDOW
 from users.tests.factories import UserFactory
 
 
@@ -20,7 +20,7 @@ class ResidenceFactory(factory.django.DjangoModelFactory):
 
 
 class CampusFactory(factory.django.DjangoModelFactory):
-    name = "Vera"
+    name = "Campus de Vera"
     position = factory.LazyFunction(lambda: Point(887483.60, 547842.30, srid=DEFAULT_PROJECTED_SRID))
     distance = 500
 
@@ -33,6 +33,7 @@ class JourneyFactory(factory.django.DjangoModelFactory):
     residence = factory.SubFactory(ResidenceFactory)
     campus = factory.SubFactory(CampusFactory)
     departure = factory.LazyFunction(lambda: timezone.now() + datetime.timedelta(days=1))
+    time_window = DEFAULT_TIME_WINDOW
     kind = GOING
 
     class Meta:

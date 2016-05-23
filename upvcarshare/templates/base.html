@@ -2,24 +2,50 @@
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
+    <title>{% block title %}{% endblock title %}</title>
     <!-- Required meta tags always come first -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <!-- Bundle CSS -->
     <link rel="stylesheet" href="{% static "css/bundle.css" %}">
-  </head>
-  <body>
-    {% block pre_body %}{% endblock pre_body %}
-    {% block body %}
-        <div class="container">
+    {% block extra_head %}{% endblock extra_head %}
+</head>
+<body ng-app="upvcarshare">
+{% block pre_body %}{% endblock pre_body %}
+
+{% block header %}{% endblock header %}
+{% block body %}
+    <div class="container">
         {% block container %}
+            <div class="section-title">
+                {% block section_title %}{% endblock section_title %}
+            </div>
+            <div class="section-messages">
+            {% block section_messages %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="{% trans "Cerrar" %}">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endblock section_messages %}
+            </div>
+            <div class="section-content">
+                {% block content %}{% endblock content %}
+            </div>
         {% endblock container %}
-        </div>
-    {% endblock body %}
-    {% block post_body %}{% endblock post_body %}
-    <!-- Bundle JS -->
-    <script src="{% static "js/bundle.js" %}"></script>
-  </body>
+    </div>
+{% endblock body %}
+
+<!-- Bundle JS -->
+<script src="{% static "js/bundle.js" %}"></script>
+
+{% block post_body %}{% endblock post_body %}
+</body>
 </html>

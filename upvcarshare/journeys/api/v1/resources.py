@@ -102,3 +102,38 @@ class LeaveJourneyResource(viewsets.ViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
 leave_journey = LeaveJourneyResource.as_view({"post": "leave"})
+
+
+class RecommendedJourneysResource(viewsets.ReadOnlyModelViewSet):
+    """Get recommended journeys for a given journey or for all journeys of the user.
+    Eg:
+
+    GET /api/v1/journeys/recommended/
+    GET /api/v1/journeys/(id)/recommended/
+    """
+
+    queryset = Journey.objects.all()
+    serializer_class = JourneySerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def recommended(self, request, **kwargs):
+        args = {
+            "user": request.user,
+            "kind": request.GET.get('kind'),
+        }
+        pk = kwargs.get('pk', None)
+        if pk is not None:
+            journey = get_object_or_404(Journey, pk=pk, user=request.user)
+            args["journey"] = journey
+        queryset = Journey.objects.recommended(**args)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+recommended_journeys = RecommendedJourneysResource.as_view({"get": "recommended"})

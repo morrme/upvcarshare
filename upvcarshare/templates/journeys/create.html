@@ -1,1 +1,56 @@
-{% extends "base.html" %}
+{% extends "header.html" %}
+
+{% load i18n %}
+
+{% block extra_head %}
+    {{ form.media }}
+{% endblock %}
+
+{% block section_title %}
+<div class="row">
+    <div class="col-xs-12">
+        <h2>{% trans "Crear trayecto" %}</h2>
+    </div>
+</div>
+{% endblock section_title %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <form method="post" action="">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group row{% if field.errors %} has-danger{% endif %}">
+                        <label for="{{ field.auto_id }}" class="col-sm-4 form-control-label">{{ field.label }}</label>
+                        <div class="col-sm-8">
+                        {# TODO Create a widget specifc #}
+                        {% if field.name == "residence" %}
+                            <div class="row">
+                                <div class="col-sm-7">
+                                    {{ field }}
+                                </div>
+                                <div class="col-sm-5">
+                                    {% block residence_action %}
+                                        <div class="btn-group pull-xs-right" role="group" aria-label="{% trans "Acciones" %}">
+                                            <a href="{% url "journeys:create-residence" %}" class="btn btn-secondary">{% trans "Crear nuevo lugar" %}</a>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                            <span class="text-muted">{{ field.help_text }}</span>
+                            <span class="text-muted">{{ field.errors }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="form-group">
+                    <div class="col-sm-offset-4 col-sm-8">
+                        <button type="submit" class="btn btn-success">{% trans "Guardar" %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,38 @@
+{% extends "header.html" %}
+{% load i18n %}
+{% load core_tags %}
+
+{% block section_title %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>{% trans "Mis lugares" %}</h2>
+        </div>
+    </div>
+{% endblock section_title %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-8">
+            {% for residence in residences %}
+                <div class="residence-entry row">
+                    <div class="col-sm-4">
+                        <img src="{% google_static_map residence.get_position_wgs84 200 200 14 %}" class="img-fluid">
+                    </div>
+                    <div class="col-sm-8">
+                        <h4>{{ residence.name }}</h4>
+                        <p>{{ residence.address }}</p>
+                        <a href="{% url "journeys:edit-residence" residence.pk %}" class="btn btn-primary-outline btn-sm">{% trans "Editar" %}</a>
+                    </div>
+
+                </div>
+
+
+            {% empty %}
+                <h3 class="text-muted">{% trans "No tienes lugares creados" %}</h3>
+            {% endfor %}
+        </div>
+        <div class="col-sm-4">
+            <a href="{% url "journeys:create-residence" %}" class="btn btn-primary pull-xs-right">{% trans "Nuevo Lugar" %}</a>
+        </div>
+    </div>
+{% endblock content %}

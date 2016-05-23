@@ -158,6 +158,7 @@ THIRD_PARTY_APPS = (
 )
 
 PROJECT_APPS = (
+    'core',
     'pages',
     'users',
     'journeys',
@@ -323,3 +324,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+# GOOGLE MAPS
+# ------------------------------------------------------------------------------
+GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY', default="AIzaSyAUuXiJ-kthJMHdXerksxYbqIbrRFrVfG4")

@@ -1,1 +1,39 @@
-{% extends "base.html" %}
+{% extends "header.html" %}
+{% load i18n %}
+
+{% block extra_head %}
+    {{ form.media }}
+{% endblock %}
+
+{% block section_title %}
+<div class="row">
+    <div class="col-xs-12">
+        <h2>{% trans "Crear lugar" %}</h2>
+    </div>
+</div>
+{% endblock section_title %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <form method="post" action="">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group row{% if field.errors %} has-danger{% endif %}">
+                        <label for="{{ field.auto_id }}" class="col-sm-3 form-control-label">{{ field.label }}</label>
+                        <div class="col-sm-9">
+                            {{ field }}
+                            <span class="text-muted">{{ field.help_text }}</span>
+                            <span class="text-muted">{{ field.errors }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="form-group row">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <button type="submit" class="btn btn-success">{% trans "Guardar" %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

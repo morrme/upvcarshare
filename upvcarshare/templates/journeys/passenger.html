@@ -5,7 +5,7 @@
 {% block section_title %}
     <div class="row">
         <div class="col-sm-12">
-            <h2>{% trans "Trayectos disponibles" %}</h2>
+            <h2>{% trans "Trayectos en los que viajo" %}</h2>
         </div>
     </div>
 {% endblock section_title %}
@@ -16,7 +16,7 @@
             {% for journey in journeys %}
                 {% journey_item journey %}
             {% empty %}
-                <h3 class="text-muted">{% trans "No trayectos disponibles" %}</h3>
+                <h3 class="text-muted">{% trans "No tienes trayectos en los que viajas" %}</h3>
             {% endfor %}
         </div>
     </div>
