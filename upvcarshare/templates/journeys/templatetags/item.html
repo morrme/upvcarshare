@@ -1,20 +1,21 @@
 {% load i18n %}
 {% load core_tags %}
 {% load journeys_tags %}
-
-<div class="row journey-item">
-    <div class="col-sm-3 map">
-        <img src="{% google_static_map journey.origin.get_position_wgs84 200 200 14 %}" class="img-fluid">
-    </div>
-    <div class="col-sm-6">
-        <h4>{{ journey.departure }}</h4>
-        <table class="table table-sm">
-            <tbody>
+<div class="journey-item">
+    <div class="row">
+        <div class="col-sm-2 map">
+            <img src="{% google_static_map journey.residence.get_position_wgs84 135 101 14 %}" class="img-fluid">
+        </div>
+        <div class="col-sm-8">
+            <h4>{{ journey.departure }}</h4>
+            <p class="lead">{{ journey.description }}</p>
+            <table class="table table-sm">
+                <tbody>
                 {% if not journey.needs_driver %}
-                <tr>
-                    <th scope="row">{% trans "Conductor" %}</th>
-                    <td>{{ journey.driver.get_full_name }}</td>
-                </tr>
+                    <tr>
+                        <th scope="row">{% trans "Conductor" %}</th>
+                        <td>{{ journey.driver.get_full_name }}</td>
+                    </tr>
                 {% endif %}
                 <tr>
                     <th scope="row">{% trans "Origen"%}</th>
@@ -24,38 +25,24 @@
                     <th scope="row">{% trans "Destino"%}</th>
                     <td>{% if journey.kind == 0 %}{{ journey.destination.name }}{% else %}{{ journey.destination.address }}{% endif %}</td>
                 </tr>
-                {% if not journey.needs_driver %}
-                <tr>
-                    <th scope="row">{% trans "Plazas libres" %}</th>
-                    <td>{{ journey.current_free_places }}/{{ journey.free_places }}</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
-        <ul class="nav nav-inline">
-            <li class="nav-item"><a href="{% url "journeys:details" journey.pk %}" class="nav-link">{% trans "Detalles" %}</a></li>
-            {% if request.user == journey.user %}
-                <li class="nav-item"><a href="{% url "journeys:edit" journey.pk %}" class="nav-link">{% trans "Editar" %}</a></li>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-2 text-xs-center journey-item-actions">
+            {% if not journey.needs_driver %}
+                <h4>
+                    {{ journey.current_free_places }}/{{ journey.free_places }}<br />
+                    <small class="text-muted">{% trans "Plazas" %}</small>
+                </h4>
             {% else %}
-                {% if not journey.needs_driver and not journey|is_passenger:request.user and journey.are_there_free_places %}
-                    <li class="nav-item">
-                    <form method="post" action="{% url "journeys:join" journey.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-link nav-link">{% trans "Unirse" %}</button>
-                    </form>
-                    </li>
-                {% elif not journey.needs_driver and journey|is_passenger:request.user %}
-                    <li class="nav-item">
-                    <form method="post" action="{% url "journeys:leave" journey.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-link nav-link">{% trans "Abandonar" %}</button>
-                    </form>
-                    </li>
-                {% endif %}
+                <h4 class="text-danger">{% trans "Necesita conductor" %}</h4>
             {% endif %}
-        </ul>
-    </div>
-    <div class="col-sm-3 map">
-        <img src="{% google_static_map journey.destination.get_position_wgs84 200 200 14 %}" class="img-fluid">
+            <a href="{% url "journeys:details" journey.pk %}" class="btn btn-primary">{% trans "Detalles" %}</a>
+            {% if request.user == journey.user %}
+                <a href="{% url "journeys:edit" journey.pk %}" class="btn btn-success">{% trans "Editar" %}</a>
+            {% else %}
+                {% journey_join_leave_button journey %}
+            {% endif %}
+        </div>
     </div>
 </div>

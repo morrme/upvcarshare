@@ -17,23 +17,14 @@
 
 {% block header %}{% endblock header %}
 {% block body %}
-    <div class="container">
+    <div class="section-container container">
         {% block container %}
             <div class="section-title">
                 {% block section_title %}{% endblock section_title %}
             </div>
             <div class="section-messages">
             {% block section_messages %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>
-                            <button type="button" class="close" data-dismiss="alert" aria-label="{% trans "Cerrar" %}">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
+                {% include "_section_messages.html" %}
             {% endblock section_messages %}
             </div>
             <div class="section-content">

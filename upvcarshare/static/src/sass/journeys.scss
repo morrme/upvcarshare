@@ -1,5 +1,21 @@
+@import "colors";
+
 .journey-item {
   padding: 15px 0;
-  border: 1px solid #eee;
+  border-bottom: 1px dotted $upv-grey;
   margin-bottom: 5px;
+  &-actions {
+    .btn {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+.residence-entry { @extend .journey-item }
+
+.table {
+  th,
+  td {
+    border-top: $table-border-width dotted $table-border-color;
+  }
 }

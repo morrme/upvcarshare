@@ -11,6 +11,7 @@ var watchify = require('watchify');
 var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var imagemin = require('gulp-imagemin');
 
 var config = require('./package.json');
 
@@ -23,19 +24,20 @@ var pathsConfig = function (appName) {
     app: app,
     templates: app + '/templates',
     dist: {
+      base: app + '/static/dist/',
       css: app + '/static/dist/css',
       fonts: app + '/static/dist/fonts',
-      images: app + '/static/dist/images',
+      images: app + '/static/dist/img',
       js: app + '/static/dist/js'
     },
     src: {
       sass: app + '/static/src/sass',
       fonts: app + '/static/src/fonts',
-      images: app + '/static/src/images',
+      images: app + '/static/src/img',
       js: app + '/static/src/js'
     },
     manageScript: app + 'manage.py'
-    }
+  }
 };
 
 
@@ -62,13 +64,31 @@ var cssTask = function (options) {
   if (options.development) {
     run();
     gulp.watch(options.watch, run);
-  // Run for production with compressed
+    // Run for production with compressed
   } else {
     run({outputStyle: 'compressed'});
   }
 
 };
 
+// Images Task
+// -----------------------------------------------------------------------------
+var imagesTask = function (options) {
+  var run = function () {
+    gulp.src(pathsConfig().src.images + '**/*')
+      .pipe(imagemin())
+      .pipe(gulp.dest(pathsConfig().dist.base));
+  };
+
+  // Run for development with watch
+  if (options.development) {
+    run();
+    gulp.watch(options.watch, run);
+    // Run for production with compressed
+  } else {
+    run();
+  }
+};
 
 // App Task
 // -----------------------------------------------------------------------------
@@ -119,7 +139,11 @@ gulp.task('default', function () {
     src: pathsConfig().src.js + "/app.js",
     dist: pathsConfig().dist.js,
     development: true
-  })
+  });
+  imagesTask({
+    development: false,
+    watch: pathsConfig().src.images + "/**/*"
+  });
 });
 
 // Deploy Task
@@ -131,6 +155,9 @@ gulp.task('deploy', function () {
   appTask({
     src: pathsConfig().src.js + "/app.js",
     dist: pathsConfig().dist.js,
+    development: false
+  });
+  imagesTask({
     development: false
   });
 });

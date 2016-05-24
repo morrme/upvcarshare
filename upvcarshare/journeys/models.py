@@ -5,6 +5,8 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib.gis.measure import D
+from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -86,7 +88,7 @@ class Campus(Place):
         """Search nearby journeys."""
         return Journey.objects.nearby(kind=RETURN, geometry=self.position, distance=D(m=self.distance))
 
-
+@python_2_unicode_compatible
 class Journey(GisTimeStampedModel):
     """A model class to represent a journey between two node."""
     user = models.ForeignKey(
@@ -131,6 +133,22 @@ class Journey(GisTimeStampedModel):
         if self.kind == RETURN:
             return self.residence
         return self.campus
+
+    def description(self, strip_html=False):
+        """Gets a human read description of the journey."""
+        if self.kind == GOING:
+            value = _("Viaje de <strong>%(kind)s</strong> a <strong>%(campus_name)s</strong>") % {
+                "kind": self.get_kind_display(),
+                "campus_name": self.campus.name
+            }
+        else:
+            value = _("Viaje de <strong>%(kind)s</strong> desde <strong>%(campus_name)s</strong>") % {
+                "kind": self.get_kind_display(),
+                "campus_name": self.campus.name
+            }
+        if strip_html:
+            value = strip_tags(value)
+        return mark_safe(value)
 
     def count_passengers(self):
         """Gets the count of passengers."""

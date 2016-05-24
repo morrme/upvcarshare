@@ -13,6 +13,13 @@ def journey_item(context, journey):
     return context
 
 
+@register.inclusion_tag('journeys/templatetags/join_leave_button.html', takes_context=True)
+def journey_join_leave_button(context, journey):
+    """Renders a journey as an item list."""
+    context["journey"] = journey
+    return context
+
+
 @register.filter
 def is_passenger(journey, user):
     return journey.is_passenger(user)

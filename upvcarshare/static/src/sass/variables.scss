@@ -1,2 +1,16 @@
 // Options from Bootstrap
+@import "colors";
+
+$brand-primary: $upv-blue !default;
+$brand-success: $upv-green !default;
+$brand-info: $upv-blue !default;
+$brand-warning: $upv-yellow !default;
+$brand-danger: $upv-orange !default;
+
 $enable-flex: true;
+
+$font-family-sans-serif: Arial, sans-serif !default;
+$body-color: $upv-grey;
+$body-bg: #d7d6d1;
+
+$font-size-root: 12.8px !default;

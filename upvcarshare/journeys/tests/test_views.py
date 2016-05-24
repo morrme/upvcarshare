@@ -62,7 +62,7 @@ class JourneyViewTests(TestCase):
                 "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
             }
             response = self.post(url_name=url_name, pk=journey.pk, data=data)
-            self.response_200(response=response)
+            self.response_302(response=response)
             journey = Journey.objects.get(pk=journey.pk)
             self.assertEquals(RETURN, journey.kind)
 
@@ -97,10 +97,20 @@ class JourneyViewTests(TestCase):
 
     def test_post_leave(self):
         journey = JourneyFactory(user=self.user, kind=GOING)
+        journey.join_passenger(self.user)
         url_name = "journeys:leave"
         self.assertLoginRequired(url_name, pk=journey.pk)
         with self.login(self.user):
             response = self.post(url_name=url_name, pk=journey.pk)
+            self.response_302(response=response)
+
+    def test_post_throw_out(self):
+        journey = JourneyFactory(user=self.user, kind=GOING)
+        passenger = journey.join_passenger(self.user)
+        url_name = "journeys:throw-out"
+        self.assertLoginRequired(url_name, pk=passenger.pk)
+        with self.login(self.user):
+            response = self.post(url_name=url_name, pk=passenger.pk)
             self.response_302(response=response)
 
 

@@ -12,9 +12,51 @@
 @import "guide";
 @import "patches";
 @import "journeys";
+@import "colors";
 
+html, body{
+  height:100%;
+}
+.section-ribbon {
+  height: 10px;
+  background-color: #000;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  .red {
+    background-color: rgb(204, 1, 1);
+    height: 10px;
+  }
+}
+.section-main-title {
+  background-color: #fff;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.section-navbar {
+  padding: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.section-container {
+  background-color: #fff;
+  padding-top: 16px;
+  min-height: 100%;
+  overflow-y: hidden;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+}
 
 .section-title {
-  margin-top: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 32px;
+  .row {
+    padding-bottom: 5px;
+    border-bottom: 1px dotted $upv-grey;
+  }
+}
+
+.bg-upv-dark-grey {
+  color: $gray-lighter;
+  background-color: $upv-dark-grey;
 }

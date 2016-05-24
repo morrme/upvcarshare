@@ -1,10 +1,28 @@
 {% extends "base.html" %}
 {% load i18n %}
-
+{% load static %}
 {% block header %}
-    <nav class="navbar navbar-light bg-faded">
-        <div class="container">
-            <a class="navbar-brand" href="{% url "home" %}">{% trans "Compartir Coche en la UPV" %}</a>
+    <div class="container section-ribbon">
+        <div class="row">
+            <div class="col-xs-4"></div>
+            <div class="col-xs-5 red"></div>
+            <div class="col-xs-2"></div>
+            <div class="col-xs-1 red"></div>
+        </div>
+    </div>
+    <div class="container section-main-title">
+        <div class="row">
+            <div class="col-sm-7">
+                <img src="{% static "img/upv.png" %}">
+            </div>
+            <div class="col-sm-5">
+                <h1>{% trans "Compartir Coche en la UPV" %}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="container section-navbar">
+        <nav class="navbar navbar-full navbar-dark bg-upv-dark-grey">
+            {#            <a class="navbar-brand" href="{% url "home" %}">{% trans "Compartir Coche en la UPV" %}</a>#}
             {% if request.user.is_authenticated %}
                 <ul class="nav navbar-nav pull-xs-right">
                     <li class="nav-item">
@@ -49,6 +67,6 @@
                     </li>
                 </ul>
             {% endif %}
-        </div>
-    </nav>
+        </nav>
+    </div>
 {% endblock header %}

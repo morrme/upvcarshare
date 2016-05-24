@@ -3,6 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from braces.views import LoginRequiredMixin
 from django.contrib import messages
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -11,7 +12,7 @@ from django.views.generic import View
 from journeys import GOING
 from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
 from journeys.forms import JourneyForm, ResidenceForm
-from journeys.models import Journey, Residence, Campus
+from journeys.models import Journey, Residence, Campus, Passenger
 
 
 class CreateResidenceView(LoginRequiredMixin, View):
@@ -126,6 +127,7 @@ class EditJourneyView(LoginRequiredMixin, View):
         }
         if form.is_valid():
             form.save()
+            return redirect("journeys:details", pk=journey.pk)
         return render(request, self.template_name, data)
 
 
@@ -203,7 +205,8 @@ class JoinJourneyView(LoginRequiredMixin, View):
             messages.error(request, _('¡Ya estás unido al trayecto!'))
         except NoFreePlaces:
             messages.error(request, _('No quedan plazas libres en el trayecto'))
-        return redirect(self.return_to)
+        return_to = request.POST.get("return_to", self.return_to)
+        return redirect(return_to)
 
 
 class LeaveJourneyView(LoginRequiredMixin, View):
@@ -217,4 +220,22 @@ class LeaveJourneyView(LoginRequiredMixin, View):
             messages.success(request, _('Has dejado el trayecto'))
         except NotAPassenger:
             messages.success(request, _('No estás en este trayecto'))
-        return redirect(self.return_to)
+        return_to = request.POST.get("return_to", self.return_to)
+        return redirect(return_to)
+
+
+class ThrowOutPassengerView(LoginRequiredMixin, View):
+    """View to handle the action of throw out a passenger. """
+    return_to = "journeys:recommended"
+
+    def post(self, request, pk):
+        passenger = get_object_or_404(Passenger, pk=pk)
+        if passenger.journey.user != request.user:
+            raise Http404
+        try:
+            passenger.journey.leave_passenger(passenger.user)
+            messages.success(request, _('Has expulsado al pasajero'))
+        except NotAPassenger:
+            messages.success(request, _('No puedes expulsar a este pasajero'))
+        return_to = request.POST.get("return_to", self.return_to)
+        return redirect(return_to)

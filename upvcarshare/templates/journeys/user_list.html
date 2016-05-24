@@ -1,4 +1,4 @@
-{% extends "header.html" %}
+{% extends "sidebar.html" %}
 {% load i18n %}
 {% load journeys_tags %}
 
@@ -10,17 +10,14 @@
     </div>
 {% endblock section_title %}
 
+{% block sidebar %}
+    <a href="{% url "journeys:create" %}" class="btn btn-primary">{% trans "Nuevo trayecto" %}</a>
+{% endblock sidebar %}
+
 {% block content %}
-    <div class="row">
-        <div class="col-sm-9">
-            {% for journey in journeys %}
-                {% journey_item journey %}
-            {% empty %}
-                <h3 class="text-muted">{% trans "No tienes trayectos creados" %}</h3>
-            {% endfor %}
-        </div>
-        <div class="col-sm-3">
-            <a href="{% url "journeys:create" %}" class="btn btn-primary pull-xs-right">{% trans "Nuevo Trayecto" %}</a>
-        </div>
-    </div>
+    {% for journey in journeys %}
+        {% journey_item journey %}
+    {% empty %}
+        <h3 class="text-muted">{% trans "No tienes trayectos creados" %}</h3>
+    {% endfor %}
 {% endblock content %}

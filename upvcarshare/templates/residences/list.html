@@ -1,4 +1,4 @@
-{% extends "header.html" %}
+{% extends "sidebar.html" %}
 {% load i18n %}
 {% load core_tags %}
 
@@ -10,29 +10,25 @@
     </div>
 {% endblock section_title %}
 
+{% block sidebar %}
+    <a href="{% url "journeys:create-residence" %}" class="btn btn-primary">{% trans "Nuevo Lugar" %}</a>
+{% endblock sidebar %}
+
 {% block content %}
-    <div class="row">
-        <div class="col-sm-8">
-            {% for residence in residences %}
-                <div class="residence-entry row">
-                    <div class="col-sm-4">
-                        <img src="{% google_static_map residence.get_position_wgs84 200 200 14 %}" class="img-fluid">
-                    </div>
-                    <div class="col-sm-8">
-                        <h4>{{ residence.name }}</h4>
-                        <p>{{ residence.address }}</p>
-                        <a href="{% url "journeys:edit-residence" residence.pk %}" class="btn btn-primary-outline btn-sm">{% trans "Editar" %}</a>
-                    </div>
-
-                </div>
-
-
-            {% empty %}
-                <h3 class="text-muted">{% trans "No tienes lugares creados" %}</h3>
-            {% endfor %}
+    {% for residence in residences %}
+        <div class="residence-entry row">
+            <div class="col-sm-2">
+                <img src="{% google_static_map residence.get_position_wgs84 200 200 14 %}" class="img-fluid">
+            </div>
+            <div class="col-sm-6">
+                <h4>{{ residence.name }}</h4>
+                <p>{{ residence.address }}</p>
+            </div>
+            <div class="col-sm-4 text-xs-center">
+                <a href="{% url "journeys:edit-residence" residence.pk %}" class="btn btn-info">{% trans "Editar" %}</a>
+            </div>
         </div>
-        <div class="col-sm-4">
-            <a href="{% url "journeys:create-residence" %}" class="btn btn-primary pull-xs-right">{% trans "Nuevo Lugar" %}</a>
-        </div>
-    </div>
+    {% empty %}
+        <h3 class="text-muted">{% trans "No tienes lugares creados" %}</h3>
+    {% endfor %}
 {% endblock content %}

@@ -4,8 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 
 GOING, RETURN = 0, 1
 JOURNEY_KINDS = (
-    (GOING, _("Ida")),
-    (RETURN, _("Vuelta")),
+    (GOING, _("ida")),
+    (RETURN, _("vuelta")),
 )
 
 # Uses projected coordinate system for Spain.
