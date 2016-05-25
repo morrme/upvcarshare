@@ -11,7 +11,7 @@ from django.views.generic import View
 
 from journeys import GOING
 from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
-from journeys.forms import JourneyForm, ResidenceForm
+from journeys.forms import JourneyForm, ResidenceForm, FilterForm
 from journeys.models import Journey, Residence, Campus, Passenger
 
 
@@ -38,8 +38,8 @@ class CreateResidenceView(LoginRequiredMixin, View):
             "form": form
         }
         if form.is_valid():
-            journey = form.save(user=request.user)
-            data["journey"] = journey
+            residence = form.save(user=request.user)
+            return redirect("journeys:edit-residence", pk=residence.pk)
         return render(request, self.template_name, data)
 
 
@@ -96,7 +96,7 @@ class CreateJourneyView(LoginRequiredMixin, View):
         }
         if form.is_valid():
             journey = form.save()
-            data["journey"] = journey
+            return redirect("journeys:details", pk=journey.pk)
         return render(request, self.template_name, data)
 
 
@@ -140,6 +140,9 @@ class JourneyView(LoginRequiredMixin, View):
         journey = get_object_or_404(Journey, pk=pk)
         data = {
             "journey": journey,
+            "show_passengers": not journey.needs_driver() and journey.count_passengers() > 0,
+            "is_fulfilled": journey.is_fulfilled(),
+            "fulfilled_by": journey.fulfilled_by(),
             "passengers": journey.passengers.all(),
             "recommended": journey.recommended(),
         }
@@ -151,9 +154,20 @@ class RecommendedJourneyView(LoginRequiredMixin, View):
     template_name = "journeys/recommended.html"
 
     def get(self, request):
-        kind_filter = request.GET.get("kind")
+        filter_form = FilterForm(request.GET)
+        kind_filter = None
+        override_distance = None
+        if filter_form.is_valid():
+            kind_filter = filter_form.cleaned_data.get("kind")
+            override_distance = filter_form.cleaned_data.get("distance")
         data = {
-            "journeys": Journey.objects.recommended(user=request.user, kind=kind_filter)
+            "filter_form": filter_form,
+            "journeys": Journey.objects.recommended(
+                user=request.user,
+                kind=kind_filter,
+                exclude_fulfilled=True,
+                override_distance=override_distance
+            ),
         }
         return render(request, self.template_name, data)
 
@@ -239,3 +253,16 @@ class ThrowOutPassengerView(LoginRequiredMixin, View):
             messages.success(request, _('No puedes expulsar a este pasajero'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
+
+
+class DeleteResidence(LoginRequiredMixin, View):
+    """Deletes a residence if there is no journeys related."""
+
+    def get(self, request, pk):
+        residence = get_object_or_404(Residence, pk=pk, user=request.user)
+        if residence.journeys.count() == 0:
+            residence.delete()
+            messages.success(request, _('Has borrado el lugar'))
+            return redirect("journeys:residences")
+        messages.error(request, _('No puedes borrar este lugar'))
+        return redirect("journeys:residences")

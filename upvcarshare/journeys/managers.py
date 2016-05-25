@@ -12,16 +12,18 @@ from django.utils import timezone
 from journeys import GOING, RETURN
 
 
-def recommended_condition(journey):
+def recommended_condition(journey, override_distance=None):
     """Creates a condition to mark a journey as recommended, based on kind and a
     needed journey.
     :param journey:
+    :param override_distance:
     """
     key = "residence{}" if journey.kind == GOING else "campus{}"
+    distance = getattr(journey, key.format("")).distance if override_distance is None else override_distance
     return {
         key.format("__position__distance_lte"): (
             getattr(journey, key.format("")).position,
-            D(m=getattr(journey, key.format("")).distance)
+            D(m=distance)
         ),
         "departure__lte": journey.departure + datetime.timedelta(minutes=journey.time_window),
         "departure__gte": journey.departure - datetime.timedelta(minutes=journey.time_window),
@@ -107,25 +109,31 @@ class JourneyManager(models.GeoManager):
             queryset = queryset.filter(kind=kind)
         return queryset
 
-    def recommended(self, user, kind=None, journey=None):
+    def recommended(self, user, kind=None, journey=None, override_distance=None, exclude_fulfilled=False):
         """Gets the journeys recommended for an user needs.
         :param user:
         :param kind:
         :param journey:
+        :param override_distance:
+        :param exclude_fulfilled:
         """
         # Gets journeys needed by the user...
         if journey is None:
             needed_journeys = self.needed(user=user, kind=kind)
         else:
-            needed_journeys = [journey]
+            needed_journeys = [journey] if not journey.is_passenger(user) else []
         # Gets conditions to search other journeys...
-        conditions = [Q(**recommended_condition(journey=journey)) for journey in needed_journeys]
+        conditions = [Q(**recommended_condition(journey=journey, override_distance=override_distance))
+                      for journey in needed_journeys]
         if not conditions:
             return self.none()
         now = timezone.now()
-        return self.available(kind=kind).exclude(user=user, departure__lt=now)\
+        queryset = self.available(kind=kind).exclude(user=user, departure__lt=now)\
             .filter(reduce(lambda x, y: x | y, conditions))\
             .order_by("departure")
+        if exclude_fulfilled:
+            queryset = queryset.exclude(passengers__user=user)
+        return queryset
 
     def passenger(self, user):
         """Gets the journeys where the given user is passenger."""

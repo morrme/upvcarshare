@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+from copy import copy
+
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
@@ -42,7 +44,8 @@ class Place(GisTimeStampedModel):
         destination_coord = SpatialReference(DEFAULT_WGS84_SRID)
         origin_coord = SpatialReference(DEFAULT_PROJECTED_SRID)
         trans = CoordTransform(origin_coord, destination_coord)
-        position = self.position
+        # Copy transformed point...
+        position = copy(self.position)
         position.transform(trans)
         return position
 
@@ -50,6 +53,13 @@ class Place(GisTimeStampedModel):
         """Transforms an input to projected coordinates."""
         self.position = make_point_wgs84(position)
         return self.position
+
+    def google_maps_link(self):
+        """Gets a link to Google Maps position"""
+        point = self.get_position_wgs84()
+        return "http://www.google.com/maps/place/{},{}".format(
+            point.coords[1], point.coords[0]
+        )
 
     def nearby(self):
         """Abstract method to search nearby journeys."""
@@ -73,6 +83,9 @@ class Residence(Place):
         """Search nearby journeys."""
         return Journey.objects.nearby(kind=GOING, geometry=self.position, distance=D(m=self.distance))
 
+    def count_used_journeys(self):
+        return self.journeys.count()
+
 
 @python_2_unicode_compatible
 class Campus(Place):
@@ -87,6 +100,7 @@ class Campus(Place):
     def nearby(self):
         """Search nearby journeys."""
         return Journey.objects.nearby(kind=RETURN, geometry=self.position, distance=D(m=self.distance))
+
 
 @python_2_unicode_compatible
 class Journey(GisTimeStampedModel):
@@ -133,6 +147,9 @@ class Journey(GisTimeStampedModel):
         if self.kind == RETURN:
             return self.residence
         return self.campus
+
+    def __str__(self):
+        return self.description(strip_html=True)
 
     def description(self, strip_html=False):
         """Gets a human read description of the journey."""
@@ -186,16 +203,34 @@ class Journey(GisTimeStampedModel):
         return self.passengers.filter(user=user).exists()
 
     def recommended(self):
-        """Gets recommended journeys for this journey."""
+        """Gets recommended journeys for this journey.
+        :returns QuerySet:
+        """
         if self.driver == self.user:
             return Journey.objects.none()
         return Journey.objects.recommended(user=self.user, kind=self.kind, journey=self)
 
     def needs_driver(self):
+        """Checks if the journey needs a driver."""
         return self.driver is None
 
     def are_there_free_places(self):
+        """Check if there are free places."""
         return self.current_free_places() > 0
+
+    def is_fulfilled(self):
+        """Check if the journey is already fulfilled by the given user."""
+        return self.needs_driver() and self.recommended().filter(passengers__user=self.user).exists()
+
+    def fulfilled_by(self):
+        """Gets the journey who if fulfilling this one."""
+        if not self.is_fulfilled():
+            return None
+        return self.recommended().filter(passengers__user=self.user).first()
+
+    def distance(self):
+        """Gets the journey distance."""
+        return self.residence.position.distance(self.campus.position) / 1000
 
 
 class Passenger(TimeStampedModel):

@@ -1,14 +1,33 @@
-{% extends "header.html" %}
+{% extends "sidebar.html" %}
 {% load i18n %}
 {% load journeys_tags %}
 
 {% block section_title %}
     <div class="row">
         <div class="col-sm-12">
-            <h2>{% trans "Trayectos disponibles" %}</h2>
+            <h2>{% trans "Trayectos recomendados" %}</h2>
+            <p>{% trans "Lista con los trayectos que ofrecen otras personas y que se adaptan a tus necesidades." %}</p>
+
         </div>
     </div>
 {% endblock section_title %}
+
+{% block sidebar %}
+    <form method="get" action="" class="text-xs-left">
+        {% for field in filter_form %}
+            <div class="form-group{% if field.errors %} has-danger{% endif %}">
+                <label for="{{ field.auto_id }}" class="form-control-label">{{ field.label }}</label>
+                {{ field }}
+                <span class="text-muted">{{ field.help_text }}</span>
+                <span class="text-muted">{{ field.errors }}</span>
+            </div>
+        {% endfor %}
+        <div class="form-group">
+            <button type="submit" class="btn btn-info">{% trans "Filtrar" %}</button>
+            <a href="{% url "journeys:recommended" %}" class="btn btn-danger">{% trans "Quitar filtros" %}</a>
+        </div>
+    </form>
+{% endblock %}
 
 {% block content %}
     <div class="row">
@@ -16,7 +35,7 @@
             {% for journey in journeys %}
                 {% journey_item journey %}
             {% empty %}
-                <h3 class="text-muted">{% trans "No trayectos disponibles" %}</h3>
+                <h3 class="text-muted">{% trans "No trayectos recomendados" %}</h3>
             {% endfor %}
         </div>
     </div>

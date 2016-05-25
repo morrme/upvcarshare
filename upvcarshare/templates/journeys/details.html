@@ -36,15 +36,20 @@
                     </tr>
                     </tbody>
                 </table>
+            {% elif is_fulfilled %}
+                <h3>{% trans "Trayecto enlazado" %}</h3>
+                <p class="text-muted">{% trans "Te has apuntado a este trayecto de otro usuario para cubrir tu necesiodad." %}</p>
+                {% journey_item fulfilled_by %}
             {% else %}
-                <h3>{% trans "Transportes recomendados" %}</h3>
+                <h3>{% trans "Trayectos recomendados" %}</h3>
+                <p class="text-muted">{% trans "Otros trayectos ofrecidos por otros usuarios que encajan en tus criterios." %}</p>
                 {% for recommended_journey in recommended %}
                     {% journey_item recommended_journey %}
                 {% empty %}
                     <h4 class="text-muted">{% trans "No se ha encontrado transporte recomendado" %}</h4>
                 {% endfor %}
             {% endif %}
-            {% if journey.count_passengers > 0 %}
+            {% if show_passengers %}
                 <h3>{% trans "Pasajeros" %}</h3>
                 <table class="table">
                     <tbody>
@@ -78,7 +83,9 @@
                 {% endif %}
             </h3>
             <p>{{ journey.residence.address }}</p>
-            <img src="{% google_static_map journey.residence.get_position_wgs84 300 300 14 %}" class="img-fluid">
+            <a href="{{ journey.residence.google_maps_link }}" target="_blank">
+                <img src="{% google_static_map journey.residence.get_position_wgs84 300 300 14 %}" class="img-fluid">
+            </a>
         </div>
     </div>
 {% endblock content %}

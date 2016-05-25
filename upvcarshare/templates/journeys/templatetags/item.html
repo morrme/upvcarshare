@@ -1,47 +1,56 @@
 {% load i18n %}
 {% load core_tags %}
 {% load journeys_tags %}
+{% load humanize %}
 <div class="journey-item">
     <div class="row">
-        <div class="col-sm-2 map">
-            <img src="{% google_static_map journey.residence.get_position_wgs84 135 101 14 %}" class="img-fluid">
+        <div class="col-sm-3 map">
+            <a href="{{ journey_item.residence.google_maps_link }}" target="_blank">
+                <img src="{% google_static_map journey_item.residence.get_position_wgs84 235 201 14 %}" class="img-fluid">
+            </a>
         </div>
-        <div class="col-sm-8">
-            <h4>{{ journey.departure }}</h4>
-            <p class="lead">{{ journey.description }}</p>
+        <div class="col-sm-7">
+            <h4>{{ journey_item.departure }}</h4>
+            <p class="lead">{{ journey_item.description }}</p>
             <table class="table table-sm">
                 <tbody>
-                {% if not journey.needs_driver %}
+                {% if not journey_item.needs_driver %}
                     <tr>
                         <th scope="row">{% trans "Conductor" %}</th>
-                        <td>{{ journey.driver.get_full_name }}</td>
+                        <td>{{ journey_item.driver.get_full_name }}</td>
                     </tr>
                 {% endif %}
                 <tr>
                     <th scope="row">{% trans "Origen"%}</th>
-                    <td>{% if journey.kind == 1 %}{{ journey.origin.name }}{% else %}{{ journey.origin.address }}{% endif %}</td>
+                    <td>{% if journey_item.kind == 1 %}{{ journey_item.origin.name }}{% else %}{{ journey_item.origin.address }}{% endif %}</td>
                 </tr>
                 <tr>
                     <th scope="row">{% trans "Destino"%}</th>
-                    <td>{% if journey.kind == 0 %}{{ journey.destination.name }}{% else %}{{ journey.destination.address }}{% endif %}</td>
+                    <td>{% if journey_item.kind == 0 %}{{ journey_item.destination.name }}{% else %}{{ journey_item.destination.address }}{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Distancia"%}</th>
+                    <td>{{ journey_item.distance|floatformat|intcomma }} Km</td>
                 </tr>
                 </tbody>
             </table>
         </div>
         <div class="col-sm-2 text-xs-center journey-item-actions">
-            {% if not journey.needs_driver %}
+            {% if not journey_item.needs_driver %}
                 <h4>
-                    {{ journey.current_free_places }}/{{ journey.free_places }}<br />
+                    {{ journey_item.current_free_places }}/{{ journey_item.free_places }}<br />
                     <small class="text-muted">{% trans "Plazas" %}</small>
                 </h4>
-            {% else %}
-                <h4 class="text-danger">{% trans "Necesita conductor" %}</h4>
+            {% elif journey_item.needs_driver and not journey_item.is_fulfilled %}
+                <h4 class="text-danger">{% trans "Necesitas conductor" %}</h4>
+            {% elif journey_item.is_fulfilled %}
+                <h4 class="text-success">{% trans "Ya tienes conductor" %}</h4>
             {% endif %}
-            <a href="{% url "journeys:details" journey.pk %}" class="btn btn-primary">{% trans "Detalles" %}</a>
-            {% if request.user == journey.user %}
-                <a href="{% url "journeys:edit" journey.pk %}" class="btn btn-success">{% trans "Editar" %}</a>
+            <a href="{% url "journeys:details" journey_item.pk %}" class="btn btn-primary">{% trans "Detalles" %}</a>
+            {% if request.user == journey_item.user %}
+                <a href="{% url "journeys:edit" journey_item.pk %}" class="btn btn-success">{% trans "Editar" %}</a>
             {% else %}
-                {% journey_join_leave_button journey %}
+                {% journey_join_leave_button journey_item %}
             {% endif %}
         </div>
     </div>

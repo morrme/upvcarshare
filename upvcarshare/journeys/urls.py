@@ -5,12 +5,13 @@ from django.conf.urls import url
 
 from journeys.views import CreateJourneyView, CreateResidenceView, EditResidenceView, EditJourneyView, \
     RecommendedJourneyView, CurrentUserJourneyView, CurrentUserResidencesView, JoinJourneyView, LeaveJourneyView, \
-    JourneyView, PassengerJourneyView, ThrowOutPassengerView
+    JourneyView, PassengerJourneyView, ThrowOutPassengerView, DeleteResidence
 
 urlpatterns = [
     # Residences
     url(r"residences/create/$", CreateResidenceView.as_view(), name="create-residence"),
     url(r"residences/(?P<pk>\d+)/edit/$", EditResidenceView.as_view(), name="edit-residence"),
+    url(r"residences/(?P<pk>\d+)/delete/$", DeleteResidence.as_view(), name="delete-residence"),
     url(r"residences/$", CurrentUserResidencesView.as_view(), name="residences"),
 
     # Journeys

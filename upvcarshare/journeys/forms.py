@@ -6,6 +6,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from core.widgets import GMapsPointWidget
+from journeys import JOURNEY_KINDS
 from journeys.helpers import make_point_projected
 from journeys.models import Residence, Journey
 from users.models import User
@@ -78,3 +79,23 @@ class JourneyForm(forms.ModelForm):
         if commit:
             journey.save()
         return journey
+
+
+class FilterForm(forms.Form):
+    """Form to filter search results."""
+
+    kind = forms.IntegerField(
+        label=_("Tipo de viaje"),
+        required=False,
+        widget=forms.Select(
+            attrs={"class": "form-control"},
+            choices=JOURNEY_KINDS
+        )
+    )
+    distance = forms.IntegerField(
+        label=_("Distancia (metros)"),
+        required=False,
+        widget=forms.NumberInput(
+            attrs={"class": "form-control"},
+        ),
+    )

@@ -6,6 +6,7 @@
     <div class="row">
         <div class="col-sm-12">
             <h2>{% trans "Mis lugares" %}</h2>
+            <p>{% trans "Lugares que quiers utilizar para crear trayectos" %}</p>
         </div>
     </div>
 {% endblock section_title %}
@@ -16,16 +17,38 @@
 
 {% block content %}
     {% for residence in residences %}
-        <div class="residence-entry row">
-            <div class="col-sm-2">
-                <img src="{% google_static_map residence.get_position_wgs84 200 200 14 %}" class="img-fluid">
-            </div>
-            <div class="col-sm-6">
-                <h4>{{ residence.name }}</h4>
-                <p>{{ residence.address }}</p>
-            </div>
-            <div class="col-sm-4 text-xs-center">
-                <a href="{% url "journeys:edit-residence" residence.pk %}" class="btn btn-info">{% trans "Editar" %}</a>
+        <div class="residence-entry">
+            <div class="row">
+                <div class="col-sm-2">
+                    <a href="{{ residence.google_maps_link }}" target="_blank">
+                        <img src="{% google_static_map residence.get_position_wgs84 200 200 14 %}" class="img-fluid">
+                    </a>
+                </div>
+                <div class="col-sm-8">
+                    <h4>{{ residence.name }}</h4>
+                    <table class="table table-sm">
+                        <tbody>
+                        <tr>
+                            <th scope="row">{% trans "Dirección" %}</th>
+                            <td>{{ residence.address }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">{% trans "Distancia de desplazamiento"%}</th>
+                            <td>{{ residence.distance }}m</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">{% trans "Número de viajes en los que se usa" %}</th>
+                            <td>{{ residence.count_used_journeys }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-2">
+                    <p class="text-xs-center"><a href="{% url "journeys:edit-residence" residence.pk %}" class="btn btn-success">{% trans "Editar" %}</a></p>
+                    {% if residence.count_used_journeys == 0 %}
+                        <p class="text-xs-center"><a href="{% url "journeys:delete-residence" residence.pk %}" class="btn btn-danger">{% trans "Borrar" %}</a></p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     {% empty %}

@@ -37,7 +37,7 @@ class JourneyViewTests(TestCase):
                 "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
             }
             response = self.post(url_name="journeys:create", data=data)
-            self.response_200(response)
+            self.response_302(response)
             self.assertEquals(1, Journey.objects.count())
 
     def test_get_edit_journey(self):
@@ -71,6 +71,13 @@ class JourneyViewTests(TestCase):
         self.assertLoginRequired(url_name)
         with self.login(self.user):
             response = self.get(url_name)
+            self.response_200(response=response)
+
+    def test_get_recommended_journey_filter(self):
+        url_name = "journeys:recommended"
+        self.assertLoginRequired(url_name)
+        with self.login(self.user):
+            response = self.get(url_name, data={"distance": 200, "kind": GOING})
             self.response_200(response=response)
 
     def test_get_passenger_journey(self):
@@ -137,7 +144,7 @@ class ResidenceViewTests(TestCase):
                 "distance": 500,
             }
             response = self.post(url_name="journeys:create-residence", data=data)
-            self.response_200(response)
+            self.response_302(response)
             self.assertEquals(1, Residence.objects.count())
 
     def test_get_edit_residence(self):
@@ -172,3 +179,19 @@ class ResidenceViewTests(TestCase):
             response = self.get(url_name)
             self.response_200(response=response)
 
+    def test_delete_residence(self):
+        residence = ResidenceFactory(user=self.user)
+        url_name = "journeys:delete-residence"
+        self.assertLoginRequired(url_name, pk=residence.pk)
+        with self.login(self.user):
+            response = self.get(url_name, pk=residence.pk)
+            self.response_302(response=response)
+
+    def test_no_delete_residence(self):
+        user = UserFactory()
+        residence = ResidenceFactory(user=self.user)
+        url_name = "journeys:delete-residence"
+        self.assertLoginRequired(url_name, pk=residence.pk)
+        with self.login(user):
+            response = self.get(url_name, pk=residence.pk)
+            self.response_404(response=response)
