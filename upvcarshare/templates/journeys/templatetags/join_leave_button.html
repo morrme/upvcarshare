@@ -1,11 +1,15 @@
 {% load i18n %}
 {% load journeys_tags %}
-
 {% if not journey_item.needs_driver and not journey_item|is_passenger:request.user and journey_item.are_there_free_places %}
     <form method="post" action="{% url "journeys:join" journey_item.pk %}">
         {% csrf_token %}
         <input type="hidden" name="return_to" value="{{ request.path }}">
-        <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
+        {% if not journey_item.disabled %}
+            <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
+        {% else %}
+            <button type="button" disabled="disabled" class="btn btn-secondary">{% trans "Unirse" %}</button>
+        {% endif %}
+
     </form>
 {% elif not journey_item.needs_driver and journey_item|is_passenger:request.user %}
     <form method="post" action="{% url "journeys:leave" journey_item.pk %}">

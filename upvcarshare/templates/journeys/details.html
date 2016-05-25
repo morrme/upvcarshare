@@ -6,7 +6,10 @@
 {% block section_title %}
     <div class="row">
         <div class="col-xs-12">
-            <h2>{{ journey.description }}, {{ journey.departure }}</h2>
+            <h2>
+                {{ journey.description }}, {{ journey.departure }}
+                {% if journey.disabled%}<span class="label label-danger">{% trans "Cancelado" %}</span>{% endif %}
+            </h2>
         </div>
     </div>
 {% endblock section_title %}
