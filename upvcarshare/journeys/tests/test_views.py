@@ -120,6 +120,23 @@ class JourneyViewTests(TestCase):
             response = self.post(url_name=url_name, pk=passenger.pk)
             self.response_302(response=response)
 
+    def test_cancel_journey(self):
+        journey = JourneyFactory(user=self.user)
+        url_name = "journeys:cancel"
+        self.assertLoginRequired(url_name, pk=journey.pk)
+        with self.login(self.user):
+            response = self.get(url_name, pk=journey.pk)
+            self.response_200(response=response)
+
+    def test_post_cancel_journey(self):
+        journey = JourneyFactory(user=self.user)
+        url_name = "journeys:cancel"
+        self.assertLoginRequired(url_name, pk=journey.pk)
+        with self.login(self.user):
+            response = self.post(url_name, pk=journey.pk)
+            self.response_302(response=response)
+            self.assertTrue(Journey.objects.get(pk=journey.pk).disabled)
+
 
 class ResidenceViewTests(TestCase):
     user_factory = UserFactory

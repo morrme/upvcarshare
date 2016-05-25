@@ -233,6 +233,11 @@ class JourneyTest(TestCase):
             kind=GOING
         ).count(), 2)
 
+    def test_cancel_journey(self):
+        journey = self._make_journey()
+        journey.cancel()
+        self.assertTrue(Journey.objects.get(pk=journey.pk).disabled)
+
 
 class ResidenceTest(TestCase):
 
