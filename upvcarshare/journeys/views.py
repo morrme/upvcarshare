@@ -11,7 +11,7 @@ from django.views.generic import View
 
 from journeys import GOING
 from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
-from journeys.forms import JourneyForm, ResidenceForm, FilterForm
+from journeys.forms import JourneyForm, ResidenceForm, FilterForm, CancelJourneyForm
 from journeys.models import Journey, Residence, Campus, Passenger
 
 
@@ -266,3 +266,20 @@ class DeleteResidence(LoginRequiredMixin, View):
             return redirect("journeys:residences")
         messages.error(request, _('No puedes borrar este lugar'))
         return redirect("journeys:residences")
+
+
+class CancelJourneyView(LoginRequiredMixin, View):
+    """View to handle a cancellation of a journey."""
+    template_name = "journeys/cancel.html"
+
+    def get(self, request, pk):
+        journey = get_object_or_404(Journey, pk=pk, user=request.user)
+        data = {
+            "journey": journey,
+        }
+        return render(request, self.template_name, data)
+
+    def post(self, request, pk):
+        journey = get_object_or_404(Journey, pk=pk, user=request.user)
+        journey.cancel()
+        return redirect("journeys:details", pk=journey.pk)

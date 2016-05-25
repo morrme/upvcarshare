@@ -2,7 +2,7 @@
 {% load core_tags %}
 {% load journeys_tags %}
 {% load humanize %}
-<div class="journey-item">
+<div class="journey-item {% if journey_item.disabled %}journey-item-disabled{% endif %}">
     <div class="row">
         <div class="col-sm-3 map">
             <a href="{{ journey_item.residence.google_maps_link }}" target="_blank">
@@ -10,7 +10,10 @@
             </a>
         </div>
         <div class="col-sm-7">
-            <h4>{{ journey_item.departure }}</h4>
+            <h4>
+                {% if journey_item.disabled%}<span class="label label-danger">{% trans "Cancelado" %}</span>{% endif %}
+                {{ journey_item.departure }}
+            </h4>
             <p class="lead">{{ journey_item.description }}</p>
             <table class="table table-sm">
                 <tbody>

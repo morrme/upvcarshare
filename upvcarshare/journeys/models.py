@@ -232,6 +232,11 @@ class Journey(GisTimeStampedModel):
         """Gets the journey distance."""
         return self.residence.position.distance(self.campus.position) / 1000
 
+    def cancel(self):
+        """Cancels a journey."""
+        self.disabled = True
+        self.save()
+
 
 class Passenger(TimeStampedModel):
     """A user who has joined a journey."""

@@ -1,13 +1,16 @@
 @import "colors";
 
 .journey-item {
-  padding: 15px 0;
+  padding: 10px;
   border-bottom: 1px dotted $upv-grey;
   margin-bottom: 5px;
   &-actions {
     .btn {
       margin-bottom: 5px;
     }
+  }
+  &-disabled {
+    background-color: #eee;
   }
 }
 

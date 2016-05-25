@@ -1,0 +1,27 @@
+{% extends "header.html" %}
+{% load i18n %}
+
+{% block section_title %}
+    <div class="row">
+        <div class="col-xs-12">
+            <h2>
+                <strong>{% trans "Cancelar" %}</strong>: {{ journey.description }}, {{ journey.departure }}
+            </h2>
+        </div>
+    </div>
+{% endblock section_title %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12 text-xs-center">
+            <p class="lead">
+                {% trans "¿Estás seguro que quieres cancelar este trayecto? Esta acción no se puede deshacer" %}
+            </p>
+            <form method="post" action="">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">{% trans "Cancelar trayecto" %}</button>
+                <a href="{% url "journeys:details" journey.pk %}" class="btn btn-primary">{% trans "Volver" %}</a>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

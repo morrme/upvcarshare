@@ -51,7 +51,7 @@ class JourneyForm(forms.ModelForm):
 
     class Meta:
         model = Journey
-        fields = ["residence", "campus", "kind", "i_am_driver", "free_places", "departure", "time_window", "disabled"]
+        fields = ["residence", "campus", "kind", "i_am_driver", "free_places", "departure", "time_window"]
         widgets = {
             "residence": forms.Select(attrs={"class": "form-control"}),
             "campus": forms.Select(attrs={"class": "form-control"}),
@@ -99,3 +99,11 @@ class FilterForm(forms.Form):
             attrs={"class": "form-control"},
         ),
     )
+
+
+class CancelJourneyForm(forms.Form):
+    """Form to handle the cancellation of a journey. A cancellation needs a
+    confirmation of the user.
+    """
+    pass
+
