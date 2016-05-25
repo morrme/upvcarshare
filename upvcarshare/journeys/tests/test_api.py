@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from journeys import GOING, RETURN, DEFAULT_PROJECTED_SRID
-from journeys.models import Transport
+from journeys.models import Transport, Journey
 from journeys.tests.factories import TransportFactory, ResidenceFactory, CampusFactory, JourneyFactory
 from users.tests.factories import UserFactory
 
@@ -117,6 +117,28 @@ class JourneyAPITest(APITestCase):
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(0, journey.count_passengers())
+
+    def test_cancel_journey(self):
+        user = UserFactory()
+        journey = self._make_journey(GOING)
+        journey.join_passenger(user)
+
+        url = "/api/v1/journeys/{}/cancel/".format(journey.pk)
+        self.client.force_authenticate(user=journey.user)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Journey.objects.get(pk=journey.pk).disabled)
+
+    def test_no_cancel_journey(self):
+        user = UserFactory()
+        journey = self._make_journey(GOING)
+        journey.join_passenger(user)
+
+        url = "/api/v1/journeys/{}/cancel/".format(journey.pk)
+        self.client.force_authenticate(user=user)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(Journey.objects.get(pk=journey.pk).disabled)
 
     def test_recommended_all_journeys(self):
         # Creates the available journeys with driver...

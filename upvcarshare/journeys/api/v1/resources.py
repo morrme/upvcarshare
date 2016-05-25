@@ -137,3 +137,25 @@ class RecommendedJourneysResource(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 recommended_journeys = RecommendedJourneysResource.as_view({"get": "recommended"})
+
+
+class CancelJourneyResource(viewsets.ViewSet):
+    """Resource to allow to cancel a journey.
+
+    Example:
+    POST /api/v1/journeys/1/cancel/
+    """
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    @staticmethod
+    def cancel(request, **kwargs):
+        pk = kwargs.get('pk', 0)
+        journey = get_object_or_404(Journey, pk=pk, user=request.user)
+        journey.cancel()
+        return Response(status=status.HTTP_201_CREATED)
+
+cancel_journey = CancelJourneyResource.as_view({"post": "cancel"})
+

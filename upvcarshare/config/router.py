@@ -5,7 +5,7 @@ from django.conf.urls import url, include
 from rest_framework.routers import SimpleRouter
 
 from journeys.api.v1.resources import TransportResource, ResidenceResource, CampusResource, JourneyResource, \
-    join_journey, leave_journey, recommended_journeys
+    join_journey, leave_journey, recommended_journeys, cancel_journey
 from users.api.v1.resources import me
 
 router = SimpleRouter()
@@ -17,6 +17,7 @@ router.register(r'journeys', viewset=JourneyResource)
 
 urlpatterns = [
     url(r'^journeys/recommended/$', recommended_journeys, kwargs={'pk': None}, name='all-recommended-journeys'),
+    url(r'^journeys/(?P<pk>[^/.]+)/cancel/$', cancel_journey, name='cancel-journeys'),
     url(r'^journeys/(?P<pk>[^/.]+)/recommended/$', recommended_journeys, name='recommended-journeys'),
     url(r'^journeys/(?P<pk>[^/.]+)/join/$', join_journey, name='join-journey'),
     url(r'^journeys/(?P<pk>[^/.]+)/leave/$', leave_journey, name='leave-journey'),
