@@ -14,6 +14,7 @@ urlpatterns = [
     url(r"^", include("pages.urls", namespace="pages")),
     url(r"^users/", include("users.urls", namespace="users")),
     url(r"^journeys/", include("journeys.urls", namespace="journeys")),
+    url(r"^notifications/", include("notifications.urls", namespace="notifications")),
 ]
 
 # Admin URLs

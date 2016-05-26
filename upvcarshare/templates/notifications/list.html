@@ -1,0 +1,32 @@
+{% extends "header.html" %}
+{% load i18n %}
+
+{% block section_title %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>{% trans "Notificationes" %}</h2>
+        </div>
+    </div>
+{% endblock section_title %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <form action="{% url "notifications:read" %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">{% trans "Marcar como leidas"%}</button>
+            </form>
+            <hr />
+        </div>
+    </div>
+    {% for notification in notifications %}
+        <div class="notification {% if not notification.read %}notification-unread{% endif %}">
+            <div class="row">
+                <div class="col-xs-12">
+                    <p class="lead">{{ notification.text }}</p>
+                    <p class="text-muted">{{ notification.created }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock content %}

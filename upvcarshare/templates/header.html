@@ -23,7 +23,18 @@
     <div class="container section-navbar">
         <nav class="navbar navbar-full navbar-dark bg-upv-dark-grey">
             {#            <a class="navbar-brand" href="{% url "home" %}">{% trans "Compartir Coche en la UPV" %}</a>#}
+
             {% if request.user.is_authenticated %}
+                <ul class="nav navbar-nav pull-xs-left">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url "notifications:list" %}">
+                            {% trans "Notificaciones" %}
+                            {% if unread_notifications > 0 %}
+                                <span class="label label-pill label-danger">{{ unread_notifications }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
                 <ul class="nav navbar-nav pull-xs-right">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url "journeys:recommended" %}">{% trans "Buscador" %}</a>
