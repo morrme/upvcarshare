@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.functional import SimpleLazyObject
 
-from notifications import LEAVE, JOIN
+from notifications import LEAVE, JOIN, CANCEL
 
 
 def extract(classes, iterable):
@@ -43,5 +43,14 @@ class NotificationManager(models.Manager):
             notification.target = journey
             notification.save()
             return notification
-
+        elif verb == CANCEL:
+            notifications = []
+            journey = extract(Journey, objects)[0]
+            for passenger in journey.passengers.all():
+                notification = self.model(verb=verb)
+                notification.actor = journey
+                notification.user = passenger.user
+                notification.save()
+                notifications.append(notification)
+            return notifications
         return None

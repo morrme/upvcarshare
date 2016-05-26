@@ -19,7 +19,7 @@ from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PRO
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
 from journeys.helpers import make_point_wgs84
 from journeys.managers import JourneyManager, ResidenceManager
-from notifications import JOIN, LEAVE
+from notifications import JOIN, LEAVE, CANCEL
 from notifications.decorators import dispatch
 
 
@@ -236,6 +236,7 @@ class Journey(GisTimeStampedModel):
         """Gets the journey distance."""
         return self.residence.position.distance(self.campus.position) / 1000
 
+    @dispatch(CANCEL)
     def cancel(self):
         """Cancels a journey."""
         self.disabled = True
