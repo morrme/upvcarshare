@@ -1,2 +1,15 @@
 {% extends "header.html" %}
 {% load i18n %}
+
+{% block content %}
+    <div class="jumbotron" style="background-color: #fff">
+        <div class="container">
+            <h1 class="display-3">{% trans "Bienvenido a 'Compartir Coche en la UPV'" %}</h1>
+            <p class="lead">{% trans "Aquí podrás encontrar a compañeros que vayan al mismo campus que tú con los que puedas comptartir el coche. También podrás ofrecer tu transporte para acercar a otras personas al campus." %}</p>
+            <hr class="m-y-2">
+            <p class="lead">
+                <a class="btn btn-primary btn-lg" href="{% url "journeys:create" %}" role="button">{% trans "Crea un trayecto" %}</a>
+            </p>
+        </div>
+    </div>
+{% endblock content %}
