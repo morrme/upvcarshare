@@ -165,7 +165,6 @@ class RecommendedJourneyView(LoginRequiredMixin, View):
             "journeys": Journey.objects.recommended(
                 user=request.user,
                 kind=kind_filter,
-                exclude_fulfilled=True,
                 override_distance=override_distance
             ),
         }

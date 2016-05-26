@@ -5,12 +5,14 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, AbstractUser, UserManager
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
 
 from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_DISTANCE, DEFAULT_WGS84_SRID
 
 
+@python_2_unicode_compatible
 class User(AbstractUser):
     """Custom user model."""
     default_address = models.TextField(
@@ -39,6 +41,9 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+
+    def __str__(self):
+        return self.get_full_name()
 
     def get_full_name(self):
         """Returns the first_name plus the last_name, with a space in between. In case there is no name,

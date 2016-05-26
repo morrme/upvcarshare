@@ -44,8 +44,10 @@
                 </table>
             {% elif is_fulfilled %}
                 <h3>{% trans "Trayecto enlazado" %}</h3>
-                <p class="text-muted">{% trans "Te has apuntado a este trayecto de otro usuario para cubrir tu necesiodad." %}</p>
-                {% journey_item fulfilled_by %}
+                <p class="text-muted">{% trans "Te has apuntado a estos trayectos de otros usuarios para cubrir tu necesidad." %}</p>
+                {% for fulfilled_journey in fulfilled_by %}
+                    {% journey_item fulfilled_journey %}
+                {% endfor %}
             {% else %}
                 <h3>{% trans "Trayectos recomendados" %}</h3>
                 <p class="text-muted">{% trans "Otros trayectos ofrecidos por otros usuarios que encajan en tus criterios." %}</p>
