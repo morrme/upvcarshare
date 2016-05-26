@@ -178,7 +178,7 @@ class CurrentUserJourneyView(LoginRequiredMixin, View):
 
     def get(self, request):
         data = {
-            "journeys": Journey.objects.filter(user=request.user)
+            "journeys": Journey.objects.filter(user=request.user).order_by("departure")
         }
         return render(request, self.template_name, data)
 
