@@ -28,5 +28,11 @@
                 </div>
             </div>
         </div>
+    {% empty %}
+        <div class="row">
+            <div class="col-xs-12">
+                <p class="text-muted">{% trans "No tienes ninguna notificación" %}</p>
+            </div>
+        </div>
     {% endfor %}
 {% endblock content %}

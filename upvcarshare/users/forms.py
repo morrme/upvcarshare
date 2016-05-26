@@ -43,7 +43,7 @@ class SignInForm(forms.Form):
         try:
             user = User.objects.get(username=username)
             if not user.check_password(password):
-                raise forms.ValidationError(_("Password incorrect"))
+                raise forms.ValidationError(_("La contraseña no es correcta"))
         except User.DoesNotExist:
             pass
         return password
@@ -53,7 +53,7 @@ class UserForm(forms.ModelForm):
     """Form to edit information of the user."""
 
     default_position = floppyforms.gis.PointField(
-        label=_(""),
+        label=_("Posicion por defecto"),
         widget=GMapsPointWidget(),
         srid=3857,
         required=False
