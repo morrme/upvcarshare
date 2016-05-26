@@ -1,0 +1,11 @@
+// Styles for notifications
+@import "colors";
+
+.notification {
+  padding: 10px;
+  border-bottom: 1px dotted $upv-grey;
+  margin-bottom: 5px;
+  &-unread {
+    background-color: #eee;
+  }
+}

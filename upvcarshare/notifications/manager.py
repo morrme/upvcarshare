@@ -19,6 +19,9 @@ def extract(classes, iterable):
 
 class NotificationManager(models.Manager):
 
+    def unread(self, user):
+        return self.filter(user=user, read=False)
+
     def create_from_method_call(self, verb, function, args, kwargs):
         """Creates a notification from a decorator call.
         :param verb:
