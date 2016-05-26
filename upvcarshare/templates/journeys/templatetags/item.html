@@ -12,6 +12,7 @@
         <div class="col-sm-7">
             <h4>
                 {% if journey_item.disabled%}<span class="label label-danger">{% trans "Cancelado" %}</span>{% endif %}
+                {% if journey_item|is_passenger:request.user %}<span class="label label-success">{% trans "Apuntado" %}</span>{% endif %}
                 {{ journey_item.departure }}
             </h4>
             <p class="lead">{{ journey_item.description }}</p>

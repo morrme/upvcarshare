@@ -67,14 +67,17 @@ class JourneyManager(models.GeoManager):
             data["free_places"] = transport.default_places
         return self.create(**data)
 
-    def available(self, kind=None):
+    def available(self, kind=None, ignore_full=False):
         """Gets all available journeys.
         :param kind: GOING, RETURN
+        :param ignore_full:
         """
         now = timezone.now()
         queryset = self.filter(driver__isnull=False, departure__gt=now)
         if kind is not None:
             queryset = queryset.filter(kind=kind)
+        if ignore_full:
+            return queryset
         return queryset.\
             annotate(total_passengers=Count("passengers")).\
             filter(total_passengers__lt=F("free_places"))
@@ -109,13 +112,13 @@ class JourneyManager(models.GeoManager):
             queryset = queryset.filter(kind=kind)
         return queryset
 
-    def recommended(self, user, kind=None, journey=None, override_distance=None, exclude_fulfilled=False):
+    def recommended(self, user, kind=None, journey=None, override_distance=None, ignore_full=False):
         """Gets the journeys recommended for an user needs.
         :param user:
         :param kind:
         :param journey:
         :param override_distance:
-        :param exclude_fulfilled:
+        :param ignore_full:
         """
         # Gets journeys needed by the user...
         if journey is None:
@@ -128,11 +131,9 @@ class JourneyManager(models.GeoManager):
         if not conditions:
             return self.none()
         now = timezone.now()
-        queryset = self.available(kind=kind).exclude(user=user, departure__lt=now)\
+        queryset = self.available(kind=kind, ignore_full=ignore_full).exclude(user=user, departure__lt=now)\
             .filter(reduce(lambda x, y: x | y, conditions))\
             .order_by("departure")
-        if exclude_fulfilled:
-            queryset = queryset.exclude(passengers__user=user)
         return queryset
 
     def passenger(self, user):

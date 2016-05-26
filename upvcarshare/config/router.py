@@ -6,6 +6,7 @@ from rest_framework.routers import SimpleRouter
 
 from journeys.api.v1.resources import TransportResource, ResidenceResource, CampusResource, JourneyResource, \
     join_journey, leave_journey, recommended_journeys, cancel_journey
+from notifications.api.v1.resources import NotificationResource
 from users.api.v1.resources import me
 
 router = SimpleRouter()
@@ -14,6 +15,7 @@ router.register(r'transports', viewset=TransportResource)
 router.register(r'residences', viewset=ResidenceResource)
 router.register(r'campus', viewset=CampusResource)
 router.register(r'journeys', viewset=JourneyResource)
+router.register(r'notifications', viewset=NotificationResource)
 
 urlpatterns = [
     url(r'^journeys/recommended/$', recommended_journeys, kwargs={'pk': None}, name='all-recommended-journeys'),

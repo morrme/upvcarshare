@@ -19,6 +19,8 @@ from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PRO
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
 from journeys.helpers import make_point_wgs84
 from journeys.managers import JourneyManager, ResidenceManager
+from notifications import JOIN, LEAVE
+from notifications.decorators import dispatch
 
 
 class Place(GisTimeStampedModel):
@@ -177,6 +179,7 @@ class Journey(GisTimeStampedModel):
             return self.free_places - self.count_passengers()
         return 0
 
+    @dispatch(JOIN)
     def join_passenger(self, user):
         """A user joins a journey.
         :param user:
@@ -190,6 +193,7 @@ class Journey(GisTimeStampedModel):
             )
         raise NoFreePlaces()
 
+    @dispatch(LEAVE)
     def leave_passenger(self, user):
         """A user joins a journey.
         :param user:
@@ -202,13 +206,13 @@ class Journey(GisTimeStampedModel):
         """Checks if the given user is a passenger of this journey."""
         return self.passengers.filter(user=user).exists()
 
-    def recommended(self):
+    def recommended(self, ignore_full=False):
         """Gets recommended journeys for this journey.
         :returns QuerySet:
         """
         if self.driver == self.user:
             return Journey.objects.none()
-        return Journey.objects.recommended(user=self.user, kind=self.kind, journey=self)
+        return Journey.objects.recommended(user=self.user, kind=self.kind, journey=self, ignore_full=ignore_full)
 
     def needs_driver(self):
         """Checks if the journey needs a driver."""
@@ -220,13 +224,13 @@ class Journey(GisTimeStampedModel):
 
     def is_fulfilled(self):
         """Check if the journey is already fulfilled by the given user."""
-        return self.needs_driver() and self.recommended().filter(passengers__user=self.user).exists()
+        return self.needs_driver() and self.recommended(ignore_full=True).filter(passengers__user=self.user).exists()
 
     def fulfilled_by(self):
-        """Gets the journey who if fulfilling this one."""
+        """Gets journeys who are fulfilling this one."""
         if not self.is_fulfilled():
             return None
-        return self.recommended().filter(passengers__user=self.user).first()
+        return self.recommended(ignore_full=True).filter(passengers__user=self.user)
 
     def distance(self):
         """Gets the journey distance."""
