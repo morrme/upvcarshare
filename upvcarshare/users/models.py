@@ -9,12 +9,19 @@ from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
 
+from core.files import UploadToDir
 from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_DISTANCE, DEFAULT_WGS84_SRID
 
 
 @python_2_unicode_compatible
 class User(AbstractUser):
     """Custom user model."""
+    avatar = models.ImageField(
+        upload_to=UploadToDir('avatars/', random_name=True), default="avatars/default.png",
+        null=True, blank=True,
+        max_length=255
+    )
+
     default_address = models.TextField(
         verbose_name=_("dirección por defecto"),
         help_text=_("Dirección que por defecto se usará para crear trayectos"),

@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load core_tags %}
+
+<h3>
+    {% if journey.kind == 0 %}
+        {% trans "Origen" %}
+    {% else %}
+        {% trans "Destino" %}
+    {% endif %}
+</h3>
+<p>{{ journey.residence.address }}</p>
+<a href="{{ journey.residence.google_maps_link }}" target="_blank">
+    <img src="{% google_static_map journey.residence.get_position_wgs84 300 300 14 %}" class="img-fluid">
+</a>

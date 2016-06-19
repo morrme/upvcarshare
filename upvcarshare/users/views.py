@@ -3,6 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from braces.views import CsrfExemptMixin
 from braces.views import LoginRequiredMixin
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
@@ -58,13 +59,13 @@ class EditProfileView(LoginRequiredMixin, View):
         return render(request, self.template_name, data)
 
     def post(self, request):
-        form = UserForm(request.POST, instance=request.user)
+        form = UserForm(request.POST, request.FILES, instance=request.user)
         data = {
             "form": form
         }
-        print(form.errors)
         if form.is_valid():
             form.save()
+            return redirect(reverse("users:edit"))
         return render(request, self.template_name, data)
 
 

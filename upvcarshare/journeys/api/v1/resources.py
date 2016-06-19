@@ -12,6 +12,7 @@ from journeys.api.v1.serializers import TransportSerializer, ResidenceSerializer
     MessageSerializer
 from journeys.exceptions import UserNotAllowed
 from journeys.models import Transport, Residence, Campus, Journey, Message
+from users.models import User
 
 
 class TransportResource(viewsets.ModelViewSet):
@@ -91,6 +92,60 @@ class JoinJourneyResource(viewsets.ViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
 join_journey = JoinJourneyResource.as_view({"post": "join"})
+
+
+class ConfirmJourneyResource(viewsets.ViewSet):
+    """Resource to allow journey creator to confirm a passenger.
+
+    Example:
+    POST /api/v1/journeys/1/confirm/
+    """
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    @staticmethod
+    def confirm(request, **kwargs):
+        pk = kwargs.get('pk', 0)
+        journey = get_object_or_404(Journey, pk=pk)
+        if journey.user != request.user:
+            raise PermissionDenied
+        try:
+            user_pk = request.data.get("user")
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            raise NotFound
+        journey.confirm_passenger(user)
+        return Response(status=status.HTTP_201_CREATED)
+
+confirm_journey = ConfirmJourneyResource.as_view({"post": "confirm"})
+
+
+class RejectJourneyResource(viewsets.ViewSet):
+    """Resource to allow journey creator to reject a passenger.
+
+    Example:
+    POST /api/v1/journeys/1/reject/
+    """
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    @staticmethod
+    def reject(request, **kwargs):
+        pk = kwargs.get('pk', 0)
+        journey = get_object_or_404(Journey, pk=pk)
+        if journey.user != request.user:
+            raise PermissionDenied
+        try:
+            user_pk = request.data.get("user")
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            raise NotFound
+        journey.reject_passenger(user)
+        return Response(status=status.HTTP_201_CREATED)
+
+reject_journey = ConfirmJourneyResource.as_view({"post": "reject"})
 
 
 class LeaveJourneyResource(viewsets.ViewSet):

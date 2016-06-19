@@ -105,12 +105,30 @@ class JourneyAPITest(APITestCase):
         self.client.force_authenticate(user=user)
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(0, journey.count_passengers())
+
+    def test_join_and_confirm_journey(self):
+        user = UserFactory()
+        journey = self._make_journey(GOING)
+        url = "/api/v1/journeys/{}/join/".format(journey.pk)
+        self.client.force_authenticate(user=user)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(0, journey.count_passengers())
+        url = "/api/v1/journeys/{}/confirm/".format(journey.pk)
+        data = {
+            "user": user.pk
+        }
+        self.client.force_authenticate(user=journey.user)
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(1, journey.count_passengers())
 
     def test_leave_journey(self):
         user = UserFactory()
         journey = self._make_journey(GOING)
         journey.join_passenger(user)
+        journey.confirm_passenger(user)
         self.assertEquals(1, journey.count_passengers())
         url = "/api/v1/journeys/{}/leave/".format(journey.pk)
         self.client.force_authenticate(user=user)

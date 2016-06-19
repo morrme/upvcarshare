@@ -29,9 +29,8 @@ class JourneyViewTests(TestCase):
         self.assertLoginRequired("journeys:create")
         with self.login(self.user):
             data = {
-                "residence": ResidenceFactory(user=self.user).pk,
-                "campus": CampusFactory().pk,
-                "kind": GOING,
+                "origin": "residence:%s" % ResidenceFactory(user=self.user).pk,
+                "destiny": "campus:%s" % CampusFactory().pk,
                 "free_places": 4,
                 "time_window": 30,
                 "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")

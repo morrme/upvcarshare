@@ -5,7 +5,8 @@ from django.conf.urls import url
 
 from journeys.views import CreateJourneyView, CreateResidenceView, EditResidenceView, EditJourneyView, \
     RecommendedJourneyView, CurrentUserJourneyView, CurrentUserResidencesView, JoinJourneyView, LeaveJourneyView, \
-    JourneyView, PassengerJourneyView, ThrowOutPassengerView, DeleteResidence, CancelJourneyView
+    JourneyView, PassengerJourneyView, ThrowOutPassengerView, DeleteResidence, CancelJourneyView, ConfirmJourneyView, \
+    RejectJourneyView
 
 urlpatterns = [
     # Residences
@@ -23,6 +24,8 @@ urlpatterns = [
     url(r"(?P<pk>\d+)/cancel/$", CancelJourneyView.as_view(), name="cancel"),
     url(r"(?P<pk>\d+)/join/$", JoinJourneyView.as_view(), name="join"),
     url(r"(?P<pk>\d+)/leave/$", LeaveJourneyView.as_view(), name="leave"),
+    url(r"(?P<pk>\d+)/confirm/$", ConfirmJourneyView.as_view(), name="confirm"),
+    url(r"(?P<pk>\d+)/reject/$", RejectJourneyView.as_view(), name="reject"),
     url(r"(?P<pk>\d+)/throw-out/$", ThrowOutPassengerView.as_view(), name="throw-out"),
     url(r"(?P<pk>\d+)/$", JourneyView.as_view(), name="details"),
 

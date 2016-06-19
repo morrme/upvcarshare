@@ -55,7 +55,7 @@ class EditProfileViewTests(TestCase):
                 "last_name": "bar"
             }
             response = self.post(url_name, data=data)
-            self.response_200(response=response)
+            self.response_302(response=response)
             user = User.objects.get(pk=self.user.pk)
             self.assertEquals(data["first_name"], user.first_name)
             self.assertEquals(data["last_name"], user.last_name)

@@ -15,11 +15,11 @@ from django_extensions.db.models import TimeStampedModel
 
 from core.models import GisTimeStampedModel
 from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID, \
-    DEFAULT_TIME_WINDOW, PASSENGER_STATUSES, UNKNOWN
+    DEFAULT_TIME_WINDOW, PASSENGER_STATUSES, UNKNOWN, CONFIRMED, REJECTED
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
 from journeys.helpers import make_point_wgs84
 from journeys.managers import JourneyManager, ResidenceManager, MessageManager
-from notifications import JOIN, LEAVE, CANCEL
+from notifications import JOIN, LEAVE, CANCEL, CONFIRM, REJECT
 from notifications.decorators import dispatch
 
 
@@ -171,7 +171,7 @@ class Journey(GisTimeStampedModel):
 
     def count_passengers(self):
         """Gets the count of passengers."""
-        return self.passengers.count()
+        return self.passengers.filter(status=CONFIRMED).count()
 
     def current_free_places(self):
         """Gets the current number of free places."""
@@ -189,7 +189,8 @@ class Journey(GisTimeStampedModel):
         if self.count_passengers() < self.free_places:
             return Passenger.objects.create(
                 journey=self,
-                user=user
+                user=user,
+                status=UNKNOWN
             )
         raise NoFreePlaces()
 
@@ -202,8 +203,24 @@ class Journey(GisTimeStampedModel):
             raise NotAPassenger()
         self.passengers.filter(user=user).delete()
 
-    def is_passenger(self, user):
+    @dispatch(CONFIRM)
+    def confirm_passenger(self, user):
+        """Confirms the user as passenger."""
+        if not self.is_passenger(user=user, all_passengers=True):
+            raise NotAPassenger()
+        self.passengers.filter(user=user).update(status=CONFIRMED)
+
+    @dispatch(REJECT)
+    def reject_passenger(self, user):
+        """Confirms the user as passenger."""
+        if not self.is_passenger(user=user, all_passengers=True):
+            raise NotAPassenger()
+        self.passengers.filter(user=user).update(status=REJECTED)
+
+    def is_passenger(self, user, all_passengers=False):
         """Checks if the given user is a passenger of this journey."""
+        if not all_passengers:
+            return self.passengers.filter(user=user, status=CONFIRMED).exists()
         return self.passengers.filter(user=user).exists()
 
     def recommended(self, ignore_full=False):
@@ -246,6 +263,13 @@ class Journey(GisTimeStampedModel):
         self.disabled = True
         self.save()
 
+    def passengers_list(self, user):
+        """Gets the suitable list of passenger for this user."""
+        if self.user == user:
+            return self.passengers.all()
+        elif self.is_passenger(user):
+            return self.passengers.filter(status=CONFIRMED)
+        return Passenger.objects.none()
 
 class Passenger(TimeStampedModel):
     """A user who has joined a journey."""

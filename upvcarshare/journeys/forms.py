@@ -187,3 +187,16 @@ class CancelJourneyForm(forms.Form):
     """
     pass
 
+
+class ConfirmRejectJourneyForm(forms.Form):
+    """Form to get the user to confirm or reject."""
+
+    user = forms.IntegerField(widget=forms.HiddenInput())
+
+    def clean_user(self):
+        user_pk = self.cleaned_data["user"]
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            raise forms.ValidationError(_("El usuario no existe"))
+        return user

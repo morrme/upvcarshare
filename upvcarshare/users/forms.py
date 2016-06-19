@@ -61,7 +61,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "default_address", "default_position", "default_distance"]
+        fields = ["first_name", "last_name", "email", "avatar", "default_address", "default_position", "default_distance"]
         widgets = {
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),

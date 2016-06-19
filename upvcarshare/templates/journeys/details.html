@@ -1,4 +1,4 @@
-{% extends "sidebar.html" %}
+{% extends "header.html" %}
 {% load i18n %}
 {% load core_tags %}
 {% load journeys_tags %}
@@ -28,74 +28,17 @@
 {% block content %}
     <div class="row">
         <div class="col-sm-8">
-            {% if not journey.needs_driver %}
-                <h3>{% trans "Datos del transporte" %}</h3>
-                <table class="table">
-                    <tbody>
-                    <tr>
-                        <th scope="row">{% trans "Conductor" %}</th>
-                        <td>{{ journey.driver.get_full_name }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Plazas libres" %}</th>
-                        <td>{{ journey.current_free_places }}/{{ journey.free_places }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            {% elif is_fulfilled %}
-                <h3>{% trans "Trayecto enlazado" %}</h3>
-                <p class="text-muted">{% trans "Te has apuntado a estos trayectos de otros usuarios para cubrir tu necesidad." %}</p>
-                {% for fulfilled_journey in fulfilled_by %}
-                    {% journey_item fulfilled_journey %}
-                {% endfor %}
-            {% else %}
-                <h3>{% trans "Trayectos recomendados" %}</h3>
-                <p class="text-muted">{% trans "Otros trayectos ofrecidos por otros usuarios que encajan en tus criterios." %}</p>
-                {% for recommended_journey in recommended %}
-                    {% journey_item recommended_journey %}
-                {% empty %}
-                    <h4 class="text-muted">{% trans "No se ha encontrado transporte recomendado" %}</h4>
-                {% endfor %}
+            {% include "journeys/blocks/details.description.html" %}
+            {% if show_messenger %}
+                <h3>{% trans "Tablón de mensajes" %}</h3>
+                <messenger journey="{{ journey.pk }}" first-name="{{ request.user.first_name }}" last-name="{{ request.user.last_name }}"></messenger>
             {% endif %}
-            <h3>{% trans "Tablón de mensajes" %}</h3>
-            <messenger journey="{{ journey.pk }}" first-name="{{ request.user.first_name }}" last-name="{{ request.user.last_name }}"></messenger>
         </div>
         <div class="col-sm-4">
             {% if show_passengers %}
-                <h3>{% trans "Pasajeros" %}</h3>
-                <table class="table">
-                    <tbody>
-                    {% for passenger in passengers %}
-                        <td>
-                            {{ passenger.user.get_full_name }}
-                        </td>
-                        <td>
-                            {% trans "Unido el" %} {{ passenger.created }}
-                        </td>
-                        {% if request.user == journey.driver and request.user == journey.user %}
-                            <td>
-                                <form method="post" action="{% url "journeys:throw-out" passenger.pk %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="return_to" value="{{ request.path }}">
-                                    <button type="submit" class="btn btn-danger">{% trans "Expulsar" %}</button>
-                                </form>
-                            </td>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
+                {% include "journeys/blocks/details.passengers.html" %}
             {% endif %}
-            <h3>
-                {% if journey.kind == 0 %}
-                    {% trans "Origen" %}
-                {% else %}
-                    {% trans "Destino" %}
-                {% endif %}
-            </h3>
-            <p>{{ journey.residence.address }}</p>
-            <a href="{{ journey.residence.google_maps_link }}" target="_blank">
-                <img src="{% google_static_map journey.residence.get_position_wgs84 300 300 14 %}" class="img-fluid">
-            </a>
+            {% include "journeys/blocks/details.location.html" %}
         </div>
     </div>
 {% endblock content %}
