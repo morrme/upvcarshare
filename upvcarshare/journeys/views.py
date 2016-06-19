@@ -11,7 +11,7 @@ from django.views.generic import View
 
 from journeys import GOING
 from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
-from journeys.forms import JourneyForm, ResidenceForm, FilterForm, CancelJourneyForm
+from journeys.forms import JourneyForm, ResidenceForm, FilterForm, CancelJourneyForm, SmartJourneyForm
 from journeys.models import Journey, Residence, Campus, Passenger
 
 
@@ -72,7 +72,8 @@ class EditResidenceView(LoginRequiredMixin, View):
 class CreateJourneyView(LoginRequiredMixin, View):
     """View to show journey creation form and to handle its creation."""
 
-    template_name = "journeys/create.html"
+    template_name = "journeys/create.smart.html"
+    form = SmartJourneyForm
 
     def get(self, request):
         residences = Residence.objects.filter(user=request.user)
@@ -83,14 +84,14 @@ class CreateJourneyView(LoginRequiredMixin, View):
             "kind": GOING,
             "departure": timezone.now().replace(second=0)
         }
-        form = JourneyForm(initial=initial, user=request.user)
+        form = self.form(initial=initial, user=request.user)
         data = {
             "form": form
         }
         return render(request, self.template_name, data)
 
     def post(self, request):
-        form = JourneyForm(request.POST, user=request.user)
+        form = self.form(request.POST, user=request.user)
         data = {
             "form": form
         }

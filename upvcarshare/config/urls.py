@@ -2,19 +2,25 @@
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.views import defaults as default_views
-from django.views.generic import TemplateView
 from django.utils.translation import ugettext_lazy as _
+from django.views import defaults as default_views
 
 from config.router import urlpatterns as api_urlpatterns
-
 # App URLs
+from core.views import PartialsTemplateView
+from pages.views import HomeView
+
 urlpatterns = [
-    url(r"^$", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    url(r"^$", HomeView.as_view(), name="home"),
     url(r"^", include("pages.urls", namespace="pages")),
     url(r"^users/", include("users.urls", namespace="users")),
     url(r"^journeys/", include("journeys.urls", namespace="journeys")),
     url(r"^notifications/", include("notifications.urls", namespace="notifications")),
+]
+
+# Partials URLs
+urlpatterns += [
+    url(r'^partials/(?P<name>.+)\.html', PartialsTemplateView.as_view(), name="partials-template"),
 ]
 
 # Admin URLs

@@ -2,4 +2,4 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 # Notification verbs
-JOIN, LEAVE, CANCEL = "join", "leave", "cancel"
+JOIN, LEAVE, CANCEL, MESSAGE = "join", "leave", "cancel", "message"

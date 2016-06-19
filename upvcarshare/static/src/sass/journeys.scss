@@ -22,3 +22,7 @@
     border-top: $table-border-width dotted $table-border-color;
   }
 }
+
+#id_i_am_driver {
+  @extend .list-unstyled;
+}

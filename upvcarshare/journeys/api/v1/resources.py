@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+from django.http import Http404
 from rest_framework import viewsets, status
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from journeys.api.v1.serializers import TransportSerializer, ResidenceSerializer, CampusSerializer, JourneySerializer
-from journeys.models import Transport, Residence, Campus, Journey
+from journeys.api.v1.serializers import TransportSerializer, ResidenceSerializer, CampusSerializer, JourneySerializer, \
+    MessageSerializer
+from journeys.exceptions import UserNotAllowed
+from journeys.models import Transport, Residence, Campus, Journey, Message
 
 
 class TransportResource(viewsets.ModelViewSet):
@@ -37,6 +41,12 @@ class ResidenceResource(viewsets.ModelViewSet):
     permission_classes = [
         IsAuthenticated,
     ]
+
+    def get_queryset(self):
+        """Only gets residences from user."""
+        queryset = super(ResidenceResource, self).get_queryset()
+        queryset = queryset.filter(user=self.request.user)
+        return queryset
 
     def perform_create(self, serializer):
         """On create, set the user who makes the request the owner.s"""
@@ -106,7 +116,8 @@ leave_journey = LeaveJourneyResource.as_view({"post": "leave"})
 
 class RecommendedJourneysResource(viewsets.ReadOnlyModelViewSet):
     """Get recommended journeys for a given journey or for all journeys of the user.
-    Eg:
+
+    Example:
 
     GET /api/v1/journeys/recommended/
     GET /api/v1/journeys/(id)/recommended/
@@ -159,3 +170,58 @@ class CancelJourneyResource(viewsets.ViewSet):
 
 cancel_journey = CancelJourneyResource.as_view({"post": "cancel"})
 
+
+class JourneyMessageResource(viewsets.ModelViewSet):
+    """List the messages of a journey.
+
+    Example:
+    GET /api/v1/journeys/(id)/messages/
+    """
+
+    queryset = Message.objects.order_by("created")
+    serializer_class = MessageSerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def messages(self, request, **kwargs):
+        pk = kwargs.get('pk', None)
+        if pk is not None:
+            journey = get_object_or_404(Journey, pk=pk)
+        else:
+            raise NotFound()
+        try:
+            queryset = Message.objects.list(user=request.user, journey=journey).order_by("created")
+        except UserNotAllowed:
+            raise PermissionDenied()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+journey_messages = JourneyMessageResource.as_view({"get": "messages"})
+
+
+class MessageResource(viewsets.ModelViewSet):
+    """Resource for messages."""
+
+    queryset = Message.objects.order_by("created")
+    serializer_class = MessageSerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def get_queryset(self):
+        journey = self.request.query_params.get("journey")
+        if journey:
+            try:
+                journey = Journey.objects.get(pk=journey)
+                return Message.objects.list(user=self.request.user, journey=journey).order_by("created")
+            except Journey.DoesNotExist:
+                pass
+        return Message.objects.list(user=self.request.user).order_by("created")
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

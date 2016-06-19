@@ -1,0 +1,14 @@
+{% load i18n %}
+<form name="messageForm" ng-submit="$ctrl.onSubmit();">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-xs-10">
+            <textarea class="form-control" ng-model="$ctrl.message.content"></textarea>
+        </div>
+        <div class="col-xs-2">
+            <button type="submit" class="btn btn-primary">{% trans "Enviar" %}</button>
+        </div>
+    </div>
+</form>
+
+

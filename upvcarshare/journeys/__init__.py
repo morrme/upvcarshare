@@ -8,6 +8,13 @@ JOURNEY_KINDS = (
     (RETURN, _("vuelta")),
 )
 
+CONFIRMED, REJECTED, UNKNOWN = 0, 1, 2
+PASSENGER_STATUSES = (
+    (CONFIRMED, _("Confiramado")),
+    (REJECTED, _("Rechazado")),
+    (UNKNOWN, _("Desconocido"))
+)
+
 # Uses projected coordinate system for Spain.
 # See: https://epsg.io/2062
 DEFAULT_PROJECTED_SRID = 2062

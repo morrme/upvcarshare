@@ -15,10 +15,10 @@ from django_extensions.db.models import TimeStampedModel
 
 from core.models import GisTimeStampedModel
 from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID, \
-    DEFAULT_TIME_WINDOW
+    DEFAULT_TIME_WINDOW, PASSENGER_STATUSES, UNKNOWN
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
 from journeys.helpers import make_point_wgs84
-from journeys.managers import JourneyManager, ResidenceManager
+from journeys.managers import JourneyManager, ResidenceManager, MessageManager
 from notifications import JOIN, LEAVE, CANCEL
 from notifications.decorators import dispatch
 
@@ -236,6 +236,10 @@ class Journey(GisTimeStampedModel):
         """Gets the journey distance."""
         return self.residence.position.distance(self.campus.position) / 1000
 
+    def is_messenger_allowed(self, user):
+        """Check if the user is allowed to make messenger actions."""
+        return not(self.user != user and not self.is_passenger(user))
+
     @dispatch(CANCEL)
     def cancel(self):
         """Cancels a journey."""
@@ -247,6 +251,7 @@ class Passenger(TimeStampedModel):
     """A user who has joined a journey."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     journey = models.ForeignKey("journeys.Journey", related_name="passengers")
+    status = models.PositiveIntegerField(choices=PASSENGER_STATUSES, default=UNKNOWN)
 
     class Meta:
         unique_together = ["user", "journey"]
@@ -257,3 +262,13 @@ class Transport(TimeStampedModel):
     name = models.CharField(max_length=64, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="transports")
     default_places = models.PositiveIntegerField(default=4)
+
+
+class Message(TimeStampedModel):
+    """Message send by a passenger of the journey."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="messages")
+    journey = models.ForeignKey("journeys.Journey", related_name="messages")
+    content = models.TextField()
+
+    objects = MessageManager()
+

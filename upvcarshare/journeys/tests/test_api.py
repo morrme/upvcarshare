@@ -10,7 +10,7 @@ from rest_framework.test import APITestCase
 
 from journeys import GOING, RETURN, DEFAULT_PROJECTED_SRID
 from journeys.models import Transport, Journey
-from journeys.tests.factories import TransportFactory, ResidenceFactory, CampusFactory, JourneyFactory
+from journeys.tests.factories import TransportFactory, ResidenceFactory, CampusFactory, JourneyFactory, MessageFactory
 from users.tests.factories import UserFactory
 
 
@@ -189,3 +189,73 @@ class JourneyAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_data = json.loads(response.content.decode('utf-8'))
         self.assertEquals(2, len(response_data['results']))
+
+
+class MessageAPITest(APITestCase):
+
+    def test_get_messages_journey(self):
+        user = UserFactory()
+        origin = ResidenceFactory(user=user)
+        destination = CampusFactory()
+        journey = JourneyFactory(user=user, residence=origin, campus=destination)
+        [MessageFactory(
+            user=UserFactory(),
+            journey=JourneyFactory(user=UserFactory(), residence=origin, campus=destination))
+         for _ in range(2)]
+        [MessageFactory(user=user, journey=journey) for _ in range(5)]
+        [MessageFactory(user=UserFactory(), journey=journey) for _ in range(5)]
+        url = "/api/v1/journeys/{}/messages/".format(journey.pk)
+        self.client.force_authenticate(user=user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = json.loads(response.content.decode('utf-8'))
+        self.assertEquals(10, len(response_data['results']))
+
+    def test_not_allowed_messages(self):
+        user = UserFactory()
+        origin = ResidenceFactory(user=user)
+        destination = CampusFactory()
+        journey = JourneyFactory(user=user, residence=origin, campus=destination)
+        [MessageFactory(user=user, journey=journey) for _ in range(5)]
+        [MessageFactory(user=UserFactory(), journey=journey) for _ in range(5)]
+        url = "/api/v1/journeys/{}/messages/".format(journey.pk)
+        self.client.force_authenticate(user=UserFactory())
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = json.loads(response.content.decode('utf-8'))
+        self.assertEquals(0, len(response_data['results']))
+
+    def test_create_message_owner_user(self):
+        user = UserFactory()
+        origin = ResidenceFactory(user=user)
+        destination = CampusFactory()
+        journey = JourneyFactory(user=user, residence=origin, campus=destination)
+        self.assertEquals(0, journey.messages.count())
+        data = {
+            "content": "Hello!",
+            "journey": journey.pk,
+        }
+        self.client.force_authenticate(user=user)
+        url = "/api/v1/messages/"
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(1, journey.messages.count())
+
+    def test_get_messages(self):
+        user = UserFactory()
+        origin = ResidenceFactory(user=user)
+        destination = CampusFactory()
+        journey1 = JourneyFactory(user=user, residence=origin, campus=destination)
+        journey2 = JourneyFactory(user=user, residence=origin, campus=destination)
+        journey3 = JourneyFactory(user=UserFactory(), residence=origin, campus=destination)
+        [MessageFactory(user=user, journey=journey1) for _ in range(2)]
+        [MessageFactory(user=UserFactory(), journey=journey1) for _ in range(2)]
+        [MessageFactory(user=user, journey=journey2) for _ in range(2)]
+        [MessageFactory(user=UserFactory(), journey=journey2) for _ in range(2)]
+        [MessageFactory(user=UserFactory(), journey=journey3) for _ in range(2)]
+        url = "/api/v1/messages/"
+        self.client.force_authenticate(user=user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = json.loads(response.content.decode('utf-8'))
+        self.assertEquals(8, len(response_data['results']))

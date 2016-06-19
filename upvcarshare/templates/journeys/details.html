@@ -18,7 +18,7 @@
     {% if request.user == journey.user %}
         <a href="{% url "journeys:edit" journey.pk %}" class="btn btn-success" style="margin-bottom: 5px">{% trans "Editar" %}</a>
         {% if not journey.needs_driver and not journey.disabled %}
-        <a href="{% url "journeys:cancel" journey.pk %}" class="btn btn-danger">{% trans "Cancelar trayecto" %}</a>
+            <a href="{% url "journeys:cancel" journey.pk %}" class="btn btn-danger">{% trans "Cancelar trayecto" %}</a>
         {% endif %}
     {% else %}
         {% journey_join_leave_button journey %}
@@ -27,7 +27,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-sm-9">
+        <div class="col-sm-8">
             {% if not journey.needs_driver %}
                 <h3>{% trans "Datos del transporte" %}</h3>
                 <table class="table">
@@ -57,6 +57,10 @@
                     <h4 class="text-muted">{% trans "No se ha encontrado transporte recomendado" %}</h4>
                 {% endfor %}
             {% endif %}
+            <h3>{% trans "Tablón de mensajes" %}</h3>
+            <messenger journey="{{ journey.pk }}" first-name="{{ request.user.first_name }}" last-name="{{ request.user.last_name }}"></messenger>
+        </div>
+        <div class="col-sm-4">
             {% if show_passengers %}
                 <h3>{% trans "Pasajeros" %}</h3>
                 <table class="table">
@@ -81,8 +85,6 @@
                     </tbody>
                 </table>
             {% endif %}
-        </div>
-        <div class="col-sm-3">
             <h3>
                 {% if journey.kind == 0 %}
                     {% trans "Origen" %}

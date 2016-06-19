@@ -10,6 +10,9 @@ from django.db.models import Count, F, Q
 from django.utils import timezone
 
 from journeys import GOING, RETURN
+from journeys.exceptions import UserNotAllowed
+from notifications import MESSAGE
+from notifications.decorators import dispatch
 
 
 def recommended_condition(journey, override_distance=None):
@@ -139,3 +142,25 @@ class JourneyManager(models.GeoManager):
     def passenger(self, user):
         """Gets the journeys where the given user is passenger."""
         return self.filter(disabled=False, passengers__user=user).order_by("departure")
+
+
+class MessageManager(models.Manager):
+    """Manager to handle messages. """
+
+    def list(self, user, journey=None):
+        """Gets the list of all messages the given user could read.
+        :param user:
+        :param journey:
+        """
+        if journey is None:
+            return self.filter(Q(journey__user=user) | Q(journey__passengers__user=user))
+        if not journey.is_messenger_allowed(user):
+            return self.none()
+        return self.filter(journey=journey)
+
+    @dispatch(MESSAGE)
+    def send(self, user, message, journey):
+        """User tries send 'message' to 'journey' group."""
+        if not journey.is_messenger_allowed(user):
+            raise UserNotAllowed()
+        return self.create(user=user, journey=journey, content=message)

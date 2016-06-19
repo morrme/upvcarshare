@@ -22,7 +22,9 @@ def dispatch(verb):
             """
             result = function(*args, **kwargs)
             # Creates the notification after call the function.
-            Notification.objects.create_from_method_call(verb=verb, function=function, args=args, kwargs=kwargs)
+            Notification.objects.create_from_method_call(
+                verb=verb, function=function, args=args, kwargs=kwargs, result=result
+            )
             return result
         return _wrapper_dispatch
     return _decorator

@@ -3,12 +3,13 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 import floppyforms
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from core.widgets import GMapsPointWidget
-from journeys import JOURNEY_KINDS
+from journeys import JOURNEY_KINDS, GOING, RETURN
 from journeys.helpers import make_point_projected
-from journeys.models import Residence, Journey
+from journeys.models import Residence, Journey, Campus
 from users.models import User
 
 
@@ -47,7 +48,14 @@ class ResidenceForm(forms.ModelForm):
 
 class JourneyForm(forms.ModelForm):
 
-    i_am_driver = forms.BooleanField(label=_("¿Soy conductor?"), required=False)
+    i_am_driver = forms.BooleanField(
+        label=_("¿Soy conductor?"),
+        required=False,
+        initial=False,
+        widget=forms.RadioSelect(
+            choices=((True, _('Sí')), (False, _('No'))),
+        )
+    )
 
     class Meta:
         model = Journey
@@ -76,6 +84,78 @@ class JourneyForm(forms.ModelForm):
         journey = super(JourneyForm, self).save(commit=False)
         journey.user = user
         journey.driver = user if self.cleaned_data["i_am_driver"] else None
+        if commit:
+            journey.save()
+        return journey
+
+
+class SmartJourneyForm(forms.ModelForm):
+
+    origin = forms.CharField(widget=forms.HiddenInput())
+    destiny = forms.CharField(widget=forms.HiddenInput())
+
+    i_am_driver = forms.BooleanField(
+        label=_("¿Soy conductor?"),
+        required=False,
+        initial=False,
+        widget=forms.RadioSelect(
+            choices=((True, _('Sí')), (False, _('No'))),
+        )
+    )
+
+    class Meta:
+        model = Journey
+        fields = ["origin", "destiny", "i_am_driver", "free_places", "departure", "time_window"]
+        widgets = {
+            "kind": forms.Select(attrs={"class": "form-control"}),
+            "free_places": forms.NumberInput(attrs={"class": "form-control"}),
+            "departure": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
+            "time_window": forms.NumberInput(attrs={"class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        super(SmartJourneyForm, self).__init__(*args, **kwargs)
+
+    def clean_origin(self):
+        origin = self.cleaned_data["origin"]
+        data = origin.split(":")
+        models = {"residence": Residence, "campus": Campus}
+        try:
+            return models.get(data[0]).objects.get(pk=data[1])
+        except (ObjectDoesNotExist, IndexError, AttributeError):
+            raise forms.ValidationError(_("Lugar de origen no válido"))
+
+    def clean_destiny(self):
+        destiny = self.cleaned_data["destiny"]
+        data = destiny.split(":")
+        models = {"residence": Residence, "campus": Campus}
+        try:
+            return models.get(data[0]).objects.get(pk=data[1])
+        except (ObjectDoesNotExist, IndexError, AttributeError):
+            raise forms.ValidationError(_("Lugar de destino no válido"))
+
+    def save(self, commit=True, **kwargs):
+        """When save a journey form, you have to provide an user."""
+        user = self.user
+        if "user" in kwargs:
+            assert isinstance(kwargs["user"], User)
+            user = kwargs.get("user")
+        journey = super(SmartJourneyForm, self).save(commit=False)
+        journey.user = user
+        journey.driver = user if self.cleaned_data["i_am_driver"] else None
+        # Smart origin, destiny and kind
+        origin = self.cleaned_data["origin"]
+        destiny = self.cleaned_data["destiny"]
+        attribute_selector = {
+            Residence: "residence",
+            Campus: "campus",
+        }
+        attribute = attribute_selector[origin.__class__]
+        setattr(journey, attribute, origin)
+        attribute = attribute_selector[destiny.__class__]
+        setattr(journey, attribute, destiny)
+        journey.kind = GOING if isinstance(origin, Residence) else RETURN
         if commit:
             journey.save()
         return journey

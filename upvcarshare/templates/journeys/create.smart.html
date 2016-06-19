@@ -14,12 +14,25 @@
 </div>
 {% endblock section_title %}
 
+{% block section_messages %}
+    {% if form.errors %}
+        {{ form.erros }}
+    {% endif %}
+{% endblock section_messages %}
+
 {% block content %}
     <div class="row">
         <div class="col-xs-12">
             <form method="post" action="">
                 {% csrf_token %}
+                <origin-destination-select
+                        origin-field="{{ form.origin.name }}"
+                        origin-field-di="{{ form.origin.auto_id }}"
+                        destiny-field="{{ form.destiny.name }}"
+                        destiny-field-id="{{ form.destiny.auto_id }}">
+                </origin-destination-select>
                 {% for field in form %}
+                    {% if not field.is_hidden %}
                     <div class="form-group row{% if field.errors %} has-danger{% endif %}">
                         <label for="{{ field.auto_id }}" class="col-sm-4 form-control-label">{{ field.label }}</label>
                         <div class="col-sm-8">
@@ -43,6 +56,7 @@
                             <span class="text-muted">{{ field.errors }}</span>
                         </div>
                     </div>
+                    {% endif %}
                 {% endfor %}
                 <div class="form-group">
                     <div class="col-sm-offset-4 col-sm-8">

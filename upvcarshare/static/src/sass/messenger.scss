@@ -1,0 +1,12 @@
+// Styles for messenger module
+@import "variables";
+
+
+.messenger {
+  .message {
+    padding: 5px;
+    background-color: #eee;
+    border-bottom: 1px dotted $upv-dark-grey;
+    margin-bottom: 10px;
+  }
+}
