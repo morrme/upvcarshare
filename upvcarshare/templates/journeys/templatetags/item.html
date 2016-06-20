@@ -10,7 +10,7 @@
                 <img src="{% google_static_map journey_item.residence.get_position_wgs84 235 201 14 %}" class="img-fluid">
             </a>
         </div>
-        <div class="col-sm-7">
+        <div class="col-sm-6">
             <h4>
                 {% if journey_item.disabled%}<span class="label label-danger">{% trans "Cancelado" %}</span>{% endif %}
                 {% if journey_item|is_passenger:request.user %}<span class="label label-success">{% trans "Apuntado" %}</span>{% endif %}
@@ -40,7 +40,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-sm-2 text-xs-center journey-item-actions">
+        <div class="col-sm-3 text-xs-center journey-item-actions">
             {% if not journey_item.needs_driver %}
                 <h4>
                     {{ journey_item.current_free_places }}/{{ journey_item.free_places }}<br />
