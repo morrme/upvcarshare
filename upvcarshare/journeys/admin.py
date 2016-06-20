@@ -7,7 +7,7 @@ from django.contrib.gis import admin
 
 from core.widgets import GMapsPointWidget
 from journeys.helpers import make_point_projected
-from journeys.models import Residence, Journey, Campus
+from journeys.models import Residence, Journey, Campus, Message, Transport
 
 
 class PlaceAdminForm(forms.ModelForm):
@@ -54,3 +54,13 @@ class CampusAdminForm(admin.GeoModelAdmin):
 @admin.register(Journey)
 class JourneyAdmin(admin.ModelAdmin):
     list_display = ["id", "residence", "campus", "kind", "departure", "created"]
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "journey", "created"]
+
+
+@admin.register(Transport)
+class TransportAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "name", "default_places", "brand", "model", "color", "created"]
