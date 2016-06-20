@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.functional import SimpleLazyObject
 
-from notifications import LEAVE, JOIN, CANCEL, MESSAGE
+from notifications import LEAVE, JOIN, CANCEL, MESSAGE, REJECT, CONFIRM
 
 
 def extract(classes, iterable):
@@ -32,6 +32,20 @@ class NotificationManager(models.Manager):
         journey = extract(Journey, objects)[0]
         notification.user = journey.user
         notification.actor = actor
+        notification.target = journey
+        notification.save()
+        return notification
+
+    def _create_confirm_reject(self, **kwargs):
+        """Creates notification for a join or leave journey."""
+        from journeys.models import Journey
+        verb = kwargs.get("verb")
+        objects = kwargs.get("objects")
+        notification = self.model(verb=verb)
+        actor = extract([get_user_model(), SimpleLazyObject], objects)[0]
+        journey = extract(Journey, objects)[0]
+        notification.user = actor
+        notification.actor = journey.user
         notification.target = journey
         notification.save()
         return notification
@@ -99,6 +113,8 @@ class NotificationManager(models.Manager):
         # User ('actor') leaves|joins ('verb') journey ('target')
         if verb in (JOIN, LEAVE):
             return self._create_join_leave(verb=verb, objects=objects)
+        elif verb in (CONFIRM, REJECT):
+            return self._create_confirm_reject(verb=verb, objects=objects)
         elif verb == CANCEL:
             return self._create_cancel(verb=verb, objects=objects)
         elif verb == MESSAGE:

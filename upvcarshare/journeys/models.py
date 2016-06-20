@@ -303,7 +303,7 @@ class Transport(TimeStampedModel):
         return self.name
 
     def description(self):
-        return ", ".join([self.brand, self.model, self.color])
+        return " ".join([self.brand, self.model, self.color])
 
     def count_used_journeys(self):
         return self.journeys.count()
