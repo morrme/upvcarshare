@@ -28,7 +28,10 @@
             {% if show_messenger %}
                 <h3>{% trans "Tablón de mensajes" %}</h3>
                 <p class="text-muted">{% trans "Habla con los otros pasajeros del viaje para concretar los detalles del viaje. La lista de mensajes <strong>no se actualiza automáticamente</strong>." %}</p>
-                <messenger journey="{{ journey.pk }}" first-name="{{ request.user.first_name }}" last-name="{{ request.user.last_name }}"></messenger>
+                <messenger journey="{{ journey.pk }}"
+                           first-name="{{ request.user.first_name }}"
+                           last-name="{{ request.user.last_name }}"
+                           user-id="{{ request.user.id }}"></messenger>
             {% endif %}
         </div>
 

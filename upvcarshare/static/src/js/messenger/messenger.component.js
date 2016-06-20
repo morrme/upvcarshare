@@ -8,7 +8,8 @@ const MessengerComponent = {
   bindings: {
     journey: '@',
     firstName: '@',
-    lastName: '@'
+    lastName: '@',
+    userId: '@'
   }
 };
 

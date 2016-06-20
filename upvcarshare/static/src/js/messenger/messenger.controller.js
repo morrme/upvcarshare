@@ -52,6 +52,7 @@ class MessengerController {
       journey: this.journey,
       content: "",
       user: {
+        id: this.userId,
         first_name: this.firstName,
         last_name: this.lastName
       },
