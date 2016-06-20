@@ -1,5 +1,5 @@
 import moment from 'moment';
-import jQuery from 'jquery';
+import 'moment/locale/es';
 
 
 class MessengerController {
@@ -80,6 +80,7 @@ class MessageListController {
   constructor() {}
 
   showTimestamp(timeString) {
+    moment.locale('es');
     return moment(timeString).calendar();
   }
 
