@@ -59,7 +59,7 @@ class OriginDestinationSelectController {
   changeDestiny() {
     if (this.campus.indexOf(this.destinySelected) != -1) {
       this.destinyFieldValue = "campus:" + this.destinySelected.id;
-    } else if (this.residences.indexOf(this.originSelected) != -1) {
+    } else if (this.residences.indexOf(this.destinySelected) != -1) {
       this.destinyFieldValue = "residence:" + this.destinySelected.id;
     }
   }

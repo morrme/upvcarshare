@@ -11,12 +11,12 @@
             </a>
         </div>
         <div class="col-sm-6">
-            <h4>
+            <h4>{{ journey_item.description }}</h4>
+            <p class="lead">
                 {% if journey_item.disabled%}<span class="label label-danger">{% trans "Cancelado" %}</span>{% endif %}
                 {% if journey_item|is_passenger:request.user %}<span class="label label-success">{% trans "Apuntado" %}</span>{% endif %}
                 {{ journey_item.departure }}
-            </h4>
-            <p class="lead">{{ journey_item.description }}</p>
+            </p>
             <table class="table table-sm">
                 <tbody>
                 {% if not journey_item.needs_driver %}

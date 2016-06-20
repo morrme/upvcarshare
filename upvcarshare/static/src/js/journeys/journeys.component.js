@@ -7,7 +7,9 @@ const OriginDestinationSelectComponent = {
   templateUrl: "/partials/journeys/origin_destiny_select.html",
   bindings: {
     originField: '@',
-    destinyField: '@'
+    originFieldId: '@',
+    destinyField: '@',
+    destinyFieldId: '@'
   }
 };
 
