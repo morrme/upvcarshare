@@ -1,10 +1,18 @@
 import angular from 'angular';
 import JourneyService from './journeys.service';
-import OriginDestinationSelectComponent from './journeys.component';
+import {OriginDestinationSelectComponent, DatetimeComponent} from './journeys.component';
+
+import 'angular-ui-bootstrap';
+import 'bootstrap-ui-datetime-picker';
+
 
 const journeys = angular
-  .module('journeys', [])
+  .module('journeys', [
+    'ui.bootstrap',
+    'ui.bootstrap.datetimepicker'
+  ])
   .service('JourneyService', JourneyService)
-  .component('originDestinationSelect', OriginDestinationSelectComponent);
+  .component('originDestinationSelect', OriginDestinationSelectComponent)
+  .component('journeyDatetime', DatetimeComponent);
 
 export default journeys;

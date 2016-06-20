@@ -1,9 +1,9 @@
 // Component for select origin and destination of a journey.
-import controller from './journeys.controller';
+import {OriginDestinationSelectController, DatetimeController} from './journeys.controller';
 
 
 const OriginDestinationSelectComponent = {
-  controller,
+  controller: OriginDestinationSelectController,
   templateUrl: "/partials/journeys/origin_destiny_select.html",
   bindings: {
     originField: '@',
@@ -14,4 +14,14 @@ const OriginDestinationSelectComponent = {
 };
 
 
-export default OriginDestinationSelectComponent;
+const DatetimeComponent = {
+  controller: DatetimeController,
+  templateUrl: "/partials/journeys/datetime.html",
+  bindings: {
+    fieldName: '@',
+    fieldId: '@'
+  }
+};
+
+
+export {OriginDestinationSelectComponent, DatetimeComponent};

@@ -83,4 +83,26 @@ class OriginDestinationSelectController {
 
 OriginDestinationSelectController.$inject = ['$scope', 'JourneyService'];
 
-export default OriginDestinationSelectController;
+
+class DatetimeController {
+
+  constructor() {
+    this.picker = {
+      date: new Date(),
+      open: false,
+      dateOptions: {
+        startingDay: 1
+      },
+      timeOptions: {
+        showMeridian: false
+      }
+    };
+  }
+
+  openCalendar($event) {
+    this.picker.open = true;
+  }
+
+}
+
+export {OriginDestinationSelectController, DatetimeController};

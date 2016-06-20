@@ -115,12 +115,12 @@ class Journey(GisTimeStampedModel):
     )
     residence = models.ForeignKey(
         "journeys.Residence",
-        verbose_name=_("lugar de origen/destino"),
+        verbose_name=_("lugar"),
         related_name="journeys"
     )
     campus = models.ForeignKey(
         "journeys.Campus",
-        verbose_name=_("campus de origen/destino"),
+        verbose_name=_("campus"),
         related_name="journeys"
     )
     kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de trayecto"))
