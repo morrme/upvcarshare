@@ -71,7 +71,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ["user", "journey", "content", "created"]
+        fields = ["id", "user", "journey", "content", "created"]
 
     @dispatch(MESSAGE)
     def save(self, **kwargs):

@@ -12,8 +12,8 @@ from django.views.generic import View
 from journeys import GOING
 from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
 from journeys.forms import JourneyForm, ResidenceForm, FilterForm, CancelJourneyForm, SmartJourneyForm, \
-    ConfirmRejectJourneyForm
-from journeys.models import Journey, Residence, Campus, Passenger
+    ConfirmRejectJourneyForm, TransportForm
+from journeys.models import Journey, Residence, Campus, Passenger, Transport
 
 
 class CreateResidenceView(LoginRequiredMixin, View):
@@ -146,7 +146,7 @@ class JourneyView(LoginRequiredMixin, View):
 
     @staticmethod
     def show_messenger(request, journey):
-        if journey.user == request.user:
+        if journey.user == request.user and not journey.needs_driver():
             return True
         return journey.is_passenger(request.user)
 
@@ -355,3 +355,65 @@ class CancelJourneyView(LoginRequiredMixin, View):
         journey = get_object_or_404(Journey, pk=pk, user=request.user)
         journey.cancel()
         return redirect("journeys:details", pk=journey.pk)
+
+
+class TransportListView(LoginRequiredMixin, View):
+    """Shows the list of users' transports."""
+    template_name = "transports/list.html"
+
+    def get(self, request):
+        data = {
+            "transports": Transport.objects.filter(user=request.user)
+        }
+        return render(request, self.template_name, data)
+
+
+class CreateTransportView(LoginRequiredMixin, View):
+    """Handles the creation of a new transport."""
+    template_name = "transports/create.html"
+    form = TransportForm
+
+    def get(self, request):
+        data = {
+            "form": self.form(user=request.user)
+        }
+        return render(request, self.template_name, data)
+
+    def post(self, request):
+        form = self.form(request.POST, user=request.user)
+        if form.is_valid():
+            form.save(user=request.user)
+            messages.success(request, _('Has creado el transporte correctamente'))
+            return redirect("journeys:transports")
+        data = {"form": form}
+        return render(request, self.template_name, data)
+
+
+class EditTransportView(LoginRequiredMixin, View):
+    """Handles the edition of a new transport."""
+    template_name = "transports/edit.html"
+    form = TransportForm
+
+    def get(self, request, pk):
+        transport = get_object_or_404(Transport, pk=pk, user=request.user)
+        data = {
+            "form": self.form(instance=transport, user=request.user),
+            "transport": transport
+        }
+        return render(request, self.template_name, data)
+
+    def post(self, request, pk):
+        transport = get_object_or_404(Transport, pk=pk, user=request.user)
+        form = self.form(request.POST, user=request.user, instance=transport)
+        if form.is_valid():
+            messages.success(request, _('Has editado el transporte correctamente'))
+            return redirect("journeys:transports")
+        data = {
+            "form": form,
+            "transport": transport
+        }
+        return render(request, self.template_name, data)
+
+
+class DeleteTransportView(LoginRequiredMixin, View):
+    pass

@@ -23,6 +23,23 @@
   }
 }
 
+.journey-actions {
+  padding-bottom: 15px;
+  margin-bottom: 10px;
+  border-bottom: $table-border-width dotted $table-border-color;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.passenger-actions {
+  td {
+    border-top: none;
+  }
+}
+
 #id_i_am_driver {
   @extend .list-unstyled;
 }

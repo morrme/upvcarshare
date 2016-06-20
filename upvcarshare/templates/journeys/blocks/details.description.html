@@ -13,6 +13,12 @@
             <th scope="row">{% trans "Plazas libres" %}</th>
             <td>{{ journey.current_free_places }}/{{ journey.free_places }}</td>
         </tr>
+        {% if journey.transport %}
+            <tr>
+                <th scope="row">{% trans "Datos del transporte" %}</th>
+                <td>{{ journey.transport.description }}</td>
+            </tr>
+        {% endif %}
         </tbody>
     </table>
 {% elif is_fulfilled %}

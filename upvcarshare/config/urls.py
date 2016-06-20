@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.conf.urls import url, include
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults as default_views
 
 from config.router import urlpatterns as api_urlpatterns
-# App URLs
 from core.views import PartialsTemplateView
 from pages.views import HomeView
 
@@ -44,3 +44,5 @@ if settings.DEBUG:
         url(r'^404/$', default_views.page_not_found, kwargs={'exception': Exception('Page not Found')}),
         url(r'^500/$', default_views.server_error),
     ]
+    # Media URLs on debug
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

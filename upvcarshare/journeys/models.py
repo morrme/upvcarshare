@@ -132,6 +132,13 @@ class Journey(GisTimeStampedModel):
         default=DEFAULT_TIME_WINDOW,
         blank=True
     )
+    transport = models.ForeignKey(
+        "journeys.Transport",
+        related_name="journeys",
+        verbose_name=_("Medio de transporte utilizado"),
+        null=True,
+        blank=True
+    )
     disabled = models.BooleanField(default=False, verbose_name=_("marcar como deshabilitado"))
 
     objects = JourneyManager()
@@ -271,6 +278,7 @@ class Journey(GisTimeStampedModel):
             return self.passengers.filter(status=CONFIRMED)
         return Passenger.objects.none()
 
+
 class Passenger(TimeStampedModel):
     """A user who has joined a journey."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -281,11 +289,24 @@ class Passenger(TimeStampedModel):
         unique_together = ["user", "journey"]
 
 
+@python_2_unicode_compatible
 class Transport(TimeStampedModel):
     """Saves the transport data for a user."""
     name = models.CharField(max_length=64, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="transports")
-    default_places = models.PositiveIntegerField(default=4)
+    default_places = models.PositiveIntegerField(verbose_name=_("Plazas libres"), default=4)
+    brand = models.TextField(verbose_name=_("Marca"), max_length=250, blank=True, default="")
+    model = models.TextField(verbose_name=_("Modelo"), max_length=250, blank=True, default="")
+    color = models.TextField(verbose_name=_("Color"), max_length=250, blank=True, default="")
+
+    def __str__(self):
+        return self.name
+
+    def description(self):
+        return ", ".join([self.brand, self.model, self.color])
+
+    def count_used_journeys(self):
+        return self.journeys.count()
 
 
 class Message(TimeStampedModel):

@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from core.widgets import GMapsPointWidget
 from journeys import JOURNEY_KINDS, GOING, RETURN
 from journeys.helpers import make_point_projected
-from journeys.models import Residence, Journey, Campus
+from journeys.models import Residence, Journey, Campus, Transport
 from users.models import User
 
 
@@ -59,8 +59,9 @@ class JourneyForm(forms.ModelForm):
 
     class Meta:
         model = Journey
-        fields = ["residence", "campus", "kind", "i_am_driver", "free_places", "departure", "time_window"]
+        fields = ["residence", "campus", "kind", "i_am_driver", "transport", "free_places", "departure", "time_window"]
         widgets = {
+            "transport": forms.Select(attrs={"class": "form-control"}),
             "residence": forms.Select(attrs={"class": "form-control"}),
             "campus": forms.Select(attrs={"class": "form-control"}),
             "kind": forms.Select(attrs={"class": "form-control"}),
@@ -74,6 +75,7 @@ class JourneyForm(forms.ModelForm):
         super(JourneyForm, self).__init__(*args, **kwargs)
         if self.user:
             self.fields['residence'].queryset = Residence.objects.filter(user=self.user)
+            self.fields['transport'].queryset = Transport.objects.filter(user=self.user)
 
     def save(self, commit=True, **kwargs):
         """When save a journey form, you have to provide an user."""
@@ -105,8 +107,9 @@ class SmartJourneyForm(forms.ModelForm):
 
     class Meta:
         model = Journey
-        fields = ["origin", "destiny", "i_am_driver", "free_places", "departure", "time_window"]
+        fields = ["origin", "destiny", "i_am_driver", "transport", "free_places", "departure", "time_window"]
         widgets = {
+            "transport": forms.Select(attrs={"class": "form-control"}),
             "kind": forms.Select(attrs={"class": "form-control"}),
             "free_places": forms.NumberInput(attrs={"class": "form-control"}),
             "departure": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
@@ -116,6 +119,8 @@ class SmartJourneyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
         super(SmartJourneyForm, self).__init__(*args, **kwargs)
+        if self.user:
+            self.fields['transport'].queryset = Transport.objects.filter(user=self.user)
 
     def clean_origin(self):
         origin = self.cleaned_data["origin"]
@@ -200,3 +205,34 @@ class ConfirmRejectJourneyForm(forms.Form):
         except User.DoesNotExist:
             raise forms.ValidationError(_("El usuario no existe"))
         return user
+
+
+class TransportForm(forms.ModelForm):
+    """Form to create transport data."""
+
+    class Meta:
+        model = Transport
+        fields = ["name", "default_places", "brand", "model", "color"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "default_places": forms.NumberInput(attrs={"class": "form-control"}),
+            "brand": floppyforms.TextInput(attrs={"class": "form-control"}),
+            "model": forms.TextInput(attrs={"class": "form-control"}),
+            "color": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        super(TransportForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True, **kwargs):
+        """When save a transport form, you have to provide an user."""
+        user = self.user
+        if "user" in kwargs:
+            assert isinstance(kwargs["user"], User)
+            user = kwargs.get("user")
+        transport = super(TransportForm, self).save(commit=False)
+        transport.user = user
+        if commit:
+            transport.save()
+        return transport

@@ -5,6 +5,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, AbstractUser, UserManager
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.templatetags.static import static
 from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
@@ -17,8 +18,9 @@ from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_DISTANCE, DEFAULT_WGS84_SRI
 class User(AbstractUser):
     """Custom user model."""
     avatar = models.ImageField(
-        upload_to=UploadToDir('avatars/', random_name=True), default="avatars/default.png",
-        null=True, blank=True,
+        upload_to=UploadToDir('avatars/', random_name=True),
+        null=True,
+        blank=True,
         max_length=255
     )
 
@@ -59,6 +61,11 @@ class User(AbstractUser):
             full_name = '%s %s' % (self.first_name, self.last_name)
             return full_name.strip()
         return self.username
+
+    def get_avatar_url(self):
+        if self.avatar:
+            return self.avatar.url
+        return static("img/avatar.png")
 
     def get_default_position_wgs84(self):
         """Transforms position to WGS-84 system."""

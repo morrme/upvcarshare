@@ -32,4 +32,6 @@ class MessengerService {
 
 }
 
+MessengerService.$inject = ['$http'];
+
 export default MessengerService;

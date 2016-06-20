@@ -1,12 +1,13 @@
 import moment from 'moment';
-moment.locale('es');
+import jQuery from 'jquery';
 
 
 class MessengerController {
 
-  constructor($scope, MessengerService) {
+  constructor($scope,$element, MessengerService) {
     this.messengerService = MessengerService;
     this.$scope = $scope;
+    this.$element = $element;
   }
 
   $onInit() {
@@ -70,7 +71,7 @@ class MessengerController {
   }
 
 }
-MessengerController.$inject = ['$scope', 'MessengerService'];
+MessengerController.$inject = ['$scope', '$element', 'MessengerService'];
 
 
 class MessageListController {

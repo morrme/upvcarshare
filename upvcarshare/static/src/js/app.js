@@ -23,5 +23,5 @@ angular
   .config(['$httpProvider', '$interpolateProvider', ($httpProvider, $interpolateProvider) => {
     $interpolateProvider.startSymbol('[[').endSymbol(']]');
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-    $httpProvider.defaults.srfHeaderName = 'X-CSRFToken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
   }]);

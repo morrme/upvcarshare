@@ -3,6 +3,10 @@
 
 
 .messenger {
+  .messages-list {
+    height: 500px;
+    overflow-y: scroll;
+  }
   .message {
     padding: 5px;
     background-color: #eee;
@@ -10,3 +14,4 @@
     margin-bottom: 10px;
   }
 }
+

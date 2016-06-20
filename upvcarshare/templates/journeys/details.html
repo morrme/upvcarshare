@@ -14,31 +14,23 @@
     </div>
 {% endblock section_title %}
 
-{% block sidebar %}
-    {% if request.user == journey.user %}
-        <a href="{% url "journeys:edit" journey.pk %}" class="btn btn-success" style="margin-bottom: 5px">{% trans "Editar" %}</a>
-        {% if not journey.needs_driver and not journey.disabled %}
-            <a href="{% url "journeys:cancel" journey.pk %}" class="btn btn-danger">{% trans "Cancelar trayecto" %}</a>
-        {% endif %}
-    {% else %}
-        {% journey_join_leave_button journey %}
-    {% endif %}
-{% endblock sidebar %}
-
 {% block content %}
     <div class="row">
-        <div class="col-sm-8">
-            {% include "journeys/blocks/details.description.html" %}
-            {% if show_messenger %}
-                <h3>{% trans "Tablón de mensajes" %}</h3>
-                <messenger journey="{{ journey.pk }}" first-name="{{ request.user.first_name }}" last-name="{{ request.user.last_name }}"></messenger>
-            {% endif %}
-        </div>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
+            {% include "journeys/blocks/details.actions.html" %}
             {% if show_passengers %}
                 {% include "journeys/blocks/details.passengers.html" %}
             {% endif %}
             {% include "journeys/blocks/details.location.html" %}
         </div>
+        <div class="col-sm-9">
+            {% include "journeys/blocks/details.description.html" %}
+            {% if show_messenger %}
+                <h3>{% trans "Tablón de mensajes" %}</h3>
+                <p class="text-muted">{% trans "Habla con los otros pasajeros del viaje para concretar los detalles del viaje. La lista de mensajes <strong>no se actualiza automáticamente</strong>." %}</p>
+                <messenger journey="{{ journey.pk }}" first-name="{{ request.user.first_name }}" last-name="{{ request.user.last_name }}"></messenger>
+            {% endif %}
+        </div>
+
     </div>
 {% endblock content %}
