@@ -65,8 +65,13 @@ class MessengerController {
     if (!message || this.loadingMessages || this.savingMessage) return;
     this.messages.push(message);
     this.savingMessage = true;
+    message.status = "sending";
     this.messengerService.postMessage(message.journey, message.content).then( response => {
       this.savingMessage = false;
+      message.id = response.id;
+      message.status = "saved";
+    }, response => {
+      message.status = "error";
     });
     this.newMessage = this.getNewMessage();
   }

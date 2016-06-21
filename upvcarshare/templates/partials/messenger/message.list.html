@@ -10,7 +10,16 @@
                         <small>[[$ctrl.showTimestamp(message.created)]]</small>
                     </div>
                 </div>
-                <p class="content">[[ message.content ]]</p>
+                <div class="row">
+                    <div class="col-xs-10">
+                        <p class="content">[[ message.content ]]</p>
+                    </div>
+                    <div class="col-xs-2">
+                        <i class="fa fa-clock-o" aria-hidden="true" ng-show="message.status == 'sending'"></i>
+                        <i class="fa fa-check" aria-hidden="true" ng-show="message.status == 'saved' || !message.status"></i>
+                        <i class="fa fa-exclamation-circle" aria-hidden="true" ng-show="message.status == 'error'"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
