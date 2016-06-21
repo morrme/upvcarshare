@@ -4,10 +4,10 @@
         <form name="messageForm" ng-submit="$ctrl.onSubmit();">
             {% csrf_token %}
             <div class="form-group row">
-                <div class="col-xs-10">
+                <div class="col-md-9 col-lg-10">
                     <input type="text" placeholder="{% trans "Escribe tu mensaje" %}" class="form-control form-control-lg" ng-model="$ctrl.message.content">
                 </div>
-                <div class="col-xs-2">
+                <div class="col-md-3 col-lg-2">
                     <button type="submit" class="btn btn-lg btn-info pull-xs-right">{% trans "Enviar" %}</button>
                 </div>
             </div>

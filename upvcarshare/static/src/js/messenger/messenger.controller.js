@@ -4,10 +4,11 @@ import 'moment/locale/es';
 
 class MessengerController {
 
-  constructor($scope,$element, MessengerService) {
+  constructor($scope, $element, $window, MessengerService) {
     this.messengerService = MessengerService;
     this.$scope = $scope;
     this.$element = $element;
+    this.$window = $window;
   }
 
   $onInit() {
@@ -17,6 +18,7 @@ class MessengerController {
     this.loadingMessages = false;
 
     this.loadMessages();
+    this.$window.setInterval( () => this.updateMessages(), 5000);
   }
 
   // Launch initial messages
@@ -30,6 +32,26 @@ class MessengerController {
         this.paginateMessages(response.next);
       }
     });
+  }
+
+  // Update messages
+  updateMessages() {
+    this.loadingMessages = true;
+    if (this.messages.length > 0) {
+      var latestId = this.messages[this.messages.length - 1].id;
+      this.messengerService.getMessages(this.journey, latestId).then( response => {
+        response.results.forEach( value => {
+          this.messages.push(value);
+        });
+        if (!response.next) {
+          this.loadingMessages = false;
+        } else {
+          this.paginateMessages(response.next);
+        }
+      });
+    } else {
+      this.loadMessages();
+    }
   }
 
   // Method to resolve pagination of messages
@@ -69,6 +91,7 @@ class MessengerController {
     this.messengerService.postMessage(message.journey, message.content).then( response => {
       this.savingMessage = false;
       message.id = response.id;
+      message.created = moment().toISOString();
       message.status = "saved";
     }, response => {
       message.status = "error";
@@ -77,7 +100,7 @@ class MessengerController {
   }
 
 }
-MessengerController.$inject = ['$scope', '$element', 'MessengerService'];
+MessengerController.$inject = ['$scope', '$element', '$window', 'MessengerService'];
 
 
 class MessageListController {

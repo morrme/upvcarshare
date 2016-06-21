@@ -58,7 +58,7 @@ class JourneyAdmin(admin.ModelAdmin):
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "journey", "created"]
+    list_display = ["id", "user", "journey", "content", "created"]
 
 
 @admin.register(Transport)

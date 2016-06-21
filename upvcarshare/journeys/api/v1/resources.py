@@ -249,6 +249,9 @@ class JourneyMessageResource(viewsets.ModelViewSet):
             queryset = Message.objects.list(user=request.user, journey=journey).order_by("created")
         except UserNotAllowed:
             raise PermissionDenied()
+        latest_id = request.GET.get("latest_id")
+        if latest_id:
+            queryset = queryset.filter(pk__gt=latest_id)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -273,10 +276,15 @@ class MessageResource(viewsets.ModelViewSet):
         if journey:
             try:
                 journey = Journey.objects.get(pk=journey)
-                return Message.objects.list(user=self.request.user, journey=journey).order_by("created")
+                queryset = Message.objects.list(user=self.request.user, journey=journey).order_by("created")
             except Journey.DoesNotExist:
                 pass
-        return Message.objects.list(user=self.request.user).order_by("created")
+        else:
+            queryset = Message.objects.list(user=self.request.user).order_by("created")
+        latest_id = self.request.query_params.get("latest_id")
+        if latest_id:
+            queryset = queryset.filter(pk__gt=latest_id)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

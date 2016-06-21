@@ -6,8 +6,12 @@ class MessengerService {
   }
 
   // Gets the list of messages for a given journey
-  getMessages(journey) {
-    return this.$http.get(`/api/v1/journeys/${journey}/messages/`)
+  getMessages(journey, latestId=null) {
+    var url = `/api/v1/journeys/${journey}/messages/`;
+    if (latestId != null) {
+      url = `${url}?latest_id=${latestId}`;
+    }
+    return this.$http.get(url)
       .then(response => response.data );
   }
 
