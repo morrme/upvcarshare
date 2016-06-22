@@ -33,7 +33,8 @@ class JourneyViewTests(TestCase):
                 "destiny": "campus:%s" % CampusFactory().pk,
                 "free_places": 4,
                 "time_window": 30,
-                "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+                "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S"),
+                "recurrence": "",
             }
             response = self.post(url_name="journeys:create", data=data)
             self.response_302(response)
@@ -58,7 +59,8 @@ class JourneyViewTests(TestCase):
                 "kind": RETURN,
                 "free_places": 4,
                 "time_window": 30,
-                "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+                "departure": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S"),
+                "recurrence": "",
             }
             response = self.post(url_name=url_name, pk=journey.pk, data=data)
             self.response_302(response=response)
