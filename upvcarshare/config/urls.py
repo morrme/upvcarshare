@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults as default_views
+from django.views.i18n import javascript_catalog
 
 from config.router import urlpatterns as api_urlpatterns
 from core.views import PartialsTemplateView
@@ -33,6 +34,14 @@ urlpatterns += [
 # Create a router and register our resources with it.
 urlpatterns += [
     url(r'^api/v1/', include(api_urlpatterns, namespace="api_v1")),
+]
+
+# JavaScript i18n
+js_info_dict = {
+    'packages': ('recurrence', ),
+}
+urlpatterns += [
+    url(r'^jsi18n/$', javascript_catalog, js_info_dict),
 ]
 
 if settings.DEBUG:

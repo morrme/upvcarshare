@@ -49,7 +49,7 @@ class ResidenceForm(forms.ModelForm):
 class JourneyForm(forms.ModelForm):
 
     i_am_driver = forms.BooleanField(
-        label=_("¿Soy conductor?"),
+        label=_("¿Eres conductor?"),
         required=False,
         initial=False,
         widget=forms.RadioSelect(
@@ -59,7 +59,8 @@ class JourneyForm(forms.ModelForm):
 
     class Meta:
         model = Journey
-        fields = ["residence", "campus", "kind", "i_am_driver", "transport", "free_places", "departure", "time_window"]
+        fields = ["residence", "campus", "kind", "i_am_driver", "transport", "free_places", "departure", "time_window",
+                  "recurrence"]
         widgets = {
             "transport": forms.Select(attrs={"class": "form-control"}),
             "residence": forms.Select(attrs={"class": "form-control"}),
@@ -107,7 +108,8 @@ class SmartJourneyForm(forms.ModelForm):
 
     class Meta:
         model = Journey
-        fields = ["origin", "destiny", "i_am_driver", "transport", "free_places", "departure", "time_window"]
+        fields = ["origin", "destiny", "i_am_driver", "transport", "free_places", "departure", "time_window",
+                  "recurrence"]
         widgets = {
             "transport": forms.Select(attrs={"class": "form-control"}),
             "kind": forms.Select(attrs={"class": "form-control"}),

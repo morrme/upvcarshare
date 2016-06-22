@@ -157,6 +157,7 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     'rest_framework_gis',
     'rest_framework.authtoken',
+    'recurrence',
 )
 
 PROJECT_APPS = (

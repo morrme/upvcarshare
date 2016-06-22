@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from recurrence.fields import RecurrenceField
 
 from core.models import GisTimeStampedModel
 from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID, \
@@ -140,6 +141,7 @@ class Journey(GisTimeStampedModel):
         blank=True
     )
     disabled = models.BooleanField(default=False, verbose_name=_("marcar como deshabilitado"))
+    recurrence = RecurrenceField(verbose_name=_("¿Vas a realizar este trayecto más de una vez?"), null=True, blank=True)
 
     objects = JourneyManager()
 
