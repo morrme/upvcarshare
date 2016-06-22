@@ -13,7 +13,7 @@ from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
-from notifications import JOIN, LEAVE, CANCEL
+from notifications import JOIN, LEAVE, CANCEL, MESSAGE, CONFIRM, REJECT
 from notifications.manager import NotificationManager
 
 
@@ -71,10 +71,28 @@ class Notification(TimeStampedModel):
                 "journey": six.text_type(self.target).lower(),
                 "date": localize(self.target.departure),
             }
+        elif self.verb == CONFIRM:
+            value = _("%(user)s te ha <strong>confirmado</strong> para el trayecto <strong>%(journey)s</strong> del %(date)s") % {
+                "user": six.text_type(self.actor),
+                "journey": six.text_type(self.target).lower(),
+                "date": localize(self.target.departure),
+            }
+        elif self.verb == REJECT:
+            value = _("%(user)s te ha <strong>rechazado</strong> para el trayecto <strong>%(journey)s</strong> del %(date)s") % {
+                "user": six.text_type(self.actor),
+                "journey": six.text_type(self.target).lower(),
+                "date": localize(self.target.departure),
+            }
         elif self.verb == CANCEL:
             value = _("El trayecto <strong>%(journey)s</strong> del %(date)s ha sido <strong>cancelado</strong>") % {
                 "journey": six.text_type(self.actor).lower(),
                 "date": localize(self.actor.departure),
+            }
+        elif self.verb == MESSAGE:
+            value = _("%(user)s ha mandado un <strong>nuevo mensaje</strong> en <strong>%(journey)s</strong> del %(date)s") % {
+                "user": six.text_type(self.actor),
+                "journey": six.text_type(self.target).lower(),
+                "date": localize(self.target.departure),
             }
         if strip_html:
             value = strip_tags(value)

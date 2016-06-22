@@ -1,0 +1,7 @@
+<div class="row messenger">
+    <div class="col-sm-12">
+        <message-list messages="$ctrl.messages"></message-list>
+        <message-form message="$ctrl.newMessage"
+                      on-send-message="$ctrl.sendMessage($event);"></message-form>
+    </div>
+</div>

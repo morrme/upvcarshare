@@ -1,0 +1,26 @@
+<div class="messages-list js-messages-list" scroll-glue>
+    <div class="message" ng-repeat="message in $ctrl.messages">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <h5 user-color="[[message.user.id]]" data-journey="[[message.journey]]">[[message.user.first_name]] [[message.user.last_name]]</h5>
+                    </div>
+                    <div class="col-sm-2">
+                        <small>[[$ctrl.showTimestamp(message.created)]]</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-10">
+                        <p class="content">[[ message.content ]]</p>
+                    </div>
+                    <div class="col-xs-2">
+                        <i class="fa fa-clock-o" aria-hidden="true" ng-show="message.status == 'sending'"></i>
+                        <i class="fa fa-check" aria-hidden="true" ng-show="message.status == 'saved' || !message.status"></i>
+                        <i class="fa fa-exclamation-circle" aria-hidden="true" ng-show="message.status == 'error'"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -22,3 +22,10 @@ def google_static_map(point, width=600, height=300, zoom=13):
     query_dict = QueryDict(mutable=True)
     query_dict.update(args)
     return "{}?{}".format(base_uri, query_dict.urlencode())
+
+
+@register.simple_tag(takes_context=True)
+def add_active_class(context, names, _class="active"):
+    request = context["request"]
+    names = names.split(",")
+    return _class if request.resolver_match.view_name in names else ""

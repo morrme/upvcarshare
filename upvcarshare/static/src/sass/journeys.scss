@@ -22,3 +22,41 @@
     border-top: $table-border-width dotted $table-border-color;
   }
 }
+
+.journey-actions {
+  padding-bottom: 15px;
+  margin-bottom: 10px;
+  border-bottom: $table-border-width dotted $table-border-color;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.passenger-actions {
+  td {
+    border-top: none;
+  }
+}
+
+.uib-datepicker {
+  .btn {
+    background-color: transparent !important;
+  }
+  .btn-info:active, .btn-info.active, .open > .btn-info.dropdown-toggle {
+    color: #01748e;
+  }
+  .glyphicon-chevron-right {
+    @extend .fa;
+    @extend .fa-chevron-right;
+  }
+  .glyphicon-chevron-left {
+    @extend .fa;
+    @extend .fa-chevron-left;
+  }
+}
+
+#id_i_am_driver {
+  @extend .list-unstyled;
+}

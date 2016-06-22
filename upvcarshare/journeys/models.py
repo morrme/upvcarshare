@@ -12,14 +12,15 @@ from django.utils.safestring import mark_safe
 from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from recurrence.fields import RecurrenceField
 
 from core.models import GisTimeStampedModel
 from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID, \
-    DEFAULT_TIME_WINDOW
+    DEFAULT_TIME_WINDOW, PASSENGER_STATUSES, UNKNOWN, CONFIRMED, REJECTED
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
 from journeys.helpers import make_point_wgs84
-from journeys.managers import JourneyManager, ResidenceManager
-from notifications import JOIN, LEAVE, CANCEL
+from journeys.managers import JourneyManager, ResidenceManager, MessageManager
+from notifications import JOIN, LEAVE, CANCEL, CONFIRM, REJECT
 from notifications.decorators import dispatch
 
 
@@ -115,12 +116,12 @@ class Journey(GisTimeStampedModel):
     )
     residence = models.ForeignKey(
         "journeys.Residence",
-        verbose_name=_("lugar de origen/destino"),
+        verbose_name=_("lugar"),
         related_name="journeys"
     )
     campus = models.ForeignKey(
         "journeys.Campus",
-        verbose_name=_("campus de origen/destino"),
+        verbose_name=_("campus"),
         related_name="journeys"
     )
     kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de trayecto"))
@@ -132,7 +133,15 @@ class Journey(GisTimeStampedModel):
         default=DEFAULT_TIME_WINDOW,
         blank=True
     )
+    transport = models.ForeignKey(
+        "journeys.Transport",
+        related_name="journeys",
+        verbose_name=_("Medio de transporte utilizado"),
+        null=True,
+        blank=True
+    )
     disabled = models.BooleanField(default=False, verbose_name=_("marcar como deshabilitado"))
+    recurrence = RecurrenceField(verbose_name=_("¿Vas a realizar este trayecto más de una vez?"), null=True, blank=True)
 
     objects = JourneyManager()
 
@@ -171,7 +180,7 @@ class Journey(GisTimeStampedModel):
 
     def count_passengers(self):
         """Gets the count of passengers."""
-        return self.passengers.count()
+        return self.passengers.filter(status=CONFIRMED).count()
 
     def current_free_places(self):
         """Gets the current number of free places."""
@@ -189,7 +198,8 @@ class Journey(GisTimeStampedModel):
         if self.count_passengers() < self.free_places:
             return Passenger.objects.create(
                 journey=self,
-                user=user
+                user=user,
+                status=UNKNOWN
             )
         raise NoFreePlaces()
 
@@ -202,8 +212,24 @@ class Journey(GisTimeStampedModel):
             raise NotAPassenger()
         self.passengers.filter(user=user).delete()
 
-    def is_passenger(self, user):
+    @dispatch(CONFIRM)
+    def confirm_passenger(self, user):
+        """Confirms the user as passenger."""
+        if not self.is_passenger(user=user, all_passengers=True):
+            raise NotAPassenger()
+        self.passengers.filter(user=user).update(status=CONFIRMED)
+
+    @dispatch(REJECT)
+    def reject_passenger(self, user):
+        """Confirms the user as passenger."""
+        if not self.is_passenger(user=user, all_passengers=True):
+            raise NotAPassenger()
+        self.passengers.filter(user=user).update(status=REJECTED)
+
+    def is_passenger(self, user, all_passengers=False):
         """Checks if the given user is a passenger of this journey."""
+        if not all_passengers:
+            return self.passengers.filter(user=user, status=CONFIRMED).exists()
         return self.passengers.filter(user=user).exists()
 
     def recommended(self, ignore_full=False):
@@ -236,24 +262,60 @@ class Journey(GisTimeStampedModel):
         """Gets the journey distance."""
         return self.residence.position.distance(self.campus.position) / 1000
 
+    def is_messenger_allowed(self, user):
+        """Check if the user is allowed to make messenger actions."""
+        return not(self.user != user and not self.is_passenger(user))
+
     @dispatch(CANCEL)
     def cancel(self):
         """Cancels a journey."""
         self.disabled = True
         self.save()
 
+    def passengers_list(self, user):
+        """Gets the suitable list of passenger for this user."""
+        if self.user == user:
+            return self.passengers.all()
+        elif self.is_passenger(user):
+            return self.passengers.filter(status=CONFIRMED)
+        return Passenger.objects.none()
+
 
 class Passenger(TimeStampedModel):
     """A user who has joined a journey."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     journey = models.ForeignKey("journeys.Journey", related_name="passengers")
+    status = models.PositiveIntegerField(choices=PASSENGER_STATUSES, default=UNKNOWN)
 
     class Meta:
         unique_together = ["user", "journey"]
 
 
+@python_2_unicode_compatible
 class Transport(TimeStampedModel):
     """Saves the transport data for a user."""
     name = models.CharField(max_length=64, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="transports")
-    default_places = models.PositiveIntegerField(default=4)
+    default_places = models.PositiveIntegerField(verbose_name=_("Plazas libres"), default=4)
+    brand = models.TextField(verbose_name=_("Marca"), max_length=250, blank=True, default="")
+    model = models.TextField(verbose_name=_("Modelo"), max_length=250, blank=True, default="")
+    color = models.TextField(verbose_name=_("Color"), max_length=250, blank=True, default="")
+
+    def __str__(self):
+        return self.name
+
+    def description(self):
+        return " ".join([self.brand, self.model, self.color])
+
+    def count_used_journeys(self):
+        return self.journeys.count()
+
+
+class Message(TimeStampedModel):
+    """Message send by a passenger of the journey."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="messages")
+    journey = models.ForeignKey("journeys.Journey", related_name="messages")
+    content = models.TextField()
+
+    objects = MessageManager()
+

@@ -71,6 +71,14 @@ class JourneyTest(TestCase):
         user = UserFactory()
         journey = self._make_journey()
         self.assertIsInstance(journey.join_passenger(user), Passenger)
+        self.assertFalse(journey.is_passenger(user))
+        self.assertEquals(journey.count_passengers(), 0)
+
+    def test_join_and_confirm_passenger(self):
+        user = UserFactory()
+        journey = self._make_journey()
+        self.assertIsInstance(journey.join_passenger(user), Passenger)
+        journey.confirm_passenger(user)
         self.assertTrue(journey.is_passenger(user))
         self.assertEquals(journey.count_passengers(), 1)
 
@@ -95,6 +103,7 @@ class JourneyTest(TestCase):
         user = UserFactory()
         journey = self._make_journey()
         journey.join_passenger(user)
+        journey.confirm_passenger(user)
         journey.leave_passenger(user)
         self.assertFalse(journey.is_passenger(user))
 

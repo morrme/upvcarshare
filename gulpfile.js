@@ -90,6 +90,24 @@ var imagesTask = function (options) {
   }
 };
 
+// Fonts Task
+// -----------------------------------------------------------------------------
+var fontsTask = function (options) {
+  var run = function () {
+    gulp.src(pathsConfig().src.fonts + '**/*')
+      .pipe(gulp.dest(pathsConfig().dist.base));
+  };
+
+  // Run for development with watch
+  if (options.development) {
+    run();
+    gulp.watch(options.watch, run);
+    // Run for production with compressed
+  } else {
+    run();
+  }
+};
+
 // App Task
 // -----------------------------------------------------------------------------
 // Task to build a bundle.js file with all the JavaScript code of the app,
@@ -144,6 +162,10 @@ gulp.task('default', function () {
     development: false,
     watch: pathsConfig().src.images + "/**/*"
   });
+  fontsTask({
+    development: false,
+    watch: pathsConfig().src.fonts + "/**/*"
+  });
 });
 
 // Deploy Task
@@ -158,6 +180,9 @@ gulp.task('deploy', function () {
     development: false
   });
   imagesTask({
+    development: false
+  });
+  fontsTask({
     development: false
   });
 });

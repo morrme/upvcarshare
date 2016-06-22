@@ -44,3 +44,9 @@ class TransportFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "journeys.Transport"
+
+
+class MessageFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = "journeys.Message"

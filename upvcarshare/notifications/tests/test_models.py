@@ -33,6 +33,7 @@ class NotificationTests(TestCase):
         user = UserFactory()
         journey = self._make_journey(self.user)
         journey.join_passenger(user)
+        journey.confirm_passenger(user)
         journey.leave_passenger(user)
         self.assertEquals(1, Notification.objects.filter(user=self.user, verb=JOIN).count())
         self.assertEquals(1, Notification.objects.filter(user=self.user, verb=LEAVE).count())

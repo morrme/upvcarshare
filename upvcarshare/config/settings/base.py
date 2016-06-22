@@ -123,6 +123,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
                 'notifications.context_processors.notifications',
+                'journeys.context_processors.passenger_statuses',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
@@ -156,6 +157,7 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     'rest_framework_gis',
     'rest_framework.authtoken',
+    'recurrence',
 )
 
 PROJECT_APPS = (

@@ -4,10 +4,16 @@
     <form method="post" action="{% url "journeys:join" journey_item.pk %}">
         {% csrf_token %}
         <input type="hidden" name="return_to" value="{{ request.path }}">
-        {% if not journey_item.disabled %}
-            <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
+        {% if journey_item.disabled or passenger.status == UNKNOWN or passenger.status == REJECTED %}
+            {% if passenger.status == UNKNOWN %}
+                <button type="button" disabled="disabled" class="btn btn-secondary">{% trans "Esperando confirmación" %}</button>
+            {% elif passenger.status == REJECTED %}
+                <button type="button" disabled="disabled" class="btn btn-secondary">{% trans "Rechazado" %}</button>
+            {% else %}
+                <button type="button" disabled="disabled" class="btn btn-secondary">{% trans "Unirse" %}</button>
+            {% endif %}
         {% else %}
-            <button type="button" disabled="disabled" class="btn btn-secondary">{% trans "Unirse" %}</button>
+            <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
         {% endif %}
 
     </form>

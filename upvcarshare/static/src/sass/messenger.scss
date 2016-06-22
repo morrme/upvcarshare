@@ -1,0 +1,17 @@
+// Styles for messenger module
+@import "variables";
+
+
+.messenger {
+  .messages-list {
+    height: 500px;
+    overflow-y: scroll;
+  }
+  .message {
+    padding: 7px;
+    background-color: #eee;
+    border-bottom: 1px dotted $upv-dark-grey;
+    margin-bottom: 10px;
+  }
+}
+

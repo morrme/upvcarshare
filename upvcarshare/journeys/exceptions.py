@@ -12,3 +12,7 @@ class AlreadyAPassenger(Exception):
 
 class NotAPassenger(Exception):
     msg = "The user is not a passenger of this journey."
+
+
+class UserNotAllowed(Exception):
+    msg = "The user is not a allowed to do this action."
