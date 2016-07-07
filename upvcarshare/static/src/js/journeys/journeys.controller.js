@@ -1,3 +1,6 @@
+import moment from 'moment';
+
+
 class OriginDestinationSelectController {
 
   constructor($scope, JourneyService) {
@@ -105,4 +108,113 @@ class DatetimeController {
 
 }
 
-export {OriginDestinationSelectController, DatetimeController};
+
+class CalendarController {
+
+  constructor($scope, JourneyService, uiCalendarConfig) {
+    this.journeyService = JourneyService;
+    this.$scope = $scope;
+    this.uiCalendarConfig = uiCalendarConfig;
+  }
+
+  processDataEvent(dataEvent) {
+    var event = {
+      "title": dataEvent.title,
+      "start": moment(dataEvent.start).toDate(),
+      "end": moment(dataEvent.end).toDate(),
+      "url": `/journeys/${dataEvent.id}/`
+    };
+    if (dataEvent.user.id == parseInt(this.userId)) {
+      this.journeysCreated.events.push(event);
+    } else {
+      this.journeysJoined.events.push(event);
+    }
+  }
+
+  // Load events
+  loadEvents(url=null, mode=null) {
+    this.loadingEvents = true;
+    if (url === null) {
+        this.journeyService.getJourneysJoined().then( (response) => {
+        response.results.forEach((dataEvent) => {
+          this.processDataEvent(dataEvent)
+        });
+        if (response.next !== null) {
+          this.loadEvents(response.next, "joined");
+        } else {
+          this.loadingEvents = false;
+          this.eventSources.push(this.journeysJoined);
+        }
+      });
+      this.journeyService.getJourneysOwned().then( (response) => {
+        response.results.forEach((dataEvent) => {
+          this.processDataEvent(dataEvent)
+        });
+        if (response.next !== null) {
+          this.loadEvents(response.next, "created");
+        } else {
+          this.loadingEvents = false;
+          this.eventSources.push(this.journeysCreated);
+        }
+      });
+    } else {
+      this.journeyService.getByUrl(url).then( (response) => {
+        response.results.forEach((dataEvent) => {
+          this.processDataEvent(dataEvent)
+        });
+        if (response.next !== null) {
+          this.loadEvents(response.next, mode);
+        } else {
+          this.loadingEvents = false;
+          if (mode == "created") this.eventSources.push(this.journeysCreated);
+          if (mode == "joined") this.eventSources.push(this.journeysJoined);
+        }
+      });
+    }
+
+  }
+
+  // Load next events
+  loadNextEvents(url) {
+
+  }
+
+  // Change view
+  changeView(view, calendar) {
+    this.uiCalendarConfig.calendars[calendar].fullCalendar('changeView', view);
+  }
+
+  $onInit() {
+    this.loadingEvents = false;
+    this.eventSources = [];
+    this.journeysCreated = {
+        color: '#99c300',
+        textColor: '#fff',
+        events: []
+      };
+    this.journeysJoined = {
+        color: '#ec6409',
+        textColor: '#fff',
+        events: []
+      };
+
+    // Calendar config object
+    this.uiConfig = {
+      calendar: {
+        editable: false,
+        defaultView: "agendaWeek",
+        lang: "es",
+        header:{
+          left: 'title',
+          center: '',
+          right: 'today prev,next'
+        }
+      }
+    };
+    this.loadEvents();
+  }
+}
+CalendarController.$inject = ['$scope', 'JourneyService', 'uiCalendarConfig'];
+
+
+export {OriginDestinationSelectController, DatetimeController, CalendarController};

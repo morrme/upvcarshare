@@ -81,15 +81,8 @@ class JourneyViewTests(TestCase):
             response = self.get(url_name, data={"distance": 200, "kind": GOING})
             self.response_200(response=response)
 
-    def test_get_passenger_journey(self):
-        url_name = "journeys:passenger"
-        self.assertLoginRequired(url_name)
-        with self.login(self.user):
-            response = self.get(url_name)
-            self.response_200(response=response)
-
-    def test_get_user_list_journey(self):
-        url_name = "journeys:user-list"
+    def test_get_list_journey(self):
+        url_name = "journeys:list"
         self.assertLoginRequired(url_name)
         with self.login(self.user):
             response = self.get(url_name)

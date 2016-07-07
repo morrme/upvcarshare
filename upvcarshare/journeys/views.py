@@ -186,17 +186,15 @@ class RecommendedJourneyView(LoginRequiredMixin, View):
         return render(request, self.template_name, data)
 
 
-class CurrentUserJourneyView(LoginRequiredMixin, View):
+class JourneysView(LoginRequiredMixin, View):
     """View to show to the user the list of his created journeys."""
-    template_name = "journeys/user_list.html"
+    template_name = "journeys/list.html"
 
     def get(self, request):
-        now = timezone.now()
+        journeys = Journey.objects.filter(user=request.user).order_by("departure")
         data = {
-            "journeys": Journey.objects.filter(
-                user=request.user,
-                departure__gte=now
-            ).order_by("departure")
+            "journeys": journeys,
+            "journeys_count": journeys.count()
         }
         return render(request, self.template_name, data)
 
@@ -213,15 +211,15 @@ class CurrentUserResidencesView(LoginRequiredMixin, View):
         return render(request, self.template_name, data)
 
 
-class PassengerJourneyView(LoginRequiredMixin, View):
-    """View to show the list of journeys where the user is passenger."""
-    template_name = "journeys/passenger.html"
-
-    def get(self, request):
-        data = {
-            "journeys": Journey.objects.passenger(user=request.user)
-        }
-        return render(request, self.template_name, data)
+# class PassengerJourneyView(LoginRequiredMixin, View):
+#     """View to show the list of journeys where the user is passenger."""
+#     template_name = "journeys/passenger.html"
+#
+#     def get(self, request):
+#         data = {
+#             "journeys": Journey.objects.passenger(user=request.user)
+#         }
+#         return render(request, self.template_name, data)
 
 
 class JoinJourneyView(LoginRequiredMixin, View):
@@ -417,3 +415,10 @@ class EditTransportView(LoginRequiredMixin, View):
 
 class DeleteTransportView(LoginRequiredMixin, View):
     pass
+
+
+class CalendarView(LoginRequiredMixin, View):
+    template_name = "journeys/calendar.html"
+
+    def get(self, request):
+        return render(request, self.template_name)

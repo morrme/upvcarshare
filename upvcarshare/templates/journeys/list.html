@@ -1,0 +1,22 @@
+{% extends "header.html" %}
+{% load i18n %}
+{% load journeys_tags %}
+
+{% block section_title %}
+    <div class="row">
+        <div class="col-sm-10">
+            <h2>{% trans "Mis trayectos" %}</h2>
+            <p>{% trans "Los trayectos tanto que necesitas hacer a un campus y no tienes transporte como aquellos que quieres ofrecer transporte a otras personas." %}</p>
+        </div>
+        <div class="col-sm-2">
+            <a href="{% url "journeys:create" %}" class="btn btn-primary">{% trans "Nuevo trayecto" %}</a>
+        </div>
+    </div>
+{% endblock section_title %}
+
+{% block content %}
+    {% if journeys_count == 0 %}
+        <h3 class="text-muted">{% trans "No tienes trayectos creados" %}</h3>
+    {% endif %}
+    <calendar user-id="{{ request.user.pk }}"></calendar>
+{% endblock content %}

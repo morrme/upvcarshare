@@ -56,12 +56,16 @@ class JourneySerializer(serializers.ModelSerializer):
     campus = CampusSerializer()
     driver = UserSerializer()
 
+    title = serializers.CharField(source="get_title", read_only=True)
+    start = serializers.CharField(source="get_start", read_only=True)
+    end = serializers.CharField(source="get_end", read_only=True)
+
     current_free_places = serializers.IntegerField()
 
     class Meta:
         model = Journey
-        fields = ["user", "driver", "residence", "campus", "kind", "free_places", "departure", "disabled",
-                  "current_free_places"]
+        fields = ["id", "user", "title", "driver", "residence", "campus", "kind", "free_places", "departure",
+                  "arrival", "start", "end", "disabled", "current_free_places"]
 
 
 class MessageSerializer(serializers.ModelSerializer):

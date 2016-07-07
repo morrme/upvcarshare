@@ -4,9 +4,10 @@ from __future__ import unicode_literals, print_function, absolute_import
 from django.conf.urls import url
 
 from journeys.views import CreateJourneyView, CreateResidenceView, EditResidenceView, EditJourneyView, \
-    RecommendedJourneyView, CurrentUserJourneyView, CurrentUserResidencesView, JoinJourneyView, LeaveJourneyView, \
-    JourneyView, PassengerJourneyView, ThrowOutPassengerView, DeleteResidence, CancelJourneyView, ConfirmJourneyView, \
-    RejectJourneyView, CreateTransportView, EditTransportView, DeleteTransportView, TransportListView
+    RecommendedJourneyView, CurrentUserResidencesView, JoinJourneyView, LeaveJourneyView, \
+    JourneyView, ThrowOutPassengerView, DeleteResidence, CancelJourneyView, ConfirmJourneyView, \
+    RejectJourneyView, CreateTransportView, EditTransportView, DeleteTransportView, TransportListView, CalendarView, \
+    JourneysView
 
 urlpatterns = [
     # Residences
@@ -22,9 +23,9 @@ urlpatterns = [
     url(r"transports/$", TransportListView.as_view(), name="transports"),
 
     # Journeys
+    url(r"calendar/$", CalendarView.as_view(), name="calendar"),
     url(r"recommended/$", RecommendedJourneyView.as_view(), name="recommended"),
-    url(r"user-list/$", CurrentUserJourneyView.as_view(), name="user-list"),
-    url(r"passenger/$", PassengerJourneyView.as_view(), name="passenger"),
+    url(r"list/$", JourneysView.as_view(), name="list"),
     url(r"create/$", CreateJourneyView.as_view(), name="create"),
     url(r"(?P<pk>\d+)/edit/$", EditJourneyView.as_view(), name="edit"),
     url(r"(?P<pk>\d+)/cancel/$", CancelJourneyView.as_view(), name="cancel"),

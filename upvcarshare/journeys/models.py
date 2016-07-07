@@ -3,6 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from copy import copy
 
+import datetime
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
@@ -127,6 +128,7 @@ class Journey(GisTimeStampedModel):
     kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de trayecto"))
     free_places = models.PositiveIntegerField(default=4, verbose_name=_("plazas libres"), blank=True, null=True)
     departure = models.DateTimeField(verbose_name=_("fecha y hora de salida"))
+    arrival = models.DateTimeField(verbose_name=_("fecha y hora de llegada estimada"), null=True, blank=True)
     time_window = models.PositiveIntegerField(
         verbose_name=_("ventana de tiempo"),
         help_text=_("Se buscaran por los trayectos que salgan hasta con estos minutos de antelación"),
@@ -161,6 +163,20 @@ class Journey(GisTimeStampedModel):
 
     def __str__(self):
         return self.description(strip_html=True)
+
+    def get_title(self):
+        """Gets the title for event calendar."""
+        return self.description(strip_html=True)
+
+    def get_start(self):
+        """Gets the time to departure on ISO format."""
+        return self.departure.isoformat()
+
+    def get_end(self):
+        """Gets the time to arrival on ISO format."""
+        if self.arrival:
+            return self.arrivalself.departure
+        return (self.departure + datetime.timedelta(minutes=30)).isoformat()
 
     def description(self, strip_html=False):
         """Gets a human read description of the journey."""

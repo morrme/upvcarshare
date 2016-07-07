@@ -1,5 +1,5 @@
 // Component for select origin and destination of a journey.
-import {OriginDestinationSelectController, DatetimeController} from './journeys.controller';
+import {OriginDestinationSelectController, DatetimeController, CalendarController} from './journeys.controller';
 
 
 const OriginDestinationSelectComponent = {
@@ -24,4 +24,13 @@ const DatetimeComponent = {
 };
 
 
-export {OriginDestinationSelectComponent, DatetimeComponent};
+const CalendarComponent = {
+  controller: CalendarController,
+  templateUrl: "/partials/journeys/calendar.html",
+  bindings: {
+    userId: '@'
+  }
+};
+
+
+export {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent};
