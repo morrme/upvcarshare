@@ -7,6 +7,8 @@
         <a href="{% url "journeys:edit" journey.pk %}" class="btn btn-success">{% trans "Editar" %}</a>
         {% if not journey.needs_driver and not journey.disabled %}
             <a href="{% url "journeys:cancel" journey.pk %}" class="btn btn-danger">{% trans "Cancelar trayecto" %}</a>
+        {% else %}
+            <a href="{% url "journeys:delete" journey.pk %}" class="btn btn-danger">{% trans "Borrar trayecto" %}</a>
         {% endif %}
     {% else %}
         {% journey_join_leave_button journey %}
