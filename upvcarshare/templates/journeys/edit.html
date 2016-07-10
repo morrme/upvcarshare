@@ -15,3 +15,8 @@
         <a href="{% url "journeys:create-residence" %}" class="btn btn-secondary">{% trans "Crear nuevo lugar" %}</a>
     </div>
 {% endblock %}
+
+{% block buttons %}
+    <button type="submit" class="btn btn-success">{% trans "Guardar" %}</button>
+    <a href="{% url "journeys:details" journey.pk %}" class="btn btn-danger">{% trans "Volver" %}</a>
+{% endblock buttons %}
