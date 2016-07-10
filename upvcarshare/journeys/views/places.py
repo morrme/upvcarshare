@@ -5,7 +5,7 @@ from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from journeys.forms import ResidenceForm
 from journeys.models import Residence
@@ -35,7 +35,8 @@ class CreateResidenceView(LoginRequiredMixin, View):
         }
         if form.is_valid():
             residence = form.save(user=request.user)
-            return redirect("journeys:edit-residence", pk=residence.pk)
+            messages.success(request, ugettext('Has creado el lugar "%s"') % residence.name)
+            return redirect("journeys:residences")
         return render(request, self.template_name, data)
 
 
