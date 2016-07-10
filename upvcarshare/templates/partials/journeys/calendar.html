@@ -1,14 +1,15 @@
 {% load i18n %}
 <div class="row" style="margin-bottom: 10px">
     <div class="col-md-8">
-        <ul class="list-unstyled list-inline">
+        <h3 class="text-muted" ng-hide="!$ctrl.loadingEvents" ng-cloak>{% trans "Cargando trayectos..." %}</h3>
+        <ul class="list-unstyled list-inline" ng-hide="$ctrl.loadingEvents" ng-cloak>
             <li class="list-inline-item"><span class="label label-success">{% trans "Trayectos creados en los que eres conductor" %}</span></li>
             <li class="list-inline-item"><span class="label label-danger">{% trans "Trayectos creados en los que necesitas conductor" %}</span></li>
             <li class="list-inline-item"><span class="label label-info">{% trans "Trayectos a los que te has apuntado" %}</span></li>
         </ul>
+
     </div>
     <div class="col-md-4">
-        <h3 class="text-muted" ng-hide="!$ctrl.loadingEvents">{% trans "Cargando trayectos..." %}</h3>
         <div class="btn-group pull-xs-right">
             <button class="btn btn-success" ng-click="$ctrl.changeView('agendaDay', 'calendar')">{% trans "Dia" %}</button>
             <button class="btn btn-success" ng-click="$ctrl.changeView('agendaWeek', 'calendar')">{% trans "Semana" %}</button>
