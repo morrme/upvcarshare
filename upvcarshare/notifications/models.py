@@ -5,6 +5,7 @@ import six
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.templatetags.l10n import localize
 from django.utils.html import strip_tags
@@ -97,3 +98,9 @@ class Notification(TimeStampedModel):
         if strip_html:
             value = strip_tags(value)
         return mark_safe(value)
+
+    def link(self):
+        from journeys.models import Journey
+        if isinstance(self.target, Journey):
+            return reverse("journeys:details", kwargs={"pk": self.target.pk})
+        return None

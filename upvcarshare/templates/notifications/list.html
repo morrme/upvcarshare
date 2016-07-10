@@ -23,7 +23,13 @@
         <div class="notification {% if not notification.read %}notification-unread{% endif %}">
             <div class="row">
                 <div class="col-xs-12">
-                    <p class="lead">{{ notification.text }}</p>
+                    <p class="lead">
+                        {% if notification.link %}
+                            <a href="{{ notification.link }}" class="highlight-link">{{ notification.text }}</a>
+                        {% else %}
+                            {{ notification.text }}
+                        {% endif %}
+                    </p>
                     <p class="text-muted">{{ notification.created }}</p>
                 </div>
             </div>

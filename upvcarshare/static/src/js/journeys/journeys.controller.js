@@ -125,7 +125,11 @@ class CalendarController {
       "url": `/journeys/${dataEvent.id}/`
     };
     if (dataEvent.user.id == parseInt(this.userId)) {
-      this.journeysCreated.events.push(event);
+      if (dataEvent.driver !== null) {
+        this.journeysCreatedDriver.events.push(event);
+      } else {
+        this.journeysCreatedNoDriver.events.push(event);
+      }
     } else {
       this.journeysJoined.events.push(event);
     }
@@ -154,7 +158,8 @@ class CalendarController {
           this.loadEvents(response.next, "created");
         } else {
           this.loadingEvents = false;
-          this.eventSources.push(this.journeysCreated);
+          this.eventSources.push(this.journeysCreatedDriver);
+          this.eventSources.push(this.journeysCreatedNoDriver);
         }
       });
     } else {
@@ -166,7 +171,10 @@ class CalendarController {
           this.loadEvents(response.next, mode);
         } else {
           this.loadingEvents = false;
-          if (mode == "created") this.eventSources.push(this.journeysCreated);
+          if (mode == "created"){
+            this.eventSources.push(this.journeysCreatedDriver);
+            this.eventSources.push(this.journeysCreatedNoDriver);
+          }
           if (mode == "joined") this.eventSources.push(this.journeysJoined);
         }
       });
@@ -187,13 +195,18 @@ class CalendarController {
   $onInit() {
     this.loadingEvents = false;
     this.eventSources = [];
-    this.journeysCreated = {
-        color: '#99c300',
-        textColor: '#fff',
-        events: []
-      };
+    this.journeysCreatedDriver = {
+      color: '#99c300',
+      textColor: '#fff',
+      events: []
+    };
+    this.journeysCreatedNoDriver = {
+      color: '#ec6409',
+      textColor: '#fff',
+      events: []
+    };
     this.journeysJoined = {
-        color: '#ec6409',
+        color: '#01a5cb',
         textColor: '#fff',
         events: []
       };
