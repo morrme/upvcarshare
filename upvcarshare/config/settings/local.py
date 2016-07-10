@@ -31,3 +31,9 @@ EMAIL_BACKEND = env(
     'DJANGO_EMAIL_BACKEND',
     default='django.core.mail.backends.console.EmailBackend'
 )
+
+# JUPYTER
+# ------------------------------------------------------------------------------
+NOTEBOOK_ARGUMENTS = [
+    '--port=8000',
+]

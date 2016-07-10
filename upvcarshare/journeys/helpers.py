@@ -47,3 +47,35 @@ def first_day_current_week():
 def last_day_current_week():
     """Gets the first date of the week."""
     return first_day_current_week() + datetime.timedelta(days=7)
+
+
+def expand(journey):
+    """Expands given journey using recurrence field to create new journeys."""
+    from journeys.models import Journey
+
+    # Finish date is 1 of september, new course
+    today = timezone.now().date()
+    finish_date = today.replace(day=1, month=9)
+    if today.month >= 9:
+        finish_date.replace(year=finish_date.year + 1)
+    journeys = []
+    if journey.recurrence:
+        datetime_start = journey.departure + datetime.timedelta(days=1)
+        datetime_end = datetime.datetime.combine(finish_date, time=datetime.time(0, 0, 0, 0))
+        for date in journey.recurrence.occurrences(dtstart=datetime_start, dtend=datetime_end):
+            new_journey = Journey.objects.get(pk=journey.pk)
+            new_journey.pk = None
+            new_journey.update_modified = True  # TODO I dot know why this is needed, sorry :(
+            new_journey.parent = journey
+            new_journey.departure = date.replace(
+                hour=new_journey.departure.hour,
+                minute=new_journey.departure.minute,
+            )
+            if new_journey.arrival:
+                new_journey.arrival = date.replace(
+                    hour=new_journey.arrival.hour,
+                    minute=new_journey.arrival.minute,
+                )
+            journeys.append(new_journey)
+    return journeys
+

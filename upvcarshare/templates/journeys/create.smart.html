@@ -51,6 +51,8 @@
                             </div>
                         {% elif field.name == "departure" %}
                             <journey-datetime field-name="{{ field.name }}" field-id="{{ field.auto_id }}"></journey-datetime>
+                        {% elif field.name == "arrival" %}
+                            <journey-datetime field-name="{{ field.name }}" field-id="{{ field.auto_id }}"></journey-datetime>
                         {% else %}
                             {{ field }}
                         {% endif %}

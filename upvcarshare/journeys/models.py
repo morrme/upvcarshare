@@ -144,6 +144,7 @@ class Journey(GisTimeStampedModel):
     )
     disabled = models.BooleanField(default=False, verbose_name=_("marcar como deshabilitado"))
     recurrence = RecurrenceField(verbose_name=_("¿Vas a realizar este trayecto más de una vez?"), null=True, blank=True)
+    parent = models.ForeignKey("journeys.Journey", null=True, blank=True, related_name="children")
 
     objects = JourneyManager()
 
@@ -175,7 +176,7 @@ class Journey(GisTimeStampedModel):
     def get_end(self):
         """Gets the time to arrival on ISO format."""
         if self.arrival:
-            return self.arrivalself.departure
+            return self.arrival
         return (self.departure + datetime.timedelta(minutes=30)).isoformat()
 
     def description(self, strip_html=False):

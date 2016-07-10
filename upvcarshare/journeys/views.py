@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+import datetime
 from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.http import Http404
@@ -79,11 +80,13 @@ class CreateJourneyView(LoginRequiredMixin, View):
     def get(self, request):
         residences = Residence.objects.filter(user=request.user)
         campuses = Campus.objects.all()
+        initial_departure = timezone.now().replace(second=0, minute=0) + datetime.timedelta(hours=1)
         initial = {
             "residence": residences.first() if residences.exists() else None,
             "campus": campuses.first() if campuses.exists() else None,
             "kind": GOING,
-            "departure": timezone.now().replace(second=0)
+            "departure": initial_departure,
+            "arrival": initial_departure + datetime.timedelta(minutes=30)
         }
         form = self.form(initial=initial, user=request.user)
         data = {

@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from core.widgets import GMapsPointWidget
 from journeys import JOURNEY_KINDS, GOING, RETURN
-from journeys.helpers import make_point_projected
+from journeys.helpers import make_point_projected, expand
 from journeys.models import Residence, Journey, Campus, Transport
 from users.models import User
 
@@ -60,7 +60,7 @@ class JourneyForm(forms.ModelForm):
     class Meta:
         model = Journey
         fields = ["residence", "campus", "kind", "i_am_driver", "transport", "free_places", "departure", "time_window",
-                  "recurrence"]
+                  "arrival", "recurrence"]
         widgets = {
             "transport": forms.Select(attrs={"class": "form-control"}),
             "residence": forms.Select(attrs={"class": "form-control"}),
@@ -68,6 +68,7 @@ class JourneyForm(forms.ModelForm):
             "kind": forms.Select(attrs={"class": "form-control"}),
             "free_places": forms.NumberInput(attrs={"class": "form-control"}),
             "departure": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
+            "arrival": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
             "time_window": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
@@ -109,12 +110,13 @@ class SmartJourneyForm(forms.ModelForm):
     class Meta:
         model = Journey
         fields = ["origin", "destiny", "i_am_driver", "transport", "free_places", "departure", "time_window",
-                  "recurrence"]
+                  "arrival", "recurrence"]
         widgets = {
             "transport": forms.Select(attrs={"class": "form-control"}),
             "kind": forms.Select(attrs={"class": "form-control"}),
             "free_places": forms.NumberInput(attrs={"class": "form-control"}),
             "departure": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
+            "arrival": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
             "time_window": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
@@ -165,6 +167,9 @@ class SmartJourneyForm(forms.ModelForm):
         journey.kind = GOING if isinstance(origin, Residence) else RETURN
         if commit:
             journey.save()
+            # Expand journey recurrence
+            journeys = expand(journey)
+            Journey.objects.bulk_create(journeys)
         return journey
 
 
