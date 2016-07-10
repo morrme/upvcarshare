@@ -1,8 +1,8 @@
 {% load i18n %}
 <div class="row" style="margin-bottom: 10px">
     <div class="col-md-8">
-        <h3 class="text-muted" ng-hide="!$ctrl.loadingEvents" ng-cloak>{% trans "Cargando trayectos..." %}</h3>
-        <ul class="list-unstyled list-inline" ng-hide="$ctrl.loadingEvents" ng-cloak>
+        <h3 class="text-muted" ng-cloak ng-hide="!$ctrl.loadingEvents">{% trans "Cargando trayectos..." %}</h3>
+        <ul class="list-unstyled list-inline" ng-cloak ng-hide="$ctrl.loadingEvents">
             <li class="list-inline-item"><span class="label label-success">{% trans "Trayectos creados en los que eres conductor" %}</span></li>
             <li class="list-inline-item"><span class="label label-danger">{% trans "Trayectos creados en los que necesitas conductor" %}</span></li>
             <li class="list-inline-item"><span class="label label-info">{% trans "Trayectos a los que te has apuntado" %}</span></li>
