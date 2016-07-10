@@ -24,7 +24,6 @@ urlpatterns = [
 
     # Journeys
     url(r"recommended/$", RecommendedJourneyView.as_view(), name="recommended"),
-    url(r"list/$", JourneysView.as_view(), name="list"),
     url(r"create/$", CreateJourneyView.as_view(), name="create"),
     url(r"(?P<pk>\d+)/edit/$", EditJourneyView.as_view(), name="edit"),
     url(r"(?P<pk>\d+)/cancel/$", CancelJourneyView.as_view(), name="cancel"),
@@ -35,5 +34,6 @@ urlpatterns = [
     url(r"(?P<pk>\d+)/reject/$", RejectJourneyView.as_view(), name="reject"),
     url(r"(?P<pk>\d+)/throw-out/$", ThrowOutPassengerView.as_view(), name="throw-out"),
     url(r"(?P<pk>\d+)/$", JourneyView.as_view(), name="details"),
+    url(r"$", JourneysView.as_view(), name="list"),
 
 ]
