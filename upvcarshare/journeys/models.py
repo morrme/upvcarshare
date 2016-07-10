@@ -21,7 +21,7 @@ from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PRO
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
 from journeys.helpers import make_point_wgs84
 from journeys.managers import JourneyManager, ResidenceManager, MessageManager
-from notifications import JOIN, LEAVE, CANCEL, CONFIRM, REJECT
+from notifications import JOIN, LEAVE, CANCEL, CONFIRM, REJECT, THROW_OUT
 from notifications.decorators import dispatch
 
 
@@ -222,12 +222,19 @@ class Journey(GisTimeStampedModel):
 
     @dispatch(LEAVE)
     def leave_passenger(self, user):
-        """A user joins a journey.
+        """A user leave a journey.
         :param user:
         """
         if not self.is_passenger(user=user):
             raise NotAPassenger()
         self.passengers.filter(user=user).delete()
+
+    @dispatch(THROW_OUT)
+    def throw_out(self, user):
+        """A user is throw out from a journey.
+        :param user:
+        """
+        self.leave_passenger(user)
 
     @dispatch(CONFIRM)
     def confirm_passenger(self, user):

@@ -304,7 +304,7 @@ class ThrowOutPassengerView(LoginRequiredMixin, View):
         if passenger.journey.user != request.user:
             raise Http404
         try:
-            passenger.journey.leave_passenger(passenger.user)
+            passenger.journey.throw_out(passenger.user)
             messages.success(request, _('Has expulsado al pasajero'))
         except NotAPassenger:
             messages.success(request, _('No puedes expulsar a este pasajero'))

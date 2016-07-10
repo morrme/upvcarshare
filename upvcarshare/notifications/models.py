@@ -14,7 +14,7 @@ from django.utils.six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
-from notifications import JOIN, LEAVE, CANCEL, MESSAGE, CONFIRM, REJECT
+from notifications import JOIN, LEAVE, CANCEL, MESSAGE, CONFIRM, REJECT, THROW_OUT
 from notifications.manager import NotificationManager
 
 
@@ -68,6 +68,12 @@ class Notification(TimeStampedModel):
             }
         elif self.verb == LEAVE:
             value = _("%(user)s ha <strong>abandonado</strong> el trayecto <strong>%(journey)s</strong> del %(date)s") % {
+                "user": six.text_type(self.actor),
+                "journey": six.text_type(self.target).lower(),
+                "date": localize(self.target.departure),
+            }
+        elif self.verb == THROW_OUT:
+            value = _("%(user)s te ha <strong>expulsado</strong> el trayecto <strong>%(journey)s</strong> del %(date)s") % {
                 "user": six.text_type(self.actor),
                 "journey": six.text_type(self.target).lower(),
                 "date": localize(self.target.departure),
