@@ -178,7 +178,7 @@ class ResidenceViewTests(TestCase):
                 "distance": 500
             }
             response = self.post(url_name=url_name, pk=residence.pk, data=data)
-            self.response_200(response=response)
+            self.response_302(response=response)
             residence = Residence.objects.get(pk=residence.pk)
             self.assertEquals(data["address"], residence.address)
 
