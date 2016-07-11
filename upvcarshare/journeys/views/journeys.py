@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from journeys import GOING
 from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
-from journeys.forms import SmartJourneyForm, JourneyForm, FilterForm, ConfirmRejectJourneyForm
+from journeys.forms import SmartJourneyForm, JourneyForm, FilterForm, ConfirmRejectJourneyForm, SearchJourneyForm
 from journeys.models import Residence, Campus, Journey, Passenger
 
 
@@ -284,3 +284,24 @@ class DeleteJourneyView(LoginRequiredMixin, View):
             return redirect("journeys:list")
         messages.error(request, _('No puedes borrar este lugar'))
         return redirect(reverse("journeys:details", kwargs={"pk": pk}))
+
+
+class SearchJourneysView(LoginRequiredMixin, View):
+    """View to search journeys."""
+    template_name = "journeys/search.html"
+
+    def get(self, request):
+        journeys = Journey.objects.none()
+        is_query = bool(request.GET)
+        if is_query:
+            form = SearchJourneyForm(request.GET)
+            if form.is_valid():
+                journeys = form.search(user=request.user)
+        else:
+            form = SearchJourneyForm(initial={"time_window": 30})
+        data = {
+            "form": form,
+            "journeys": journeys,
+            "is_query": is_query
+        }
+        return render(request, self.template_name, data)

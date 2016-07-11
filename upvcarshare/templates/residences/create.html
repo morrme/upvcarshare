@@ -1,16 +1,13 @@
 {% extends "header.html" %}
 {% load i18n %}
-
-{% block extra_head %}
-    {{ form.media }}
-{% endblock %}
+{% load journeys_tags %}
 
 {% block section_title %}
-<div class="row">
-    <div class="col-xs-12">
-        <h2>{% trans "Crear lugar" %}</h2>
+    <div class="row">
+        <div class="col-xs-12">
+            <h2>{% trans "Crear lugar" %}</h2>
+        </div>
     </div>
-</div>
 {% endblock section_title %}
 
 {% block content %}
@@ -19,14 +16,30 @@
             <form method="post" action="">
                 {% csrf_token %}
                 {% for field in form %}
-                    <div class="form-group row{% if field.errors %} has-danger{% endif %}">
-                        <label for="{{ field.auto_id }}" class="col-sm-3 form-control-label">{{ field.label }}</label>
-                        <div class="col-sm-9">
-                            {{ field }}
-                            <span class="text-muted">{{ field.help_text }}</span>
-                            <span class="text-muted">{{ field.errors }}</span>
+                    {% if field.name == "position" %}
+                        <div class="form-group row{% if field.errors %} has-danger{% endif %}">
+                            <label for="{{ field.auto_id }}" class="col-sm-3 form-control-label">{{ field.label }}</label>
+                            <div class="col-sm-9">
+                                <circle-map position-value="{{ form.position.value|point_google_maps }}"
+                                            position-field="{{ form.position.name }}"
+                                            position-field-id="{{ form.position.auto_id }}"
+                                            radius-value="{{ form.distance.value }}"
+                                            radius-field="{{ form.distance.name }}"
+                                            radius-field-id="{{ form.distance.auto_id }}">
+                                </circle-map>
+                            </div>
                         </div>
-                    </div>
+                    {% elif field.name == "distance" %}
+                    {% else %}
+                        <div class="form-group row{% if field.errors %} has-danger{% endif %}">
+                            <label for="{{ field.auto_id }}" class="col-sm-3 form-control-label">{{ field.label }}</label>
+                            <div class="col-sm-9">
+                                {{ field }}
+                                <span class="text-muted">{{ field.help_text }}</span>
+                                <span class="text-muted">{{ field.errors }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
                 <div class="form-group row">
                     <div class="col-sm-offset-3 col-sm-9">

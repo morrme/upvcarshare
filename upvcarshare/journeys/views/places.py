@@ -63,6 +63,8 @@ class EditResidenceView(LoginRequiredMixin, View):
         }
         if form.is_valid():
             form.save(user=request.user)
+            return redirect("journeys:residences")
+        messages.error(request, form.errors)
         return render(request, self.template_name, data)
 
 

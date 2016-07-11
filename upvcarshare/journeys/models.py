@@ -17,9 +17,9 @@ from recurrence.fields import RecurrenceField
 
 from core.models import GisTimeStampedModel
 from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID, \
-    DEFAULT_TIME_WINDOW, PASSENGER_STATUSES, UNKNOWN, CONFIRMED, REJECTED
+    DEFAULT_TIME_WINDOW, PASSENGER_STATUSES, UNKNOWN, CONFIRMED, REJECTED, DEFAULT_GOOGLE_MAPS_SRID
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
-from journeys.helpers import make_point_wgs84
+from journeys.helpers import make_point_wgs84, make_point
 from journeys.managers import JourneyManager, ResidenceManager, MessageManager
 from notifications import JOIN, LEAVE, CANCEL, CONFIRM, REJECT, THROW_OUT
 from notifications.decorators import dispatch
@@ -60,7 +60,9 @@ class Place(GisTimeStampedModel):
 
     def google_maps_link(self):
         """Gets a link to Google Maps position"""
-        point = self.get_position_wgs84()
+        point = make_point(
+            self.position, origin_coord_srid=DEFAULT_PROJECTED_SRID, destiny_coord_srid=DEFAULT_GOOGLE_MAPS_SRID
+        )
         return "http://www.google.com/maps/place/{},{}".format(
             point.coords[1], point.coords[0]
         )

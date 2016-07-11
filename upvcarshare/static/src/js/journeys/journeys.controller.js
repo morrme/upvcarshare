@@ -229,5 +229,149 @@ class CalendarController {
 }
 CalendarController.$inject = ['$scope', 'JourneyService', 'uiCalendarConfig'];
 
+/**
+ * Controller for the map widget with a circle, to select the position and
+ * distance, to make queries or update fields.
+ */
+class CircleMapController {
 
-export {OriginDestinationSelectController, DatetimeController, CalendarController};
+  constructor($scope, uiGmapGoogleMapApi) {
+    this.scope = $scope;
+    this.uiGmapGoogleMapApi = uiGmapGoogleMapApi;
+  }
+
+  changeCenter(latitude, longitude) {
+    this.map.center = {
+      latitude: latitude,
+      longitude: longitude
+    };
+    this.circle.center = {
+      latitude: latitude,
+      longitude: longitude
+    };
+  }
+
+  hasInitialCenter() {
+    return !(this.positionValue == null || this.positionValue == undefined || this.positionValue == "None");
+  }
+
+  hasInitialRadius() {
+    return this.radiusValue !== null && this.radiusValue !== undefined && this.radiusValue !== "None";
+  }
+
+  getInitialCenter() {
+    var re = /POINT \(([0-9\-\.]+) ([0-9\-\.]+)\)/;
+    var values = this.positionValue.match(re);
+    if (values.length == 3) {
+      return {
+        latitude: parseFloat(values[2]),
+        longitude: parseFloat(values[1])
+      };
+    }
+    return null
+  }
+
+  getInitialRadius() {
+    return parseFloat(this.radiusValue);
+  }
+
+  initializeMap() {
+    if (!this.hasInitialCenter()) {
+      // Initial position from geolocation
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition( (position) => {
+          this.scope.$apply( () => {
+            this.changeCenter(position.coords.latitude, position.coords.longitude);
+          });
+        });
+      }
+    }
+  }
+
+  positionObjectToGis(latitude, longitude) {
+    return `POINT (${longitude} ${latitude})`;
+  }
+
+  $onInit() {
+    // Map configuration
+    this.map = {
+      zoom: 16,
+      center: {
+          latitude: 39.4703669,
+          longitude: -0.3749849,
+      },
+      options: {
+        disableDefaultUI: false
+      }
+    };
+    // Circle configuration
+    this.circle = {
+      center: {
+          latitude: 39.4703669,
+          longitude: -0.3749849,
+      },
+      radius: 200,
+      stroke: {
+        color: '#99c300',
+        weight: 2,
+        opacity: 1
+      },
+      fill: {
+          color: '#99c300',
+          opacity: 0.5
+      },
+      geodesic: true,
+      draggable: true,
+      clickable: true,
+      editable: true,
+      visible: true,
+      control: {},
+      events: {
+        center_changed: () => {
+          var value = this.circle.center;
+          this.pointString = this.positionObjectToGis(value.latitude, value.longitude);
+        }
+      }
+    };
+    // Search box configuration
+    this.searchbox = {
+      template: 'searchbox.tpl.html',
+      events: {
+        places_changed: (searchBox) => {
+          var places = searchBox.getPlaces(),
+              place = {};
+          if (places.length > 0) {
+            place = places[0];
+            this.changeCenter(
+              place.geometry.location.lat(),
+              place.geometry.location.lng()
+            );
+          }
+        }
+      }
+    };
+    // Point string
+    this.pointString = "";
+    // Watch changes on circle center
+    this.scope.$watch("$ctrl.circle.center", (value) => {
+      if (value !== undefined) {
+        this.pointString = this.positionObjectToGis(value.latitude, value.longitude);
+      }
+    });
+    if (this.hasInitialCenter()) {
+      this.map.center = this.getInitialCenter();
+      this.circle.center = this.getInitialCenter();
+    }
+    if (this.hasInitialRadius()) {
+      this.circle.radius = this.getInitialRadius();
+    }
+    // Load Google Maps
+    this.uiGmapGoogleMapApi.then( (maps) => {
+      this.maps = maps;
+      this.initializeMap();
+    });
+  }
+}
+CircleMapController.$inject = ["$scope", "uiGmapGoogleMapApi"];
+
+export {OriginDestinationSelectController, DatetimeController, CalendarController, CircleMapController};

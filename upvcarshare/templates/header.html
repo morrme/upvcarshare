@@ -24,8 +24,6 @@
     </div>
     <div class="container section-navbar">
         <nav class="navbar navbar-full navbar-dark bg-upv-dark-grey">
-            {#            <a class="navbar-brand" href="{% url "home" %}">{% trans "Compartir Coche en la UPV" %}</a>#}
-
             {% if request.user.is_authenticated %}
                 <ul class="nav navbar-nav pull-xs-left">
                     <li class="nav-item {% add_active_class "notifications:list" %}">
@@ -38,6 +36,9 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-nav pull-xs-right">
+                    <li class="nav-item {% add_active_class "journeys:search" %}">
+                        <a class="nav-link" href="{% url "journeys:search" %}">{% trans "Buscador" %}</a>
+                    </li>
                     <li class="nav-item {% add_active_class "journeys:recommended" %}">
                         <a class="nav-link" href="{% url "journeys:recommended" %}">{% trans "Recomendaciones" %}</a>
                     </li>

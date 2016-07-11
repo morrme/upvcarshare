@@ -10,24 +10,23 @@ from django.utils import timezone
 from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID
 
 
-def make_point_wgs84(point):
-    """Gets a copy of the given point on WGS84 coordinates system."""
-    origin_coord = SpatialReference(DEFAULT_PROJECTED_SRID)
-    destination_coord = SpatialReference(DEFAULT_WGS84_SRID)
+def make_point(point, origin_coord_srid, destiny_coord_srid):
+    origin_coord = SpatialReference(origin_coord_srid)
+    destination_coord = SpatialReference(destiny_coord_srid)
     trans = CoordTransform(origin_coord, destination_coord)
     transformed_point = copy(point)
     transformed_point.transform(trans)
     return transformed_point
+
+
+def make_point_wgs84(point, origin_coord_srid=DEFAULT_PROJECTED_SRID):
+    """Gets a copy of the given point on WGS84 coordinates system."""
+    return make_point(point, origin_coord_srid=origin_coord_srid, destiny_coord_srid=DEFAULT_WGS84_SRID)
 
 
 def make_point_projected(point, origin_coord_srid=DEFAULT_WGS84_SRID):
     """Gets a copy of the given point on projected coordinates system."""
-    origin_coord = SpatialReference(origin_coord_srid)
-    destination_coord = SpatialReference(DEFAULT_PROJECTED_SRID)
-    trans = CoordTransform(origin_coord, destination_coord)
-    transformed_point = copy(point)
-    transformed_point.transform(trans)
-    return transformed_point
+    return make_point(point, origin_coord_srid=origin_coord_srid, destiny_coord_srid=DEFAULT_PROJECTED_SRID)
 
 
 def date_to_datetime(date):

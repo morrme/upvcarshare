@@ -1,0 +1,19 @@
+{% load i18n %}
+<style>
+    .angular-google-map-container { height: 300px; }
+</style>
+<script id="searchbox.tpl.html" type="text/ng-template">
+    <input type="text" class="form-control map-search-box" placeholder="{% trans "Buscar" %}" prevent-submit>
+</script>
+<div id="map-canvas">
+    <ui-gmap-google-map center="$ctrl.map.center" zoom="$ctrl.map.zoom" draggable="true" options="$ctrl.map.options">
+        <ui-gmap-search-box template="$ctrl.searchbox.template" events="$ctrl.searchbox.events"></ui-gmap-search-box>
+        <ui-gmap-circle center="$ctrl.circle.center" stroke="$ctrl.circle.stroke" fill="$ctrl.circle.fill"
+                        radius="$ctrl.circle.radius" visible="$ctrl.circle.visible" geodesic="$ctrl.circle.geodesic"
+                        editable="$ctrl.circle.editable" draggable="$ctrl.circle.draggable"
+                        clickable="$ctrl.circle.clickable" control="$ctrl.circle.control"
+                        events="$ctrl.circle.events"></ui-gmap-circle>
+    </ui-gmap-google-map>
+</div>
+<input type="hidden" ng-value="$ctrl.circle.radius" name="[[$ctrl.radiusField]]" id="[[$ctrl.radiusFieldId]]"/>
+<input type="hidden" ng-value="$ctrl.pointString" name="[[$ctrl.positionField]]" id="[[$ctrl.positionFieldId]]"/>

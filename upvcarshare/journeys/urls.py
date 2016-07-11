@@ -4,8 +4,8 @@ from __future__ import unicode_literals, print_function, absolute_import
 from django.conf.urls import url
 
 from journeys.views.journeys import RecommendedJourneyView, JourneysView, CreateJourneyView, EditJourneyView, \
-    CancelJourneyView, JoinJourneyView, LeaveJourneyView, ConfirmJourneyView, RejectJourneyView, ThrowOutPassengerView, \
-    JourneyView, DeleteJourneyView
+    CancelJourneyView, JoinJourneyView, LeaveJourneyView, ConfirmJourneyView, RejectJourneyView, \
+    ThrowOutPassengerView, JourneyView, DeleteJourneyView, SearchJourneysView
 from journeys.views.places import CreateResidenceView, EditResidenceView, DeleteResidence, CurrentUserResidencesView
 from journeys.views.transports import CreateTransportView, EditTransportView, DeleteTransportView, TransportListView
 
@@ -23,6 +23,7 @@ urlpatterns = [
     url(r"transports/$", TransportListView.as_view(), name="transports"),
 
     # Journeys
+    url(r"search/$", SearchJourneysView.as_view(), name="search"),
     url(r"recommended/$", RecommendedJourneyView.as_view(), name="recommended"),
     url(r"create/$", CreateJourneyView.as_view(), name="create"),
     url(r"(?P<pk>\d+)/edit/$", EditJourneyView.as_view(), name="edit"),

@@ -1,5 +1,6 @@
 // Component for select origin and destination of a journey.
-import {OriginDestinationSelectController, DatetimeController, CalendarController} from './journeys.controller';
+import {OriginDestinationSelectController, DatetimeController, CalendarController, CircleMapController}
+  from './journeys.controller';
 
 
 const OriginDestinationSelectComponent = {
@@ -33,4 +34,17 @@ const CalendarComponent = {
 };
 
 
-export {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent};
+const CircleMapComponent = {
+  controller: CircleMapController,
+  templateUrl: "/partials/journeys/circle_map.html",
+  bindings: {
+    radiusValue: '@',
+    radiusField: '@',
+    radiusFieldId: '@',
+    positionValue: '@',
+    positionField: '@',
+    positionFieldId: '@'
+  }
+};
+
+export {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, CircleMapComponent};

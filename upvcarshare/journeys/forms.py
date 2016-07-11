@@ -3,23 +3,21 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 import floppyforms
 from django import forms
+from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
-from core.widgets import GMapsPointWidget
-from journeys import JOURNEY_KINDS, GOING, RETURN
-from journeys.helpers import make_point_projected, expand
+from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_GOOGLE_MAPS_SRID, DEFAULT_PROJECTED_SRID
+from journeys.helpers import expand, make_point
 from journeys.models import Residence, Journey, Campus, Transport
 from users.models import User
 
 
 class ResidenceForm(forms.ModelForm):
-    """Form to edit and create residences. It uses a OpenStreetMap widget that
-    uses a SRID 3857, so we have to convert all input data from this widget to
-    our projected coordinates system.
-    """
+    """Form to edit and create residences."""
 
-    position = floppyforms.gis.PointField(label=_("Posición en el mapa"), widget=GMapsPointWidget(), srid=3857)
+    position = forms.CharField(label=_("Posición en el mapa"), widget=forms.HiddenInput())
+    distance = forms.FloatField(widget=forms.HiddenInput())
 
     class Meta:
         model = Residence
@@ -27,13 +25,19 @@ class ResidenceForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "address": forms.Textarea(attrs={"class": "form-control"}),
-            "distance": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
     def clean_position(self):
         position = self.cleaned_data["position"]
-        position = make_point_projected(position, origin_coord_srid=3857)
-        return position
+        position_point = GEOSGeometry(position, srid=DEFAULT_GOOGLE_MAPS_SRID)
+        position_projected_point = make_point(
+            position_point, origin_coord_srid=DEFAULT_GOOGLE_MAPS_SRID, destiny_coord_srid=DEFAULT_PROJECTED_SRID
+        )
+        return position_projected_point
+
+    def clean_distance(self):
+        distance = self.cleaned_data["distance"]
+        return int(distance)
 
     def save(self, commit=True, **kwargs):
         """When save a residence form, you have to provide an user."""
@@ -243,3 +247,40 @@ class TransportForm(forms.ModelForm):
         if commit:
             transport.save()
         return transport
+
+
+class SearchJourneyForm(forms.Form):
+    """Form to search journeys."""
+
+    position = forms.CharField(widget=forms.HiddenInput())
+    distance = forms.CharField(widget=forms.HiddenInput())
+    departure = forms.DateTimeField(
+        label=_("Fecha y hora de salida"),
+        widget=floppyforms.DateTimeInput(attrs={"class": "form-control"})
+    )
+    time_window = forms.IntegerField(
+        label=_("Margen de tiempo, en minutos"),
+        initial=30,
+        widget=forms.NumberInput(attrs={"class": "form-control"})
+    )
+
+    def clean_position(self):
+        position = self.cleaned_data["position"]
+        position_point = GEOSGeometry(position, srid=DEFAULT_GOOGLE_MAPS_SRID)
+        position_projected_point = make_point(
+            position_point, origin_coord_srid=DEFAULT_GOOGLE_MAPS_SRID, destiny_coord_srid=DEFAULT_PROJECTED_SRID
+        )
+        return position_projected_point
+
+    def clean_distance(self):
+        distance = self.cleaned_data["distance"]
+        return int(distance)
+
+    def search(self, user):
+        position = self.cleaned_data["position"]
+        distance = self.cleaned_data["distance"]
+        departure = self.cleaned_data["departure"]
+        time_window = self.cleaned_data["time_window"]
+        return Journey.objects.search(
+            user=user, position=position, distance=distance, departure=departure, time_window=time_window
+        )

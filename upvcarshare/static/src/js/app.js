@@ -13,12 +13,14 @@ require("fullcalendar");
 // General Angular 1.5 App
 // -----------------------------------------------------------------------------
 import angular from 'angular';
-import Messenger from './messenger'
-import Journeys from './journeys'
+import Common from './common';
+import Messenger from './messenger';
+import Journeys from './journeys';
 
 
 angular
   .module('upvcarshare', [
+    Common.name,
     Messenger.name,
     Journeys.name
   ])
