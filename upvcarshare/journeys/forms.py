@@ -274,7 +274,7 @@ class SearchJourneyForm(forms.Form):
 
     def clean_distance(self):
         distance = self.cleaned_data["distance"]
-        return int(distance)
+        return float(distance)
 
     def search(self, user):
         position = self.cleaned_data["position"]
