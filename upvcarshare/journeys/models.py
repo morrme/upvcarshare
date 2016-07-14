@@ -178,7 +178,7 @@ class Journey(GisTimeStampedModel):
     def get_end(self):
         """Gets the time to arrival on ISO format."""
         if self.arrival:
-            return self.arrival
+            return self.arrival.isoformat()
         return (self.departure + datetime.timedelta(minutes=30)).isoformat()
 
     def description(self, strip_html=False):
