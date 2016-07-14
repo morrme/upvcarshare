@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load journeys_tags %}
 
+{% block title %}{% trans "Crear lugar" %}{% endblock title %}
+
 {% block section_title %}
     <div class="row">
         <div class="col-xs-12">
@@ -28,6 +30,7 @@
                                             radius-field-id="{{ form.distance.auto_id }}">
                                 </circle-map>
                                 <span class="text-muted">{{ field.help_text }}</span>
+                                <span class="text-muted">{{ field.errors }}</span>
                             </div>
                         </div>
                     {% elif field.name == "distance" %}

@@ -26,7 +26,7 @@ class User(AbstractUser):
 
     default_address = models.TextField(
         verbose_name=_("dirección por defecto"),
-        help_text=_("Dirección que por defecto se usará para crear trayectos"),
+        help_text=_("Dirección que por defecto se usará para crear trayectos, y que será la dirección que vean otros usuarios"),
         null=True,
         blank=True
     )

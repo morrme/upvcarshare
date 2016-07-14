@@ -109,6 +109,7 @@ class JourneyView(LoginRequiredMixin, View):
             "fulfilled_by": journey.fulfilled_by(),
             "passengers": journey.passengers_list(request.user),
             "recommended": journey.recommended(),
+            "has_recurrence": journey.parent is not None or journey.children.exists()
         }
         return render(request, self.template_name, data)
 

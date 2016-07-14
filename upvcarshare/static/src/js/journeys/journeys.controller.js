@@ -125,7 +125,9 @@ class CalendarController {
       "url": `/journeys/${dataEvent.id}/`
     };
     if (dataEvent.user.id == parseInt(this.userId)) {
-      if (dataEvent.driver !== null) {
+      if (dataEvent.disabled) {
+        this.journeysCanceled.events.push(event);
+      } else if (dataEvent.driver !== null) {
         this.journeysCreatedDriver.events.push(event);
       } else {
         this.journeysCreatedNoDriver.events.push(event);
@@ -160,6 +162,7 @@ class CalendarController {
           this.loadingEvents = false;
           this.eventSources.push(this.journeysCreatedDriver);
           this.eventSources.push(this.journeysCreatedNoDriver);
+          this.eventSources.push(this.journeysCanceled);
         }
       });
     } else {
@@ -174,17 +177,12 @@ class CalendarController {
           if (mode == "created"){
             this.eventSources.push(this.journeysCreatedDriver);
             this.eventSources.push(this.journeysCreatedNoDriver);
+            this.eventSources.push(this.journeysCanceled);
           }
           if (mode == "joined") this.eventSources.push(this.journeysJoined);
         }
       });
     }
-
-  }
-
-  // Load next events
-  loadNextEvents(url) {
-
   }
 
   // Change view
@@ -206,10 +204,15 @@ class CalendarController {
       events: []
     };
     this.journeysJoined = {
-        color: '#01a5cb',
-        textColor: '#fff',
-        events: []
-      };
+      color: '#01a5cb',
+      textColor: '#fff',
+      events: []
+    };
+    this.journeysCanceled = {
+      color: '#818a91',
+      textColor: '#fff',
+      events: []
+    };
 
     // Calendar config object
     this.uiConfig = {

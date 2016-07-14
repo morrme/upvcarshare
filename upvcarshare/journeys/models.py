@@ -127,13 +127,13 @@ class Journey(GisTimeStampedModel):
         verbose_name=_("campus"),
         related_name="journeys"
     )
-    kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de trayecto"))
+    kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de viaje"))
     free_places = models.PositiveIntegerField(default=4, verbose_name=_("plazas libres"), blank=True, null=True)
     departure = models.DateTimeField(verbose_name=_("fecha y hora de salida"))
     arrival = models.DateTimeField(verbose_name=_("fecha y hora de llegada estimada"), null=True, blank=True)
     time_window = models.PositiveIntegerField(
         verbose_name=_("ventana de tiempo"),
-        help_text=_("Se buscaran por los trayectos que salgan hasta con estos minutos de antelación"),
+        help_text=_("Se buscaran por los viaje que salgan hasta con estos minutos de antelación"),
         default=DEFAULT_TIME_WINDOW,
         blank=True
     )
@@ -145,7 +145,7 @@ class Journey(GisTimeStampedModel):
         blank=True
     )
     disabled = models.BooleanField(default=False, verbose_name=_("marcar como deshabilitado"))
-    recurrence = RecurrenceField(verbose_name=_("¿Vas a realizar este trayecto más de una vez?"), null=True, blank=True)
+    recurrence = RecurrenceField(verbose_name=_("¿Vas a realizar este viaje más de una vez?"), null=True, blank=True)
     parent = models.ForeignKey("journeys.Journey", null=True, blank=True, related_name="children")
 
     objects = JourneyManager()
@@ -344,4 +344,3 @@ class Message(TimeStampedModel):
     content = models.TextField()
 
     objects = MessageManager()
-

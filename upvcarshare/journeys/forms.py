@@ -19,7 +19,7 @@ class ResidenceForm(forms.ModelForm):
 
     position = forms.CharField(
         label=_("Posición en el mapa"),
-        help_text=_("Selecciona la posición en el mapa y establece el radio máximo al que te quieres deplazar."),
+        help_text=_("Selecciona la posición en el mapa y establece el radio máximo al que te quieres deplazar"),
         widget=forms.HiddenInput()
     )
     distance = forms.FloatField(widget=forms.HiddenInput())
@@ -92,7 +92,7 @@ class JourneyForm(forms.ModelForm):
         departure = self.cleaned_data["departure"]
         now = timezone.now()
         if departure < now:
-            raise forms.ValidationError(_("No puedes crear trayectos en el pasado"))
+            raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
         return departure
 
     def clean_arrival(self):
@@ -100,9 +100,9 @@ class JourneyForm(forms.ModelForm):
         departure = self.cleaned_data["departure"]
         now = timezone.now()
         if arrival < now:
-            raise forms.ValidationError(_("No puedes crear trayectos en el pasado"))
+            raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
         if arrival < departure:
-            raise forms.ValidationError(_("No puedes crear trayectos que llegues antes de salir"))
+            raise forms.ValidationError(_("No puedes crear viajes que llegues antes de salir"))
         return arrival
 
     def save(self, commit=True, **kwargs):
@@ -178,17 +178,17 @@ class SmartJourneyForm(forms.ModelForm):
         departure = self.cleaned_data["departure"]
         now = timezone.now()
         if departure < now:
-            raise forms.ValidationError(_("No puedes crear trayectos en el pasado"))
+            raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
         return departure
-        
+
     def clean_arrival(self):
         arrival = self.cleaned_data["arrival"]
         departure = self.cleaned_data["departure"]
         now = timezone.now()
         if arrival < now:
-            raise forms.ValidationError(_("No puedes crear trayectos en el pasado"))
+            raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
         if arrival < departure:
-            raise forms.ValidationError(_("No puedes crear trayectos que llegues antes de salir"))
+            raise forms.ValidationError(_("No puedes crear viajes que llegues antes de salir"))
         return arrival
 
     def save(self, commit=True, **kwargs):

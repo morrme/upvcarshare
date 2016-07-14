@@ -56,6 +56,7 @@ class UserForm(forms.ModelForm):
 
     default_position = forms.CharField(
         label=_("Posicion por defecto"),
+        help_text=_("Posicion y distancia de desplazamiento que se usará por defecto para crear lugares"),
         widget=forms.HiddenInput(),
         required=False
     )

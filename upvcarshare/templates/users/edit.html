@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load journeys_tags %}
 
+{% block  title %}{% trans "Editar perfil de usuario" %}{% endblock title %}
+
 {% block section_title %}
     <div class="row">
         <div class="col-xs-12">
@@ -28,6 +30,8 @@
                                             radius-field="{{ form.default_distance.name }}"
                                             radius-field-id="{{ form.default_distance.auto_id }}">
                                 </circle-map>
+                                <span class="text-muted">{{ field.help_text }}</span>
+                                <span class="text-muted">{{ field.errors }}</span>
                             </div>
                         </div>
                     {% elif field.name == "default_distance" %}

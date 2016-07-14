@@ -4,12 +4,17 @@
     <h3>{% trans "Acciones" %}</h3>
 
     {% if request.user == journey.user %}
-        <a href="{% url "journeys:edit" journey.pk %}" class="btn btn-success">{% trans "Editar" %}</a>
-        {% if not journey.needs_driver and not journey.disabled %}
-            <a href="{% url "journeys:cancel" journey.pk %}" class="btn btn-danger">{% trans "Cancelar trayecto" %}</a>
-        {% else %}
-            <a href="{% url "journeys:delete" journey.pk %}" class="btn btn-danger">{% trans "Borrar trayecto" %}</a>
-        {% endif %}
+        <div class="btn-group-vertical">
+          <a href="{% url "journeys:edit" journey.pk %}" class="btn btn-success">{% trans "Editar" %}</a>
+          {% if not journey.needs_driver and not journey.disabled %}
+              <a href="{% url "journeys:cancel" journey.pk %}" class="btn btn-danger">{% trans "Cancelar trayecto" %}</a>
+          {% else %}
+              <a href="{% url "journeys:delete" journey.pk %}" class="btn btn-danger">{% trans "Borrar trayecto" %}</a>
+              {% if has_recurrence %}
+              <a href="{% url "journeys:delete" journey.pk %}" class="btn btn-danger">{% trans "Borrar todos los trayectos" %}</a>
+              {% endif %}
+          {% endif %}
+        </div>
     {% else %}
         {% journey_join_leave_button journey %}
     {% endif %}
