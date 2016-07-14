@@ -1,6 +1,7 @@
 import angular from 'angular';
 import JourneyService from './journeys.service';
 import {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, CircleMapComponent} from './journeys.component';
+import JourneyForm from './journey.directive';
 
 import 'angular-ui-bootstrap';
 import 'bootstrap-ui-datetime-picker';
@@ -24,6 +25,8 @@ const journeys = angular
   .component('journeyDatetime', DatetimeComponent)
   .component('calendar', CalendarComponent)
   .component('circleMap', CircleMapComponent)
+
+  .directive('journeyForm', JourneyForm)
 
   // Angular Google Maps
   .config(['uiGmapGoogleMapApiProvider', (uiGmapGoogleMapApiProvider) => {

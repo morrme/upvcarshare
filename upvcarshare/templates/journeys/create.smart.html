@@ -2,6 +2,8 @@
 
 {% load i18n %}
 
+{% block title %}{% trans "Crear trayecto" %}{% endblock title %}
+
 {% block extra_head %}
     {{ form.media }}
 {% endblock %}
@@ -23,7 +25,7 @@
 {% block content %}
     <div class="row">
         <div class="col-xs-12">
-            <form method="post" action="">
+            <form method="post" action="" journey-form>
                 {% csrf_token %}
                 <origin-destination-select
                         origin-field="{{ form.origin.name }}"
@@ -33,7 +35,7 @@
                 </origin-destination-select>
                 {% for field in form %}
                     {% if not field.is_hidden %}
-                    <div class="form-group row{% if field.errors %} has-danger{% endif %}">
+                    <div class="form-group row{% if field.errors %} has-danger{% endif %}" {% if field.name == "transport" or field.name == "free_places" %}ng-hide="iAmDriver=='False'"{% endif %}>
                         <label for="{{ field.auto_id }}" class="col-sm-4 form-control-label">{{ field.label }}</label>
                         <div class="col-sm-8">
                         {% if field.name == "residence" %}

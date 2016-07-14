@@ -1,14 +1,12 @@
 {% load i18n %}
 <form method="get" action="">
     <div class="form-group row">
-        <label for="{{ form.departure.auto_id }}" class="col-sm-4 form-control-label">{{ form.departure.label }}</label>
-        <div class="col-sm-8">
+        <label for="{{ form.departure.auto_id }}" class="col-sm-3 form-control-label">{{ form.departure.label }}</label>
+        <div class="col-sm-3">
             <journey-datetime field-name="{{ form.departure.name }}" field-id="{{ form.departure.auto_id }}"></journey-datetime>
         </div>
-    </div>
-    <div class="form-group row">
-        <label for="{{ form.time_window.auto_id }}" class="col-sm-4 form-control-label">{{ form.time_window.label }}</label>
-        <div class="col-sm-8">
+        <label for="{{ form.time_window.auto_id }}" class="col-sm-3 form-control-label">{{ form.time_window.label }}</label>
+        <div class="col-sm-3">
             {{ form.time_window }}
         </div>
     </div>

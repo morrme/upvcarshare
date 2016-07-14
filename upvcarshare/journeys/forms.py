@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_GOOGLE_MAPS_SRID, DEFAULT_PROJECTED_SRID
 from journeys.helpers import expand, make_point
@@ -16,7 +17,11 @@ from users.models import User
 class ResidenceForm(forms.ModelForm):
     """Form to edit and create residences."""
 
-    position = forms.CharField(label=_("Posición en el mapa"), widget=forms.HiddenInput())
+    position = forms.CharField(
+        label=_("Posición en el mapa"),
+        help_text=_("Selecciona la posición en el mapa y establece el radio máximo al que te quieres deplazar."),
+        widget=forms.HiddenInput()
+    )
     distance = forms.FloatField(widget=forms.HiddenInput())
 
     class Meta:
@@ -83,6 +88,23 @@ class JourneyForm(forms.ModelForm):
             self.fields['residence'].queryset = Residence.objects.filter(user=self.user)
             self.fields['transport'].queryset = Transport.objects.filter(user=self.user)
 
+    def clean_departure(self):
+        departure = self.cleaned_data["departure"]
+        now = timezone.now()
+        if departure < now:
+            raise forms.ValidationError(_("No puedes crear trayectos en el pasado"))
+        return departure
+
+    def clean_arrival(self):
+        arrival = self.cleaned_data["arrival"]
+        departure = self.cleaned_data["departure"]
+        now = timezone.now()
+        if arrival < now:
+            raise forms.ValidationError(_("No puedes crear trayectos en el pasado"))
+        if arrival < departure:
+            raise forms.ValidationError(_("No puedes crear trayectos que llegues antes de salir"))
+        return arrival
+
     def save(self, commit=True, **kwargs):
         """When save a journey form, you have to provide an user."""
         user = self.user
@@ -108,6 +130,10 @@ class SmartJourneyForm(forms.ModelForm):
         initial=False,
         widget=forms.RadioSelect(
             choices=((True, _('Sí')), (False, _('No'))),
+            attrs={
+                "ng-model": "iAmDriver",
+                "ng-change": "changeDriverStatus"
+            }
         )
     )
 
@@ -147,6 +173,23 @@ class SmartJourneyForm(forms.ModelForm):
             return models.get(data[0]).objects.get(pk=data[1])
         except (ObjectDoesNotExist, IndexError, AttributeError):
             raise forms.ValidationError(_("Lugar de destino no válido"))
+
+    def clean_departure(self):
+        departure = self.cleaned_data["departure"]
+        now = timezone.now()
+        if departure < now:
+            raise forms.ValidationError(_("No puedes crear trayectos en el pasado"))
+        return departure
+        
+    def clean_arrival(self):
+        arrival = self.cleaned_data["arrival"]
+        departure = self.cleaned_data["departure"]
+        now = timezone.now()
+        if arrival < now:
+            raise forms.ValidationError(_("No puedes crear trayectos en el pasado"))
+        if arrival < departure:
+            raise forms.ValidationError(_("No puedes crear trayectos que llegues antes de salir"))
+        return arrival
 
     def save(self, commit=True, **kwargs):
         """When save a journey form, you have to provide an user."""

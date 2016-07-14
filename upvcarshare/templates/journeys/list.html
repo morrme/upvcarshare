@@ -18,5 +18,9 @@
     {% if journeys_count == 0 %}
         <h3 class="text-muted">{% trans "No tienes trayectos creados" %}</h3>
     {% endif %}
-    <calendar user-id="{{ request.user.pk }}"></calendar>
+    <div class="row" style="margin-bottom: 15px">
+        <div class="col-sm-12">
+            <calendar user-id="{{ request.user.pk }}"></calendar>
+        </div>
+    </div>
 {% endblock content %}

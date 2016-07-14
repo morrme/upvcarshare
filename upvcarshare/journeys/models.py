@@ -78,7 +78,7 @@ class Residence(Place):
     here. Each residence belongs to a user.
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="residences")
-    address = models.TextField(verbose_name=_("dirección"))
+    address = models.TextField(verbose_name=_("dirección"), help_text=_("La dirección del lugar, según quieras que la vean los demás."))
 
     objects = ResidenceManager()
 
