@@ -69,11 +69,13 @@ def expand(journey):
             new_journey.departure = date.replace(
                 hour=new_journey.departure.hour,
                 minute=new_journey.departure.minute,
+                tzinfo=new_journey.departure.tzinfo
             )
             if new_journey.arrival:
                 new_journey.arrival = date.replace(
                     hour=new_journey.arrival.hour,
                     minute=new_journey.arrival.minute,
+                    tzinfo=new_journey.arrival.tzinfo
                 )
             journeys.append(new_journey)
     return journeys
