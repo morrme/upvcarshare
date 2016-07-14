@@ -2,13 +2,13 @@
 {% load i18n %}
 {% load journeys_tags %}
 
-{% block title %}{% trans "Buscar trayectos" %}{% endblock title %}
+{% block title %}{% trans "Buscar viajes" %}{% endblock title %}
 
 {% block section_title %}
     <div class="row">
         <div class="col-sm-12">
-            <h2>{% trans "Burcador de trayectos" %}</h2>
-            <p>{% trans "Busca trayectos que ofrecen otros usuarios." %}</p>
+            <h2>{% trans "Burcador de viajes" %}</h2>
+            <p>{% trans "Busca viajes que ofrecen otros usuarios." %}</p>
 
         </div>
     </div>
@@ -31,7 +31,7 @@
                 {% journey_item journey %}
             {% empty %}
                 {% if is_query %}
-                <h3 class="text-muted">{% trans "No hemos encontrado trayectos" %}</h3>
+                <h3 class="text-muted">{% trans "No hemos encontrado viajes" %}</h3>
                 {% endif %}
             {% endfor %}
         </div>
