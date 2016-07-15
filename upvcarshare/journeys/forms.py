@@ -96,8 +96,9 @@ class JourneyForm(forms.ModelForm):
         return departure
 
     def clean_arrival(self):
-        arrival = self.cleaned_data["arrival"]
-        if arrival:
+        arrival = self.cleaned_data.get("arrival")
+        departure = self.cleaned_data.get("departure")
+        if arrival and departure:
             departure = self.cleaned_data["departure"]
             now = timezone.now()
             if arrival < now:
@@ -183,8 +184,9 @@ class SmartJourneyForm(forms.ModelForm):
         return departure
 
     def clean_arrival(self):
-        arrival = self.cleaned_data["arrival"]
-        if arrival:
+        arrival = self.cleaned_data.get("arrival")
+        departure = self.cleaned_data.get("departure")
+        if arrival and departure:
             departure = self.cleaned_data["departure"]
             now = timezone.now()
             if arrival < now:
