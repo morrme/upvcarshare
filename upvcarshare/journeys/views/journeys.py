@@ -307,7 +307,7 @@ class DeleteAllJourneyView(LoginRequiredMixin, View):
         # Delete only if the journey hasn't driver
         if journey.driver is None:
             if journey.has_recurrence:
-                if self.parent is not None:
+                if journey.parent is not None:
                     journeys = journey.parent.children.filter(departure__gte=journey.departure)
                     journeys.delete()
                 else:
