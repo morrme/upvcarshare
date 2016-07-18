@@ -90,9 +90,12 @@ class JourneyForm(forms.ModelForm):
 
     def clean_departure(self):
         departure = self.cleaned_data["departure"]
+        time_window = self.cleaned_data.get("time_window", 30)
         now = timezone.now()
         if departure < now:
             raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
+        if Journey.objects.overlaps(self.user, departure, time_window).exists():
+            raise forms.ValidationError(_("Ya tienes un viaje que sale muy cerca de esta hora"))
         return departure
 
     def clean_arrival(self):
