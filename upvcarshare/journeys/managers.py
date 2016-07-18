@@ -158,6 +158,13 @@ class JourneyManager(models.GeoManager):
             .order_by("departure")
         return queryset
 
+    def overlaps(self, user, departure, time_window):
+        """Returns a queryset with the overlaped journeys."""
+        return self.filter(user=user).filter(
+            departure__gte=(departure - datetime.timedelta(minutes=time_window)),
+            departure__lte=(departure + datetime.timedelta(minutes=time_window))
+        )
+
     def passenger(self, user):
         """Gets the journeys where the given user is passenger."""
         return self.filter(disabled=False, passengers__user=user).order_by("departure")

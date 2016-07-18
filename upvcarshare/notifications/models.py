@@ -59,48 +59,51 @@ class Notification(TimeStampedModel):
     def text(self, strip_html=False):
         """Creates the text representation of the notification."""
         value = ""
-        if self.verb == JOIN:
-            # actor is a user and target is a journey
-            value = _("%(user)s se ha <strong>unido</strong> al viaje <strong>%(journey)s</strong> del %(date)s") % {
-                "user": six.text_type(self.actor),
-                "journey": six.text_type(self.target).lower(),
-                "date": localize(self.target.departure),
-            }
-        elif self.verb == LEAVE:
-            value = _("%(user)s ha <strong>abandonado</strong> el viaje <strong>%(journey)s</strong> del %(date)s") % {
-                "user": six.text_type(self.actor),
-                "journey": six.text_type(self.target).lower(),
-                "date": localize(self.target.departure),
-            }
-        elif self.verb == THROW_OUT:
-            value = _("%(user)s te ha <strong>expulsado</strong> el viaje <strong>%(journey)s</strong> del %(date)s") % {
-                "user": six.text_type(self.actor),
-                "journey": six.text_type(self.target).lower(),
-                "date": localize(self.target.departure),
-            }
-        elif self.verb == CONFIRM:
-            value = _("%(user)s te ha <strong>confirmado</strong> para el viaje <strong>%(journey)s</strong> del %(date)s") % {
-                "user": six.text_type(self.actor),
-                "journey": six.text_type(self.target).lower(),
-                "date": localize(self.target.departure),
-            }
-        elif self.verb == REJECT:
-            value = _("%(user)s te ha <strong>rechazado</strong> para el viaje <strong>%(journey)s</strong> del %(date)s") % {
-                "user": six.text_type(self.actor),
-                "journey": six.text_type(self.target).lower(),
-                "date": localize(self.target.departure),
-            }
-        elif self.verb == CANCEL:
-            value = _("El viaje <strong>%(journey)s</strong> del %(date)s ha sido <strong>cancelado</strong>") % {
-                "journey": six.text_type(self.actor).lower(),
-                "date": localize(self.actor.departure),
-            }
-        elif self.verb == MESSAGE:
-            value = _("%(user)s ha mandado un <strong>nuevo mensaje</strong> en <strong>%(journey)s</strong> del %(date)s") % {
-                "user": six.text_type(self.actor),
-                "journey": six.text_type(self.target).lower(),
-                "date": localize(self.target.departure),
-            }
+        try:
+            if self.verb == JOIN:
+                # actor is a user and target is a journey
+                value = _("%(user)s se ha <strong>unido</strong> al viaje <strong>%(journey)s</strong> del %(date)s") % {
+                    "user": six.text_type(self.actor),
+                    "journey": six.text_type(self.target).lower(),
+                    "date": localize(self.target.departure),
+                }
+            elif self.verb == LEAVE:
+                value = _("%(user)s ha <strong>abandonado</strong> el viaje <strong>%(journey)s</strong> del %(date)s") % {
+                    "user": six.text_type(self.actor),
+                    "journey": six.text_type(self.target).lower(),
+                    "date": localize(self.target.departure),
+                }
+            elif self.verb == THROW_OUT:
+                value = _("%(user)s te ha <strong>expulsado</strong> el viaje <strong>%(journey)s</strong> del %(date)s") % {
+                    "user": six.text_type(self.actor),
+                    "journey": six.text_type(self.target).lower(),
+                    "date": localize(self.target.departure),
+                }
+            elif self.verb == CONFIRM:
+                value = _("%(user)s te ha <strong>confirmado</strong> para el viaje <strong>%(journey)s</strong> del %(date)s") % {
+                    "user": six.text_type(self.actor),
+                    "journey": six.text_type(self.target).lower(),
+                    "date": localize(self.target.departure),
+                }
+            elif self.verb == REJECT:
+                value = _("%(user)s te ha <strong>rechazado</strong> para el viaje <strong>%(journey)s</strong> del %(date)s") % {
+                    "user": six.text_type(self.actor),
+                    "journey": six.text_type(self.target).lower(),
+                    "date": localize(self.target.departure),
+                }
+            elif self.verb == CANCEL:
+                value = _("El viaje <strong>%(journey)s</strong> del %(date)s ha sido <strong>cancelado</strong>") % {
+                    "journey": six.text_type(self.actor).lower(),
+                    "date": localize(self.actor.departure),
+                }
+            elif self.verb == MESSAGE:
+                value = _("%(user)s ha mandado un <strong>nuevo mensaje</strong> en <strong>%(journey)s</strong> del %(date)s") % {
+                    "user": six.text_type(self.actor),
+                    "journey": six.text_type(self.target).lower(),
+                    "date": localize(self.target.departure),
+                }
+        except AttributeError:
+            pass
         if strip_html:
             value = strip_tags(value)
         return mark_safe(value)
