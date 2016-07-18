@@ -19,6 +19,7 @@ const DatetimeComponent = {
   controller: DatetimeController,
   templateUrl: "/partials/journeys/datetime.html",
   bindings: {
+    value: '@',
     fieldName: '@',
     fieldId: '@'
   }

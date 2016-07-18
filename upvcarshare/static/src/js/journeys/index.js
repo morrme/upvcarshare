@@ -1,7 +1,8 @@
 import angular from 'angular';
 import JourneyService from './journeys.service';
 import {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, CircleMapComponent} from './journeys.component';
-import JourneyForm from './journey.directive';
+import {JourneyForm, JoinJourneyForm} from './journey.directive';
+import JoinAllOneController from './journeys.controller';
 
 import 'angular-ui-bootstrap';
 import 'bootstrap-ui-datetime-picker';
@@ -21,12 +22,15 @@ const journeys = angular
 
   .service('JourneyService', JourneyService)
 
+  .controller('JoinAllOneController', JoinAllOneController)
+
   .component('originDestinationSelect', OriginDestinationSelectComponent)
   .component('journeyDatetime', DatetimeComponent)
   .component('calendar', CalendarComponent)
   .component('circleMap', CircleMapComponent)
 
   .directive('journeyForm', JourneyForm)
+  .directive('joinJourneyForm', JoinJourneyForm)
 
   // Angular Google Maps
   .config(['uiGmapGoogleMapApiProvider', (uiGmapGoogleMapApiProvider) => {

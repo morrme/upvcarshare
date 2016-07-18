@@ -164,6 +164,10 @@ class Journey(GisTimeStampedModel):
             return self.residence
         return self.campus
 
+    @property
+    def has_recurrence(self):
+        return self.children.exists() or self.parent is not None
+
     def __str__(self):
         return self.description(strip_html=True)
 
@@ -208,18 +212,34 @@ class Journey(GisTimeStampedModel):
         return 0
 
     @dispatch(JOIN)
-    def join_passenger(self, user):
+    def join_passenger(self, user, join_to=None):
         """A user joins a journey.
         :param user:
+        :param join_to:
         """
         if self.passengers.filter(user=user).exists() or self.driver == user:
             raise AlreadyAPassenger()
         if self.count_passengers() < self.free_places:
-            return Passenger.objects.create(
+            passenger = Passenger.objects.create(
                 journey=self,
                 user=user,
                 status=UNKNOWN
             )
+            if join_to is None or join_to == "one":
+                return passenger
+        # Join to recurrence
+        if join_to is not None and join_to == "all":
+            if self.has_recurrence:
+                journeys = self.children.all() \
+                    if self.children.exists() else self.parent.children.all()
+                journeys = journeys.filter(departure__gt=self.departure)
+                passengers = []
+                for journey in journeys:
+                    try:
+                        passengers.append(journey.join_passenger(user))
+                    except (NoFreePlaces, AlreadyAPassenger):
+                        pass
+                return passengers
         raise NoFreePlaces()
 
     @dispatch(LEAVE)

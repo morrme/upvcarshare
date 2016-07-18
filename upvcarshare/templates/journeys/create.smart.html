@@ -16,12 +16,6 @@
 </div>
 {% endblock section_title %}
 
-{% block section_messages %}
-    {% if form.errors %}
-        {{ form.erros }}
-    {% endif %}
-{% endblock section_messages %}
-
 {% block content %}
     <div class="row">
         <div class="col-xs-12">
@@ -33,6 +27,9 @@
                         destiny-field="{{ form.destiny.name }}"
                         destiny-field-id="{{ form.destiny.auto_id }}">
                 </origin-destination-select>
+                <div class="col-sm-offset-4 col-sm-8">
+                  <span class="text-muted text-danger">{{ form.origin.errors }}</span>
+                </div>
                 {% for field in form %}
                     {% if not field.is_hidden %}
                     <div class="form-group row{% if field.errors %} has-danger{% endif %}" {% if field.name == "transport" or field.name == "free_places" %}ng-hide="iAmDriver=='False'"{% endif %}>
@@ -52,14 +49,14 @@
                                 </div>
                             </div>
                         {% elif field.name == "departure" %}
-                            <journey-datetime field-name="{{ field.name }}" field-id="{{ field.auto_id }}"></journey-datetime>
+                            <journey-datetime field-name="{{ field.name }}" field-id="{{ field.auto_id }}" value="{{ field.value|date:"c" }}"></journey-datetime>
                         {% elif field.name == "arrival" %}
-                            <journey-datetime field-name="{{ field.name }}" field-id="{{ field.auto_id }}"></journey-datetime>
+                            <journey-datetime field-name="{{ field.name }}" field-id="{{ field.auto_id }}" value="{{ field.value|date:"c" }}"></journey-datetime>
                         {% else %}
                             {{ field }}
                         {% endif %}
                             <span class="text-muted">{{ field.help_text }}</span>
-                            <span class="text-muted">{{ field.errors }}</span>
+                            <span class="text-muted text-danger">{{ field.errors }}</span>
                         </div>
                     </div>
                     {% endif %}

@@ -89,9 +89,12 @@ OriginDestinationSelectController.$inject = ['$scope', 'JourneyService'];
 
 class DatetimeController {
 
-  constructor() {
+  constructor() {}
+
+  $onInit() {
+    var date = this.value !== undefined ? moment(this.value).toDate() : new Date();
     this.picker = {
-      date: new Date(),
+      date: date,
       open: false,
       dateOptions: {
         startingDay: 1
@@ -377,4 +380,27 @@ class CircleMapController {
 }
 CircleMapController.$inject = ["$scope", "uiGmapGoogleMapApi"];
 
-export {OriginDestinationSelectController, DatetimeController, CalendarController, CircleMapController};
+
+/**
+ *
+ */
+class JoinAllOneController {
+
+  constructor($scope, $uibModalInstance) {
+    this.$scope = $scope;
+    this.$uibModalInstance = $uibModalInstance;
+  }
+
+  $onInit() {
+    this.$scope.one = ($event) => {
+      this.$uibModalInstance.close("one");
+    };
+    this.$scope.all = ($event) => {
+      this.$uibModalInstance.close("all");
+    };
+  }
+}
+JoinAllOneController.$inject = ["$scope", "$uibModalInstance"];
+
+
+export {OriginDestinationSelectController, DatetimeController, CalendarController, CircleMapController, JoinAllOneController};

@@ -155,13 +155,17 @@ class JoinJourneyView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         journey = get_object_or_404(Journey, pk=pk)
+        join_to = request.POST.get("join_to")
         try:
-            journey.join_passenger(request.user)
-            messages.success(request, _('Has solicitado unirte al trayecto'))
+            journey.join_passenger(request.user, join_to)
+            if join_to == "all":
+                messages.success(request, _('Has solicitado unirte a todos los viajes disponibles'))
+            else:
+                messages.success(request, _('Has solicitado unirte al viaje'))
         except AlreadyAPassenger:
-            messages.error(request, _('¡Ya has solicitado unirte al trayecto!'))
+            messages.error(request, _('¡Ya has solicitado unirte al viaje!'))
         except NoFreePlaces:
-            messages.error(request, _('No quedan plazas libres en el trayecto'))
+            messages.error(request, _('No quedan plazas libres en el viaje'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
 
@@ -180,7 +184,7 @@ class ConfirmJourneyView(LoginRequiredMixin, View):
             try:
                 passenger.journey.confirm_passenger(user)
             except NotAPassenger:
-                messages.success(request, _('El usuario no está en este trayecto'))
+                messages.success(request, _('El usuario no está en este viaje'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
 
@@ -199,7 +203,7 @@ class RejectJourneyView(LoginRequiredMixin, View):
             try:
                 passenger.journey.reject_passenger(user)
             except NotAPassenger:
-                messages.success(request, _('El usuario no está en este trayecto'))
+                messages.success(request, _('El usuario no está en este viaje'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
 
@@ -212,9 +216,9 @@ class LeaveJourneyView(LoginRequiredMixin, View):
         journey = get_object_or_404(Journey, pk=pk)
         try:
             journey.leave_passenger(request.user)
-            messages.success(request, _('Has dejado el trayecto'))
+            messages.success(request, _('Has dejado el viaje'))
         except NotAPassenger:
-            messages.success(request, _('No estás en este trayecto'))
+            messages.success(request, _('No estás en este viaje'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
 
@@ -280,12 +284,40 @@ class DeleteJourneyView(LoginRequiredMixin, View):
         journey = get_object_or_404(Journey, pk=pk, user=request.user)
         # Delete only if the journey hasn't driver
         if journey.driver is None:
+            if journey.has_recurrence and journey.children.exists():
+                new_parent = journey.children.order_by("departure").first()
+                journey.children.exclude(pk=new_parent.pk).update(parent=new_parent)
+                new_parent.parent = None
+                new_parent.save()
+                # Get again the journey
+                journey = get_object_or_404(Journey, pk=pk, user=request.user)
             journey.delete()
-            messages.success(request, _('Has borrado el trayecto'))
+            messages.success(request, _('Has borrado el viaje'))
             return redirect("journeys:list")
-        messages.error(request, _('No puedes borrar este lugar'))
+        messages.error(request, _('No puedes borrar este viaje'))
         return redirect(reverse("journeys:details", kwargs={"pk": pk}))
 
+
+class DeleteAllJourneyView(LoginRequiredMixin, View):
+    """Deletes a journey only if it hasn't driver."""
+
+    @staticmethod
+    def get(request, pk):
+        journey = get_object_or_404(Journey, pk=pk, user=request.user)
+        # Delete only if the journey hasn't driver
+        if journey.driver is None:
+            if journey.has_recurrence:
+                if self.parent is not None:
+                    journeys = journey.parent.children.filter(departure__gte=journey.departure)
+                    journeys.delete()
+                else:
+                    journey.delete()
+            else:
+                journey.delete()
+            messages.success(request, _('Has borrado el viaje y sus repeticiones'))
+            return redirect("journeys:list")
+        messages.error(request, _('No puedes borrar este viaje'))
+        return redirect(reverse("journeys:details", kwargs={"pk": pk}))
 
 class SearchJourneysView(LoginRequiredMixin, View):
     """View to search journeys."""
