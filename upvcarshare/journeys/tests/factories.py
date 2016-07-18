@@ -33,6 +33,7 @@ class JourneyFactory(factory.django.DjangoModelFactory):
     residence = factory.SubFactory(ResidenceFactory)
     campus = factory.SubFactory(CampusFactory)
     departure = factory.LazyFunction(lambda: timezone.now() + datetime.timedelta(days=1))
+    arrival = factory.LazyFunction(lambda: timezone.now() + datetime.timedelta(days=1, minutes=30))
     time_window = DEFAULT_TIME_WINDOW
     kind = GOING
 

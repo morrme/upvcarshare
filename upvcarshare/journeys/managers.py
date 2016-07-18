@@ -32,7 +32,6 @@ def recommended_condition(journey, override_distance=None):
         "departure__gte": journey.departure - datetime.timedelta(minutes=journey.time_window),
     }
 
-
 class ResidenceManager(models.GeoManager):
 
     def smart_create(self, user):
@@ -138,6 +137,33 @@ class JourneyManager(models.GeoManager):
             .filter(reduce(lambda x, y: x | y, conditions))\
             .order_by("departure")
         return queryset
+
+    def search(self, user, position, distance, departure, time_window, ignore_full=False):
+        """Search journeys using generic parameters."""
+        kinds = [GOING, RETURN]
+        conditions = []
+        for kind in kinds:
+            key = "residence{}" if kind == GOING else "campus{}"
+            conditions.append(Q(**{
+                key.format("__position__distance_lte"): (
+                    position,
+                    D(m=distance)
+                ),
+                "departure__lte": departure + datetime.timedelta(minutes=time_window),
+                "departure__gte": departure - datetime.timedelta(minutes=time_window),
+            }))
+        now = timezone.now()
+        queryset = self.available(ignore_full=ignore_full).exclude(user=user, departure__lt=now) \
+            .filter(reduce(lambda x, y: x | y, conditions)) \
+            .order_by("departure")
+        return queryset
+
+    def overlaps(self, user, departure, time_window):
+        """Returns a queryset with the overlaped journeys."""
+        return self.filter(user=user).filter(
+            departure__gte=(departure - datetime.timedelta(minutes=time_window)),
+            departure__lte=(departure + datetime.timedelta(minutes=time_window))
+        )
 
     def passenger(self, user):
         """Gets the journeys where the given user is passenger."""

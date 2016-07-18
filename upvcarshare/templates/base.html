@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <!-- Bundle CSS -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.8.0/fullcalendar.min.css">
     <link rel="stylesheet" href="{% static "css/bundle.css" %}">
     {% block extra_head %}{% endblock extra_head %}
 </head>
@@ -24,7 +25,7 @@
             </div>
             <div class="section-messages">
             {% block section_messages %}
-                {% include "_section_messages.html" %}
+                {% include "blocks/section.messages.html" %}
             {% endblock section_messages %}
             </div>
             <div class="section-content">
@@ -35,6 +36,10 @@
 {% endblock body %}
 
 <!-- Bundle JS -->
+<script src=//code.jquery.com/jquery-2.2.0.min.js></script>
+<script src=//cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.js></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.8.0/fullcalendar.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.8.0/lang-all.js"></script>
 <script src="{% static "js/bundle.js" %}"></script>
 
 {% block post_body %}{% endblock post_body %}

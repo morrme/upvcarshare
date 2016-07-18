@@ -1,73 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+import datetime
 from braces.views import LoginRequiredMixin
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
+from django.utils.translation import ugettext_lazy as _
 
 from journeys import GOING
 from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
-from journeys.forms import JourneyForm, ResidenceForm, FilterForm, CancelJourneyForm, SmartJourneyForm, \
-    ConfirmRejectJourneyForm, TransportForm
-from journeys.models import Journey, Residence, Campus, Passenger, Transport
-
-
-class CreateResidenceView(LoginRequiredMixin, View):
-    """View to show journey creation form and to handle its creation."""
-
-    template_name = "residences/create.html"
-
-    def get(self, request):
-        initial = {
-            "address": request.user.default_address,
-            "position": request.user.default_position,
-            "distance": request.user.default_distance,
-        }
-        form = ResidenceForm(initial=initial)
-        data = {
-            "form": form
-        }
-        return render(request, self.template_name, data)
-
-    def post(self, request):
-        form = ResidenceForm(request.POST)
-        data = {
-            "form": form
-        }
-        if form.is_valid():
-            residence = form.save(user=request.user)
-            return redirect("journeys:edit-residence", pk=residence.pk)
-        return render(request, self.template_name, data)
-
-
-class EditResidenceView(LoginRequiredMixin, View):
-    """View to edit residences."""
-
-    template_name = "residences/edit.html"
-
-    def get(self, request, pk):
-        residence = get_object_or_404(Residence, pk=pk, user=request.user)
-        form = ResidenceForm(instance=residence)
-        data = {
-            "form": form,
-            "residence": residence,
-        }
-        return render(request, self.template_name, data)
-
-    def post(self, request, pk):
-        residence = get_object_or_404(Residence, pk=pk, user=request.user)
-        form = ResidenceForm(request.POST, instance=residence)
-        data = {
-            "form": form,
-            "residence": residence,
-        }
-        if form.is_valid():
-            form.save(user=request.user)
-        return render(request, self.template_name, data)
+from journeys.forms import SmartJourneyForm, JourneyForm, FilterForm, ConfirmRejectJourneyForm, SearchJourneyForm
+from journeys.models import Residence, Campus, Journey, Passenger
 
 
 class CreateJourneyView(LoginRequiredMixin, View):
@@ -79,11 +26,13 @@ class CreateJourneyView(LoginRequiredMixin, View):
     def get(self, request):
         residences = Residence.objects.filter(user=request.user)
         campuses = Campus.objects.all()
+        initial_departure = timezone.now().replace(second=0, minute=0) + datetime.timedelta(hours=1)
         initial = {
             "residence": residences.first() if residences.exists() else None,
             "campus": campuses.first() if campuses.exists() else None,
             "kind": GOING,
-            "departure": timezone.now().replace(second=0)
+            "departure": initial_departure,
+            "arrival": initial_departure + datetime.timedelta(minutes=30)
         }
         form = self.form(initial=initial, user=request.user)
         data = {
@@ -160,6 +109,7 @@ class JourneyView(LoginRequiredMixin, View):
             "fulfilled_by": journey.fulfilled_by(),
             "passengers": journey.passengers_list(request.user),
             "recommended": journey.recommended(),
+            "has_recurrence": journey.parent is not None or journey.children.exists()
         }
         return render(request, self.template_name, data)
 
@@ -186,40 +136,15 @@ class RecommendedJourneyView(LoginRequiredMixin, View):
         return render(request, self.template_name, data)
 
 
-class CurrentUserJourneyView(LoginRequiredMixin, View):
+class JourneysView(LoginRequiredMixin, View):
     """View to show to the user the list of his created journeys."""
-    template_name = "journeys/user_list.html"
+    template_name = "journeys/list.html"
 
     def get(self, request):
-        now = timezone.now()
+        journeys = Journey.objects.filter(user=request.user).order_by("departure")
         data = {
-            "journeys": Journey.objects.filter(
-                user=request.user,
-                departure__gte=now
-            ).order_by("departure")
-        }
-        return render(request, self.template_name, data)
-
-
-class CurrentUserResidencesView(LoginRequiredMixin, View):
-    """View to show to the user the list of his created residences."""
-
-    template_name = "residences/list.html"
-
-    def get(self, request):
-        data = {
-            "residences": Residence.objects.filter(user=request.user)
-        }
-        return render(request, self.template_name, data)
-
-
-class PassengerJourneyView(LoginRequiredMixin, View):
-    """View to show the list of journeys where the user is passenger."""
-    template_name = "journeys/passenger.html"
-
-    def get(self, request):
-        data = {
-            "journeys": Journey.objects.passenger(user=request.user)
+            "journeys": journeys,
+            "journeys_count": journeys.count()
         }
         return render(request, self.template_name, data)
 
@@ -230,13 +155,17 @@ class JoinJourneyView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         journey = get_object_or_404(Journey, pk=pk)
+        join_to = request.POST.get("join_to")
         try:
-            journey.join_passenger(request.user)
-            messages.success(request, _('Has solicitado unirte al trayecto'))
+            journey.join_passenger(request.user, join_to)
+            if join_to == "all":
+                messages.success(request, _('Has solicitado unirte a todos los viajes disponibles'))
+            else:
+                messages.success(request, _('Has solicitado unirte al viaje'))
         except AlreadyAPassenger:
-            messages.error(request, _('¡Ya has solicitado unirte al trayecto!'))
+            messages.error(request, _('¡Ya has solicitado unirte al viaje!'))
         except NoFreePlaces:
-            messages.error(request, _('No quedan plazas libres en el trayecto'))
+            messages.error(request, _('No quedan plazas libres en el viaje'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
 
@@ -255,7 +184,7 @@ class ConfirmJourneyView(LoginRequiredMixin, View):
             try:
                 passenger.journey.confirm_passenger(user)
             except NotAPassenger:
-                messages.success(request, _('El usuario no está en este trayecto'))
+                messages.success(request, _('El usuario no está en este viaje'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
 
@@ -274,7 +203,7 @@ class RejectJourneyView(LoginRequiredMixin, View):
             try:
                 passenger.journey.reject_passenger(user)
             except NotAPassenger:
-                messages.success(request, _('El usuario no está en este trayecto'))
+                messages.success(request, _('El usuario no está en este viaje'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
 
@@ -287,9 +216,9 @@ class LeaveJourneyView(LoginRequiredMixin, View):
         journey = get_object_or_404(Journey, pk=pk)
         try:
             journey.leave_passenger(request.user)
-            messages.success(request, _('Has dejado el trayecto'))
+            messages.success(request, _('Has dejado el viaje'))
         except NotAPassenger:
-            messages.success(request, _('No estás en este trayecto'))
+            messages.success(request, _('No estás en este viaje'))
         return_to = request.POST.get("return_to", self.return_to)
         return redirect(return_to)
 
@@ -303,7 +232,7 @@ class ThrowOutPassengerView(LoginRequiredMixin, View):
         if passenger.journey.user != request.user:
             raise Http404
         try:
-            passenger.journey.leave_passenger(passenger.user)
+            passenger.journey.throw_out(passenger.user)
             messages.success(request, _('Has expulsado al pasajero'))
         except NotAPassenger:
             messages.success(request, _('No puedes expulsar a este pasajero'))
@@ -313,6 +242,8 @@ class ThrowOutPassengerView(LoginRequiredMixin, View):
 
 class AcceptPassengerView(LoginRequiredMixin, View):
     """View to accept a request of a possible passenger."""
+    return_to = "journeys:recommended"
+
     def post(self, request, pk):
 
         passenger = get_object_or_404(Passenger, pk=pk)
@@ -327,19 +258,6 @@ class AcceptPassengerView(LoginRequiredMixin, View):
         return redirect(return_to)
 
 
-class DeleteResidence(LoginRequiredMixin, View):
-    """Deletes a residence if there is no journeys related."""
-
-    def get(self, request, pk):
-        residence = get_object_or_404(Residence, pk=pk, user=request.user)
-        if residence.journeys.count() == 0:
-            residence.delete()
-            messages.success(request, _('Has borrado el lugar'))
-            return redirect("journeys:residences")
-        messages.error(request, _('No puedes borrar este lugar'))
-        return redirect("journeys:residences")
-
-
 class CancelJourneyView(LoginRequiredMixin, View):
     """View to handle a cancellation of a journey."""
     template_name = "journeys/cancel.html"
@@ -351,69 +269,72 @@ class CancelJourneyView(LoginRequiredMixin, View):
         }
         return render(request, self.template_name, data)
 
-    def post(self, request, pk):
+    @staticmethod
+    def post(request, pk):
         journey = get_object_or_404(Journey, pk=pk, user=request.user)
         journey.cancel()
         return redirect("journeys:details", pk=journey.pk)
 
 
-class TransportListView(LoginRequiredMixin, View):
-    """Shows the list of users' transports."""
-    template_name = "transports/list.html"
+class DeleteJourneyView(LoginRequiredMixin, View):
+    """Deletes a journey only if it hasn't driver."""
+
+    @staticmethod
+    def get(request, pk):
+        journey = get_object_or_404(Journey, pk=pk, user=request.user)
+        # Delete only if the journey hasn't driver
+        if journey.driver is None:
+            if journey.has_recurrence and journey.children.exists():
+                new_parent = journey.children.order_by("departure").first()
+                journey.children.exclude(pk=new_parent.pk).update(parent=new_parent)
+                new_parent.parent = None
+                new_parent.save()
+                # Get again the journey
+                journey = get_object_or_404(Journey, pk=pk, user=request.user)
+            journey.delete()
+            messages.success(request, _('Has borrado el viaje'))
+            return redirect("journeys:list")
+        messages.error(request, _('No puedes borrar este viaje'))
+        return redirect(reverse("journeys:details", kwargs={"pk": pk}))
+
+
+class DeleteAllJourneyView(LoginRequiredMixin, View):
+    """Deletes a journey only if it hasn't driver."""
+
+    @staticmethod
+    def get(request, pk):
+        journey = get_object_or_404(Journey, pk=pk, user=request.user)
+        # Delete only if the journey hasn't driver
+        if journey.driver is None:
+            if journey.has_recurrence:
+                if journey.parent is not None:
+                    journeys = journey.parent.children.filter(departure__gte=journey.departure)
+                    journeys.delete()
+                else:
+                    journey.delete()
+            else:
+                journey.delete()
+            messages.success(request, _('Has borrado el viaje y sus repeticiones'))
+            return redirect("journeys:list")
+        messages.error(request, _('No puedes borrar este viaje'))
+        return redirect(reverse("journeys:details", kwargs={"pk": pk}))
+
+class SearchJourneysView(LoginRequiredMixin, View):
+    """View to search journeys."""
+    template_name = "journeys/search.html"
 
     def get(self, request):
-        data = {
-            "transports": Transport.objects.filter(user=request.user)
-        }
-        return render(request, self.template_name, data)
-
-
-class CreateTransportView(LoginRequiredMixin, View):
-    """Handles the creation of a new transport."""
-    template_name = "transports/create.html"
-    form = TransportForm
-
-    def get(self, request):
-        data = {
-            "form": self.form(user=request.user)
-        }
-        return render(request, self.template_name, data)
-
-    def post(self, request):
-        form = self.form(request.POST, user=request.user)
-        if form.is_valid():
-            form.save(user=request.user)
-            messages.success(request, _('Has creado el transporte correctamente'))
-            return redirect("journeys:transports")
-        data = {"form": form}
-        return render(request, self.template_name, data)
-
-
-class EditTransportView(LoginRequiredMixin, View):
-    """Handles the edition of a new transport."""
-    template_name = "transports/edit.html"
-    form = TransportForm
-
-    def get(self, request, pk):
-        transport = get_object_or_404(Transport, pk=pk, user=request.user)
-        data = {
-            "form": self.form(instance=transport, user=request.user),
-            "transport": transport
-        }
-        return render(request, self.template_name, data)
-
-    def post(self, request, pk):
-        transport = get_object_or_404(Transport, pk=pk, user=request.user)
-        form = self.form(request.POST, user=request.user, instance=transport)
-        if form.is_valid():
-            messages.success(request, _('Has editado el transporte correctamente'))
-            return redirect("journeys:transports")
+        journeys = Journey.objects.none()
+        is_query = bool(request.GET)
+        if is_query:
+            form = SearchJourneyForm(request.GET)
+            if form.is_valid():
+                journeys = form.search(user=request.user)
+        else:
+            form = SearchJourneyForm(initial={"time_window": 30})
         data = {
             "form": form,
-            "transport": transport
+            "journeys": journeys,
+            "is_query": is_query
         }
         return render(request, self.template_name, data)
-
-
-class DeleteTransportView(LoginRequiredMixin, View):
-    pass

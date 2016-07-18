@@ -1,10 +1,12 @@
 {% extends "journeys/create.html" %}
 {% load i18n %}
 
+{% block title %}{% trans "Editar viaje" %}{% endblock title %}
+
 {% block section_title %}
 <div class="row">
     <div class="col-xs-12">
-        <h2>{% trans "Editar trayecto" %}</h2>
+        <h2>{% trans "Editar viaje" %}</h2>
     </div>
 </div>
 {% endblock section_title %}
@@ -15,3 +17,8 @@
         <a href="{% url "journeys:create-residence" %}" class="btn btn-secondary">{% trans "Crear nuevo lugar" %}</a>
     </div>
 {% endblock %}
+
+{% block buttons %}
+    <button type="submit" class="btn btn-success">{% trans "Guardar" %}</button>
+    <a href="{% url "journeys:details" journey.pk %}" class="btn btn-danger">{% trans "Volver" %}</a>
+{% endblock buttons %}

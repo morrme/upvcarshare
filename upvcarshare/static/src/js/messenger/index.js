@@ -2,8 +2,8 @@ import angular from 'angular';
 import 'angularjs-scroll-glue';
 import 'angular-cookies';
 
-import MessengerService from './messenger.service'
-import MessageUserColor from './messenger.directive'
+import MessengerService from './messenger.service';
+import MessageUserColor from './messenger.directive';
 import {MessengerComponent, MessageListComponent, MessageFormComponent} from  './messenger.component';
 
 

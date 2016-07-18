@@ -3,10 +3,11 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from django.conf.urls import url
 
-from journeys.views import CreateJourneyView, CreateResidenceView, EditResidenceView, EditJourneyView, \
-    RecommendedJourneyView, CurrentUserJourneyView, CurrentUserResidencesView, JoinJourneyView, LeaveJourneyView, \
-    JourneyView, PassengerJourneyView, ThrowOutPassengerView, DeleteResidence, CancelJourneyView, ConfirmJourneyView, \
-    RejectJourneyView, CreateTransportView, EditTransportView, DeleteTransportView, TransportListView
+from journeys.views.journeys import RecommendedJourneyView, JourneysView, CreateJourneyView, EditJourneyView, \
+    CancelJourneyView, JoinJourneyView, LeaveJourneyView, ConfirmJourneyView, RejectJourneyView, \
+    ThrowOutPassengerView, JourneyView, DeleteJourneyView, SearchJourneysView, DeleteAllJourneyView
+from journeys.views.places import CreateResidenceView, EditResidenceView, DeleteResidence, CurrentUserResidencesView
+from journeys.views.transports import CreateTransportView, EditTransportView, DeleteTransportView, TransportListView
 
 urlpatterns = [
     # Residences
@@ -22,17 +23,19 @@ urlpatterns = [
     url(r"transports/$", TransportListView.as_view(), name="transports"),
 
     # Journeys
+    url(r"search/$", SearchJourneysView.as_view(), name="search"),
     url(r"recommended/$", RecommendedJourneyView.as_view(), name="recommended"),
-    url(r"user-list/$", CurrentUserJourneyView.as_view(), name="user-list"),
-    url(r"passenger/$", PassengerJourneyView.as_view(), name="passenger"),
     url(r"create/$", CreateJourneyView.as_view(), name="create"),
     url(r"(?P<pk>\d+)/edit/$", EditJourneyView.as_view(), name="edit"),
     url(r"(?P<pk>\d+)/cancel/$", CancelJourneyView.as_view(), name="cancel"),
+    url(r"(?P<pk>\d+)/delete/$", DeleteJourneyView.as_view(), name="delete"),
+    url(r"(?P<pk>\d+)/delete-all/$", DeleteAllJourneyView.as_view(), name="delete-all"),
     url(r"(?P<pk>\d+)/join/$", JoinJourneyView.as_view(), name="join"),
     url(r"(?P<pk>\d+)/leave/$", LeaveJourneyView.as_view(), name="leave"),
     url(r"(?P<pk>\d+)/confirm/$", ConfirmJourneyView.as_view(), name="confirm"),
     url(r"(?P<pk>\d+)/reject/$", RejectJourneyView.as_view(), name="reject"),
     url(r"(?P<pk>\d+)/throw-out/$", ThrowOutPassengerView.as_view(), name="throw-out"),
     url(r"(?P<pk>\d+)/$", JourneyView.as_view(), name="details"),
+    url(r"$", JourneysView.as_view(), name="list"),
 
 ]

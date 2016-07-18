@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+from django.db.models import Q
 from django.http import Http404
 from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound, PermissionDenied
@@ -72,6 +73,14 @@ class JourneyResource(viewsets.ModelViewSet):
     permission_classes = [
         IsAuthenticated,
     ]
+
+    def get_queryset(self):
+        queryset = super(JourneyResource, self).get_queryset()
+        if self.request.query_params.get('owned'):
+            queryset = queryset.filter(user=self.request.user)
+        if self.request.query_params.get('joined'):
+            queryset = queryset.filter(passengers__user=self.request.user)
+        return queryset
 
 
 class JoinJourneyResource(viewsets.ViewSet):
@@ -278,7 +287,7 @@ class MessageResource(viewsets.ModelViewSet):
                 journey = Journey.objects.get(pk=journey)
                 queryset = Message.objects.list(user=self.request.user, journey=journey).order_by("created")
             except Journey.DoesNotExist:
-                pass
+                return Message.objects.none()
         else:
             queryset = Message.objects.list(user=self.request.user).order_by("created")
         latest_id = self.request.query_params.get("latest_id")

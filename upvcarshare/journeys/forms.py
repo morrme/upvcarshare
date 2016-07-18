@@ -3,23 +3,26 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 import floppyforms
 from django import forms
+from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
-from core.widgets import GMapsPointWidget
-from journeys import JOURNEY_KINDS, GOING, RETURN
-from journeys.helpers import make_point_projected
+from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_GOOGLE_MAPS_SRID, DEFAULT_PROJECTED_SRID
+from journeys.helpers import expand, make_point
 from journeys.models import Residence, Journey, Campus, Transport
 from users.models import User
 
 
 class ResidenceForm(forms.ModelForm):
-    """Form to edit and create residences. It uses a OpenStreetMap widget that
-    uses a SRID 3857, so we have to convert all input data from this widget to
-    our projected coordinates system.
-    """
+    """Form to edit and create residences."""
 
-    position = floppyforms.gis.PointField(label=_("Posición en el mapa"), widget=GMapsPointWidget(), srid=3857)
+    position = forms.CharField(
+        label=_("Posición en el mapa"),
+        help_text=_("Selecciona la posición en el mapa y establece el radio máximo al que te quieres deplazar"),
+        widget=forms.HiddenInput()
+    )
+    distance = forms.FloatField(widget=forms.HiddenInput())
 
     class Meta:
         model = Residence
@@ -27,13 +30,19 @@ class ResidenceForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "address": forms.Textarea(attrs={"class": "form-control"}),
-            "distance": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
     def clean_position(self):
         position = self.cleaned_data["position"]
-        position = make_point_projected(position, origin_coord_srid=3857)
-        return position
+        position_point = GEOSGeometry(position, srid=DEFAULT_GOOGLE_MAPS_SRID)
+        position_projected_point = make_point(
+            position_point, origin_coord_srid=DEFAULT_GOOGLE_MAPS_SRID, destiny_coord_srid=DEFAULT_PROJECTED_SRID
+        )
+        return position_projected_point
+
+    def clean_distance(self):
+        distance = self.cleaned_data["distance"]
+        return int(distance)
 
     def save(self, commit=True, **kwargs):
         """When save a residence form, you have to provide an user."""
@@ -60,7 +69,7 @@ class JourneyForm(forms.ModelForm):
     class Meta:
         model = Journey
         fields = ["residence", "campus", "kind", "i_am_driver", "transport", "free_places", "departure", "time_window",
-                  "recurrence"]
+                  "arrival", "recurrence"]
         widgets = {
             "transport": forms.Select(attrs={"class": "form-control"}),
             "residence": forms.Select(attrs={"class": "form-control"}),
@@ -68,6 +77,7 @@ class JourneyForm(forms.ModelForm):
             "kind": forms.Select(attrs={"class": "form-control"}),
             "free_places": forms.NumberInput(attrs={"class": "form-control"}),
             "departure": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
+            "arrival": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
             "time_window": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
@@ -77,6 +87,28 @@ class JourneyForm(forms.ModelForm):
         if self.user:
             self.fields['residence'].queryset = Residence.objects.filter(user=self.user)
             self.fields['transport'].queryset = Transport.objects.filter(user=self.user)
+
+    def clean_departure(self):
+        departure = self.cleaned_data["departure"]
+        time_window = self.cleaned_data.get("time_window", 30)
+        now = timezone.now()
+        if departure < now:
+            raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
+        if Journey.objects.overlaps(self.user, departure, time_window).exists():
+            raise forms.ValidationError(_("Ya tienes un viaje que sale muy cerca de esta hora"))
+        return departure
+
+    def clean_arrival(self):
+        arrival = self.cleaned_data.get("arrival")
+        departure = self.cleaned_data.get("departure")
+        if arrival and departure:
+            departure = self.cleaned_data["departure"]
+            now = timezone.now()
+            if arrival < now:
+                raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
+            if arrival < departure:
+                raise forms.ValidationError(_("No puedes crear viajes que llegues antes de salir"))
+        return arrival
 
     def save(self, commit=True, **kwargs):
         """When save a journey form, you have to provide an user."""
@@ -103,18 +135,23 @@ class SmartJourneyForm(forms.ModelForm):
         initial=False,
         widget=forms.RadioSelect(
             choices=((True, _('Sí')), (False, _('No'))),
+            attrs={
+                "ng-model": "iAmDriver",
+                "ng-change": "changeDriverStatus"
+            }
         )
     )
 
     class Meta:
         model = Journey
         fields = ["origin", "destiny", "i_am_driver", "transport", "free_places", "departure", "time_window",
-                  "recurrence"]
+                  "arrival", "recurrence"]
         widgets = {
             "transport": forms.Select(attrs={"class": "form-control"}),
             "kind": forms.Select(attrs={"class": "form-control"}),
             "free_places": forms.NumberInput(attrs={"class": "form-control"}),
             "departure": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
+            "arrival": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
             "time_window": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
@@ -142,6 +179,28 @@ class SmartJourneyForm(forms.ModelForm):
         except (ObjectDoesNotExist, IndexError, AttributeError):
             raise forms.ValidationError(_("Lugar de destino no válido"))
 
+    def clean_departure(self):
+        departure = self.cleaned_data["departure"]
+        time_window = self.cleaned_data.get("time_window", 30)
+        now = timezone.now()
+        if departure < now:
+            raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
+        if Journey.objects.overlaps(self.user, departure, time_window).exists():
+            raise forms.ValidationError(_("Ya tienes un viaje que sale muy cerca de esta hora"))
+        return departure
+
+    def clean_arrival(self):
+        arrival = self.cleaned_data.get("arrival")
+        departure = self.cleaned_data.get("departure")
+        if arrival and departure:
+            departure = self.cleaned_data["departure"]
+            now = timezone.now()
+            if arrival < now:
+                raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
+            if arrival < departure:
+                raise forms.ValidationError(_("No puedes crear viajes que llegues antes de salir"))
+        return arrival
+
     def save(self, commit=True, **kwargs):
         """When save a journey form, you have to provide an user."""
         user = self.user
@@ -165,6 +224,9 @@ class SmartJourneyForm(forms.ModelForm):
         journey.kind = GOING if isinstance(origin, Residence) else RETURN
         if commit:
             journey.save()
+            # Expand journey recurrence
+            journeys = expand(journey)
+            Journey.objects.bulk_create(journeys)
         return journey
 
 
@@ -238,3 +300,40 @@ class TransportForm(forms.ModelForm):
         if commit:
             transport.save()
         return transport
+
+
+class SearchJourneyForm(forms.Form):
+    """Form to search journeys."""
+
+    position = forms.CharField(widget=forms.HiddenInput())
+    distance = forms.CharField(widget=forms.HiddenInput())
+    departure = forms.DateTimeField(
+        label=_("Fecha y hora de salida"),
+        widget=floppyforms.DateTimeInput(attrs={"class": "form-control"})
+    )
+    time_window = forms.IntegerField(
+        label=_("Margen de tiempo, en minutos"),
+        initial=30,
+        widget=forms.NumberInput(attrs={"class": "form-control"})
+    )
+
+    def clean_position(self):
+        position = self.cleaned_data["position"]
+        position_point = GEOSGeometry(position, srid=DEFAULT_GOOGLE_MAPS_SRID)
+        position_projected_point = make_point(
+            position_point, origin_coord_srid=DEFAULT_GOOGLE_MAPS_SRID, destiny_coord_srid=DEFAULT_PROJECTED_SRID
+        )
+        return position_projected_point
+
+    def clean_distance(self):
+        distance = self.cleaned_data["distance"]
+        return float(distance)
+
+    def search(self, user):
+        position = self.cleaned_data["position"]
+        distance = self.cleaned_data["distance"]
+        departure = self.cleaned_data["departure"]
+        time_window = self.cleaned_data["time_window"]
+        return Journey.objects.search(
+            user=user, position=position, distance=distance, departure=departure, time_window=time_window
+        )

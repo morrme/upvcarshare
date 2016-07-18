@@ -1,9 +1,8 @@
 {% extends "header.html" %}
 {% load i18n %}
+{% load journeys_tags %}
 
-{% block extra_head %}
-    {{ form.media }}
-{% endblock %}
+{% block  title %}{% trans "Editar perfil de usuario" %}{% endblock title %}
 
 {% block section_title %}
     <div class="row">
@@ -20,14 +19,32 @@
             <form method="post" action="" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for field in form %}
-                    <div class="form-group row{% if field.errors %} has-danger{% endif %}">
-                        <label for="{{ field.auto_id }}" class="col-sm-2 form-control-label">{{ field.label }}</label>
-                        <div class="col-sm-10">
-                            {{ field }}
-                            <span class="text-muted">{{ field.help_text }}</span>
-                            <span class="text-muted">{{ field.errors }}</span>
+                    {% if field.name == "default_position" %}
+                        <div class="form-group row{% if field.errors %} has-danger{% endif %}">
+                            <label for="{{ field.auto_id }}" class="col-sm-2 form-control-label">{{ field.label }}</label>
+                            <div class="col-sm-10">
+                                <circle-map position-value="{{ form.default_position.value|point_google_maps }}"
+                                            position-field="{{ form.default_position.name }}"
+                                            position-field-id="{{ form.default_position.auto_id }}"
+                                            radius-value="{{ form.default_distance.value }}"
+                                            radius-field="{{ form.default_distance.name }}"
+                                            radius-field-id="{{ form.default_distance.auto_id }}">
+                                </circle-map>
+                                <span class="text-muted">{{ field.help_text }}</span>
+                                <span class="text-muted">{{ field.errors }}</span>
+                            </div>
                         </div>
-                    </div>
+                    {% elif field.name == "default_distance" %}
+                    {% else %}
+                        <div class="form-group row{% if field.errors %} has-danger{% endif %}">
+                            <label for="{{ field.auto_id }}" class="col-sm-2 form-control-label">{{ field.label }}</label>
+                            <div class="col-sm-10">
+                                {{ field }}
+                                <span class="text-muted">{{ field.help_text }}</span>
+                                <span class="text-muted">{{ field.errors }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
                 <div class="form-group row">
                     <div class="col-sm-offset-2 col-sm-10">

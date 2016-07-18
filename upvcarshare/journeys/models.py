@@ -3,6 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from copy import copy
 
+import datetime
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
@@ -16,11 +17,11 @@ from recurrence.fields import RecurrenceField
 
 from core.models import GisTimeStampedModel
 from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_DISTANCE, DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID, \
-    DEFAULT_TIME_WINDOW, PASSENGER_STATUSES, UNKNOWN, CONFIRMED, REJECTED
+    DEFAULT_TIME_WINDOW, PASSENGER_STATUSES, UNKNOWN, CONFIRMED, REJECTED, DEFAULT_GOOGLE_MAPS_SRID
 from journeys.exceptions import NoFreePlaces, NotAPassenger, AlreadyAPassenger
-from journeys.helpers import make_point_wgs84
+from journeys.helpers import make_point_wgs84, make_point
 from journeys.managers import JourneyManager, ResidenceManager, MessageManager
-from notifications import JOIN, LEAVE, CANCEL, CONFIRM, REJECT
+from notifications import JOIN, LEAVE, CANCEL, CONFIRM, REJECT, THROW_OUT
 from notifications.decorators import dispatch
 
 
@@ -59,7 +60,9 @@ class Place(GisTimeStampedModel):
 
     def google_maps_link(self):
         """Gets a link to Google Maps position"""
-        point = self.get_position_wgs84()
+        point = make_point(
+            self.position, origin_coord_srid=DEFAULT_PROJECTED_SRID, destiny_coord_srid=DEFAULT_GOOGLE_MAPS_SRID
+        )
         return "http://www.google.com/maps/place/{},{}".format(
             point.coords[1], point.coords[0]
         )
@@ -75,7 +78,7 @@ class Residence(Place):
     here. Each residence belongs to a user.
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="residences")
-    address = models.TextField(verbose_name=_("dirección"))
+    address = models.TextField(verbose_name=_("dirección"), help_text=_("La dirección del lugar, según quieras que la vean los demás."))
 
     objects = ResidenceManager()
 
@@ -124,12 +127,13 @@ class Journey(GisTimeStampedModel):
         verbose_name=_("campus"),
         related_name="journeys"
     )
-    kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de trayecto"))
+    kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de viaje"))
     free_places = models.PositiveIntegerField(default=4, verbose_name=_("plazas libres"), blank=True, null=True)
     departure = models.DateTimeField(verbose_name=_("fecha y hora de salida"))
+    arrival = models.DateTimeField(verbose_name=_("fecha y hora de llegada estimada"), null=True, blank=True)
     time_window = models.PositiveIntegerField(
         verbose_name=_("ventana de tiempo"),
-        help_text=_("Se buscaran por los trayectos que salgan hasta con estos minutos de antelación"),
+        help_text=_("Se buscaran por los viaje que salgan hasta con estos minutos de antelación"),
         default=DEFAULT_TIME_WINDOW,
         blank=True
     )
@@ -141,7 +145,8 @@ class Journey(GisTimeStampedModel):
         blank=True
     )
     disabled = models.BooleanField(default=False, verbose_name=_("marcar como deshabilitado"))
-    recurrence = RecurrenceField(verbose_name=_("¿Vas a realizar este trayecto más de una vez?"), null=True, blank=True)
+    recurrence = RecurrenceField(verbose_name=_("¿Vas a realizar este viaje más de una vez?"), null=True, blank=True)
+    parent = models.ForeignKey("journeys.Journey", null=True, blank=True, related_name="children")
 
     objects = JourneyManager()
 
@@ -159,8 +164,26 @@ class Journey(GisTimeStampedModel):
             return self.residence
         return self.campus
 
+    @property
+    def has_recurrence(self):
+        return self.children.exists() or self.parent is not None
+
     def __str__(self):
         return self.description(strip_html=True)
+
+    def get_title(self):
+        """Gets the title for event calendar."""
+        return self.description(strip_html=True)
+
+    def get_start(self):
+        """Gets the time to departure on ISO format."""
+        return self.departure.isoformat()
+
+    def get_end(self):
+        """Gets the time to arrival on ISO format."""
+        if self.arrival:
+            return self.arrival.isoformat()
+        return (self.departure + datetime.timedelta(minutes=30)).isoformat()
 
     def description(self, strip_html=False):
         """Gets a human read description of the journey."""
@@ -189,28 +212,51 @@ class Journey(GisTimeStampedModel):
         return 0
 
     @dispatch(JOIN)
-    def join_passenger(self, user):
+    def join_passenger(self, user, join_to=None):
         """A user joins a journey.
         :param user:
+        :param join_to:
         """
         if self.passengers.filter(user=user).exists() or self.driver == user:
             raise AlreadyAPassenger()
         if self.count_passengers() < self.free_places:
-            return Passenger.objects.create(
+            passenger = Passenger.objects.create(
                 journey=self,
                 user=user,
                 status=UNKNOWN
             )
+            if join_to is None or join_to == "one":
+                return passenger
+        # Join to recurrence
+        if join_to is not None and join_to == "all":
+            if self.has_recurrence:
+                journeys = self.children.all() \
+                    if self.children.exists() else self.parent.children.all()
+                journeys = journeys.filter(departure__gt=self.departure)
+                passengers = []
+                for journey in journeys:
+                    try:
+                        passengers.append(journey.join_passenger(user))
+                    except (NoFreePlaces, AlreadyAPassenger):
+                        pass
+                return passengers
         raise NoFreePlaces()
 
     @dispatch(LEAVE)
     def leave_passenger(self, user):
-        """A user joins a journey.
+        """A user leave a journey.
         :param user:
         """
         if not self.is_passenger(user=user):
             raise NotAPassenger()
         self.passengers.filter(user=user).delete()
+
+    @dispatch(THROW_OUT)
+    def throw_out(self, user):
+        """A user is throw out from a journey.
+        :param user:
+        """
+        self.leave_passenger(user)
 
     @dispatch(CONFIRM)
     def confirm_passenger(self, user):
@@ -318,4 +364,3 @@ class Message(TimeStampedModel):
     content = models.TextField()
 
     objects = MessageManager()
-

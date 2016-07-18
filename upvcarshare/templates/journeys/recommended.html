@@ -2,11 +2,13 @@
 {% load i18n %}
 {% load journeys_tags %}
 
+{% block title %}{% trans "Viajes recomendados" %}{% endblock title %}
+
 {% block section_title %}
     <div class="row">
         <div class="col-sm-12">
-            <h2>{% trans "Trayectos recomendados" %}</h2>
-            <p>{% trans "Lista con los trayectos que ofrecen otras personas y que se adaptan a tus necesidades." %}</p>
+            <h2>{% trans "Viajes recomendados" %}</h2>
+            <p>{% trans "Lista con los viajes que ofrecen otras personas y que se adaptan a tus necesidades." %}</p>
 
         </div>
     </div>
@@ -23,8 +25,10 @@
             </div>
         {% endfor %}
         <div class="form-group">
+          <div class="btn-group-vertical">
             <button type="submit" class="btn btn-info">{% trans "Filtrar" %}</button>
             <a href="{% url "journeys:recommended" %}" class="btn btn-danger">{% trans "Quitar filtros" %}</a>
+          </div>
         </div>
     </form>
 {% endblock %}
@@ -35,9 +39,9 @@
             {% for journey in journeys %}
                 {% journey_item journey %}
             {% empty %}
-                <h3 class="text-muted">{% trans "No hemos encontrado trayectos recomendados" %}</h3>
-                <p class="lead">{% trans "Puedes crear los trayectos en los que necesitas transporte para que te mostremos aquí una lista de conducotres que pueden llevarte a tu destino." %}</p>
-                <a href="{% url "journeys:create" %}" class="btn btn-lg btn-primary">{% trans "Crear trayecto" %}</a>
+                <h3 class="text-muted">{% trans "No hemos encontrado viajes recomendados" %}</h3>
+                <p class="lead">{% trans "Puedes crear los viajes en los que necesitas transporte para que te mostremos aquí una lista de conducotres que pueden llevarte a tu destino." %}</p>
+                <a href="{% url "journeys:create" %}" class="btn btn-lg btn-primary">{% trans "Crear viaje" %}</a>
             {% endfor %}
         </div>
     </div>

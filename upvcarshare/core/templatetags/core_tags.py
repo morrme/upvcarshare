@@ -5,19 +5,23 @@ from django import template
 from django.conf import settings
 from django.http import QueryDict
 
+from journeys import DEFAULT_GOOGLE_MAPS_SRID
+from journeys.helpers import make_point
+
 register = template.Library()
 
 
 @register.simple_tag
 def google_static_map(point, width=600, height=300, zoom=13):
+    google_maps_point = make_point(point, origin_coord_srid=point.srid, destiny_coord_srid=DEFAULT_GOOGLE_MAPS_SRID)
     base_uri = "https://maps.googleapis.com/maps/api/staticmap"
     args = {
         "maptype": "roadmap",
         "zoom": zoom,
         "size": "{}x{}".format(width, height),
         "key": settings.GOOGLE_MAPS_API_KEY,
-        "center": "{},{}".format(point.coords[1], point.coords[0]),
-        "markers": "color:red|{},{}".format(point.coords[1], point.coords[0]),
+        "center": "{},{}".format(google_maps_point.coords[1], google_maps_point.coords[0]),
+        "markers": "color:red|{},{}".format(google_maps_point.coords[1], google_maps_point.coords[0]),
     }
     query_dict = QueryDict(mutable=True)
     query_dict.update(args)

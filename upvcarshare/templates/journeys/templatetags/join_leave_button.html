@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load journeys_tags %}
 {% if not journey_item.needs_driver and not journey_item|is_passenger:request.user and journey_item.are_there_free_places %}
-    <form method="post" action="{% url "journeys:join" journey_item.pk %}">
+    <form method="post" action="{% url "journeys:join" journey_item.pk %}" join-journey-form>
         {% csrf_token %}
         <input type="hidden" name="return_to" value="{{ request.path }}">
         {% if journey_item.disabled or passenger.status == UNKNOWN or passenger.status == REJECTED %}
@@ -10,12 +10,26 @@
             {% elif passenger.status == REJECTED %}
                 <button type="button" disabled="disabled" class="btn btn-secondary">{% trans "Rechazado" %}</button>
             {% else %}
-                <button type="button" disabled="disabled" class="btn btn-secondary">{% trans "Unirse" %}</button>
+              <button type="button" disabled="disabled" class="btn btn-secondary">{% trans "Unirse" %}</button>
             {% endif %}
         {% else %}
+          {% if not journey_item.has_recurrence %}
+            <input type="hidden" name="join_to" value="one">
             <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
+          {% else %}
+            {# --- START modal for all or one journey --- #}
+            <script type="text/ng-template" id="join-all-one.html">
+              <div class="modal-body text-xs-center">
+                <p class="lead">{% trans "Este viaje tiene una o más repeticiones" %}</p>
+                <button class="btn btn-lg btn-success" type="button" ng-click="one($event)">{% trans "Quiero apuntarme solo a este" %}</button>
+                <button class="btn btn-lg btn-success" type="button" ng-click="all($event)">{% trans "Quiero apuntarme a todos los viajes" %}</button>
+              </div>
+            </script>
+            {# --- END for all or one journey --- #}
+            <input type="hidden" name="join_to" ng-value="joinToValue">
+            <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
+          {% endif %}
         {% endif %}
-
     </form>
 {% elif not journey_item.needs_driver and journey_item|is_passenger:request.user %}
     <form method="post" action="{% url "journeys:leave" journey_item.pk %}">

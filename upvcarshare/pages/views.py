@@ -11,4 +11,4 @@ class HomeView(View):
 
     @staticmethod
     def get(request):
-        return redirect(reverse("journeys:recommended"))
+        return redirect(reverse("journeys:list"))

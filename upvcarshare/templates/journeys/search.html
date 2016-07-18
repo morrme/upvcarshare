@@ -1,0 +1,39 @@
+{% extends "header.html" %}
+{% load i18n %}
+{% load journeys_tags %}
+
+{% block title %}{% trans "Buscar viajes" %}{% endblock title %}
+
+{% block section_title %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>{% trans "Burcador de viajes" %}</h2>
+            <p>{% trans "Busca viajes que ofrecen otros usuarios." %}</p>
+
+        </div>
+    </div>
+{% endblock section_title %}
+
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% include "journeys/blocks/search.form.html" %}
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% for journey in journeys %}
+                {% journey_item journey %}
+            {% empty %}
+                {% if is_query %}
+                <h3 class="text-muted">{% trans "No hemos encontrado viajes" %}</h3>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}

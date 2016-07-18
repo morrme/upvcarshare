@@ -1,0 +1,28 @@
+{% extends "header.html" %}
+{% load i18n %}
+{% load journeys_tags %}
+
+{% block title %}{% trans "Mis viajes" %}{% endblock title %}
+
+{% block section_title %}
+    <div class="row">
+        <div class="col-sm-10">
+            <h2>{% trans "Mis viajes" %}</h2>
+            <p>{% trans "Los viajes tanto que necesitas hacer a un campus y no tienes transporte como aquellos que quieres ofrecer transporte a otras personas." %}</p>
+        </div>
+        <div class="col-sm-2">
+            <a href="{% url "journeys:create" %}" class="btn btn-primary">{% trans "Nuevo viaje" %}</a>
+        </div>
+    </div>
+{% endblock section_title %}
+
+{% block content %}
+    {% if journeys_count == 0 %}
+        <h3 class="text-muted">{% trans "No tienes viajes creados" %}</h3>
+    {% endif %}
+    <div class="row" style="margin-bottom: 15px">
+        <div class="col-sm-12">
+            <calendar user-id="{{ request.user.pk }}"></calendar>
+        </div>
+    </div>
+{% endblock content %}

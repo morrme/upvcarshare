@@ -1,18 +1,45 @@
 import angular from 'angular';
 import JourneyService from './journeys.service';
-import {OriginDestinationSelectComponent, DatetimeComponent} from './journeys.component';
+import {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, CircleMapComponent} from './journeys.component';
+import {JourneyForm, JoinJourneyForm} from './journey.directive';
+import JoinAllOneController from './journeys.controller';
 
 import 'angular-ui-bootstrap';
 import 'bootstrap-ui-datetime-picker';
+import 'angular-ui-calendar';
+import 'lodash';
+import 'angular-simple-logger';
+import 'angular-google-maps';
 
 
 const journeys = angular
   .module('journeys', [
     'ui.bootstrap',
-    'ui.bootstrap.datetimepicker'
+    'ui.bootstrap.datetimepicker',
+    'ui.calendar',
+    'uiGmapgoogle-maps'
   ])
+
   .service('JourneyService', JourneyService)
+
+  .controller('JoinAllOneController', JoinAllOneController)
+
   .component('originDestinationSelect', OriginDestinationSelectComponent)
-  .component('journeyDatetime', DatetimeComponent);
+  .component('journeyDatetime', DatetimeComponent)
+  .component('calendar', CalendarComponent)
+  .component('circleMap', CircleMapComponent)
+
+  .directive('journeyForm', JourneyForm)
+  .directive('joinJourneyForm', JoinJourneyForm)
+
+  // Angular Google Maps
+  .config(['uiGmapGoogleMapApiProvider', (uiGmapGoogleMapApiProvider) => {
+    uiGmapGoogleMapApiProvider.configure({
+      key: 'AIzaSyAUuXiJ-kthJMHdXerksxYbqIbrRFrVfG4',
+      v: '3.24',
+      libraries: 'geometry,visualization,places'
+    });
+  }]);
+
 
 export default journeys;
