@@ -23,7 +23,7 @@
                 {% csrf_token %}
                 <origin-destination-select
                         origin-field="{{ form.origin.name }}"
-                        origin-field-di="{{ form.origin.auto_id }}"
+                        origin-field-id="{{ form.origin.auto_id }}"
                         destiny-field="{{ form.destiny.name }}"
                         destiny-field-id="{{ form.destiny.auto_id }}">
                 </origin-destination-select>
@@ -43,11 +43,22 @@
                                 <div class="col-sm-5">
                                     {% block residence_action %}
                                         <div class="btn-group pull-xs-right" role="group" aria-label="{% trans "Acciones" %}">
-                                            <a href="{% url "journeys:create-residence" %}" class="btn btn-success-outline">{% trans "Crear nuevo lugar" %}</a>
+                                            <a href="{% url "journeys:create-residence" %}" class="btn btn-outline-success">{% trans "Crear nuevo lugar" %}</a>
                                         </div>
                                     {% endblock %}
                                 </div>
                             </div>
+                          {% elif field.name == "transport" %}
+                                <div class="row">
+                                    <div class="col-sm-7">
+                                        {{ field }}
+                                    </div>
+                                    <div class="col-sm-5">
+                                      <div class="btn-group pull-xs-right" role="group" aria-label="{% trans "Acciones" %}">
+                                        <a href="{% url "journeys:create-transport" %}" class="btn btn-outline-success">{% trans "Crear nuevo transporte" %}</a>
+                                      </div>
+                                    </div>
+                                </div>
                         {% elif field.name == "departure" %}
                             <journey-datetime field-name="{{ field.name }}" field-id="{{ field.auto_id }}" value="{{ field.value|date:"c" }}"></journey-datetime>
                         {% elif field.name == "arrival" %}

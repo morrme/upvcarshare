@@ -32,6 +32,7 @@ def recommended_condition(journey, override_distance=None):
         "departure__gte": journey.departure - datetime.timedelta(minutes=journey.time_window),
     }
 
+
 class ResidenceManager(models.GeoManager):
 
     def smart_create(self, user):

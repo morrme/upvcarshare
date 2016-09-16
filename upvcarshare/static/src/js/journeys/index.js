@@ -4,12 +4,13 @@ import {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, 
 import {JourneyForm, JoinJourneyForm} from './journey.directive';
 import JoinAllOneController from './journeys.controller';
 
+import 'lodash';
 import 'angular-ui-bootstrap';
 import 'bootstrap-ui-datetime-picker';
 import 'angular-ui-calendar';
-import 'lodash';
 import 'angular-simple-logger';
 import 'angular-google-maps';
+
 
 
 const journeys = angular

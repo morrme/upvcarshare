@@ -48,4 +48,4 @@ class JourneysHelpersTest(TestCase):
         journey.recurrence = pattern
         journey.save()
         journeys = expand(journey)
-        self.assertEquals(45, len(journeys))
+        self.assertEquals(2, len(journeys))
