@@ -89,7 +89,9 @@ OriginDestinationSelectController.$inject = ['$scope', 'JourneyService'];
 
 class DatetimeController {
 
-  constructor() {}
+  constructor($scope) {
+    this.scope = $scope;
+  }
 
   $onInit() {
     var date = this.value !== undefined ? moment(this.value).toDate() : new Date();
@@ -103,6 +105,23 @@ class DatetimeController {
         showMeridian: false
       }
     };
+    // Call to onUpdate when $ctrl.picker.date changes.
+    this.scope.$watch('$ctrl.picker.date', (previousValue, currentValue) => {
+      // console.log("Watcher:", previousValue, currentValue)
+      if (currentValue !== undefined && previousValue !== currentValue) {
+        this.onUpdate({"value": currentValue});
+      }
+      if (currentValue == undefined && previousValue !== undefined) {
+        this.onUpdate({"value": previousValue});
+      }
+    });
+  }
+
+  // Changes value of date when is set on parent
+  $onChanges(changesObj) {
+    if (changesObj.overrideValue.currentValue !== null && changesObj.overrideValue.currentValue !== undefined) {
+      this.picker.date = changesObj.overrideValue.currentValue;
+    }
   }
 
   openCalendar($event) {
@@ -110,7 +129,7 @@ class DatetimeController {
   }
 
 }
-
+DatetimeController.$inject = ['$scope']
 
 class CalendarController {
 

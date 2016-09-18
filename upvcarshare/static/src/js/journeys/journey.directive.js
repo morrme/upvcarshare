@@ -1,9 +1,19 @@
 import {JoinAllOneController} from './journeys.controller';
+import moment from 'moment';
+
 
 const JourneyForm = () => ({
   restrict: 'A',
   link: (scope, element, attr) => {
     scope.iAmDriver = "False";
+    scope.newArrivalValue = null;
+
+    scope.onUpdateDeparture = (value) => {
+      // console.log("Updated departure: ", value);
+      var newValue = moment(value).add(30, 'm');
+      scope.newArrivalValue = newValue.toDate();
+    };
+
   }
 });
 

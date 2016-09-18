@@ -21,7 +21,9 @@ const DatetimeComponent = {
   bindings: {
     value: '@',
     fieldName: '@',
-    fieldId: '@'
+    fieldId: '@',
+    overrideValue: '<',
+    onUpdate: '&'
   }
 };
 

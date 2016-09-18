@@ -133,7 +133,7 @@ class Journey(GisTimeStampedModel):
     arrival = models.DateTimeField(verbose_name=_("fecha y hora de llegada estimada"), null=True, blank=True)
     time_window = models.PositiveIntegerField(
         verbose_name=_("ventana de tiempo"),
-        help_text=_("Se buscaran por los viaje que salgan hasta con estos minutos de antelación"),
+        help_text=_("Se buscaran por los viajes que salgan hasta con estos minutos de antelación"),
         default=DEFAULT_TIME_WINDOW,
         blank=True
     )

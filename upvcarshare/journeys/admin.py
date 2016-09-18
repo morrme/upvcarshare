@@ -53,7 +53,8 @@ class CampusAdminForm(admin.GeoModelAdmin):
 
 @admin.register(Journey)
 class JourneyAdmin(admin.ModelAdmin):
-    list_display = ["id", "residence", "campus", "kind", "departure", "created"]
+    list_display = ["id", "residence", "campus", "kind", "departure",
+                    "created"]
 
 
 @admin.register(Message)
@@ -63,4 +64,5 @@ class MessageAdmin(admin.ModelAdmin):
 
 @admin.register(Transport)
 class TransportAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "name", "default_places", "brand", "model", "color", "created"]
+    list_display = ["id", "user", "name", "default_places", "brand", "model",
+                    "color", "created"]
