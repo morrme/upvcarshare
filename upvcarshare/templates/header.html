@@ -42,24 +42,10 @@
                     <li class="nav-item {% add_active_class "journeys:recommended" %}">
                         <a class="nav-link" href="{% url "journeys:recommended" %}">{% trans "Recomendaciones" %}</a>
                     </li>
-                    <li class="nav-item {% add_active_class "journeys:list,journeys:residences,journeys:transports,journeys:create,journeys:details,journeys:edit" %} dropdown">
-                        <a class="nav-link dropdown-toggle"
-                           data-toggle="dropdown"
-                           href="#"
-                           role="button"
-                           aria-haspopup="true"
-                           aria-expanded="false">
-                            {% trans "Viajes" %}
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{% url "journeys:list" %}">{% trans "Mis viajes" %}</a>
-                            <a class="dropdown-item" href="{% url "journeys:create" %}">{% trans "Crear nuevo viaje" %}</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{% url "journeys:residences" %}">{% trans "Mis lugares" %}</a>
-                            <a class="dropdown-item" href="{% url "journeys:transports" %}">{% trans "Mis transportes" %}</a>
-                        </div>
+                    <li class="nav-item {% add_active_class "journeys:create" %} dropdown">
+                      <a class="nav-link" href="{% url "journeys:create" %}">{% trans "Crear viaje" %}</a>
                     </li>
-                    <li class="nav-item {% add_active_class "users:edit" %} dropdown">
+                    <li class="nav-item {% add_active_class "users:edit,journeys:list,journeys:residences,journeys:transports,journeys:details,journeys:edit" %} dropdown">
                         <a class="nav-link dropdown-toggle"
                            data-toggle="dropdown"
                            href="#"
@@ -70,6 +56,10 @@
                         </a>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="{% url "users:edit" %}">{% trans "Editar perfil" %}</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url "journeys:list" %}">{% trans "Mis viajes" %}</a>
+                            <a class="dropdown-item" href="{% url "journeys:residences" %}">{% trans "Mis lugares" %}</a>
+                            <a class="dropdown-item" href="{% url "journeys:transports" %}">{% trans "Mis transportes" %}</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url "users:sign-out" %}">{% trans "Salir" %}</a>
                         </div>
