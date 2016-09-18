@@ -1,7 +1,7 @@
 import angular from 'angular';
 import JourneyService from './journeys.service';
-import {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, CircleMapComponent} from './journeys.component';
-import {JourneyForm, JoinJourneyForm} from './journey.directive';
+import {OriginDestinationSelectComponent, DatetimeComponent, DateComponent, TimeComponent, CalendarComponent, CircleMapComponent} from './journeys.component';
+import {JourneyForm, JoinJourneyForm, SearchJourneyForm} from './journey.directive';
 import JoinAllOneController from './journeys.controller';
 
 import 'lodash';
@@ -27,10 +27,13 @@ const journeys = angular
 
   .component('originDestinationSelect', OriginDestinationSelectComponent)
   .component('journeyDatetime', DatetimeComponent)
+  .component('journeyDate', DateComponent)
+  .component('journeyTime', TimeComponent)
   .component('calendar', CalendarComponent)
   .component('circleMap', CircleMapComponent)
 
   .directive('journeyForm', JourneyForm)
+  .directive('searchJourneyForm', SearchJourneyForm)
   .directive('joinJourneyForm', JoinJourneyForm)
 
   // Angular Google Maps

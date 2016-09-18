@@ -131,6 +131,51 @@ class DatetimeController {
 }
 DatetimeController.$inject = ['$scope']
 
+
+class DateController {
+
+  constructor() {}
+
+  $onInit() {
+    var date = this.value !== undefined ? moment(this.value, "DD/MM/YYYY").toDate() : new Date();
+    this.picker = {
+      date: date,
+      format: "dd/MM/yyyy",
+      opened: false,
+      dateOptions: {}
+    };
+  }
+
+  openCalendar($event) {
+    this.picker.opened = true;
+  }
+
+}
+
+
+class TimeController {
+
+  constructor() {}
+
+  $onInit() {
+    var date = this.value !== undefined ? moment(this.value, "HH:mm").toDate() : new Date();
+    this.picker = {
+      time: date,
+      hStep: 1,
+      mStep: 10,
+      isMeridian: false
+    };
+  }
+
+  changed($event) {}
+
+  getTime () {
+    return "" + moment(this.picker.time).format('H:mm');
+  }
+
+}
+
+
 class CalendarController {
 
   constructor($scope, JourneyService, uiCalendarConfig) {
@@ -422,4 +467,4 @@ class JoinAllOneController {
 JoinAllOneController.$inject = ["$scope", "$uibModalInstance"];
 
 
-export {OriginDestinationSelectController, DatetimeController, CalendarController, CircleMapController, JoinAllOneController};
+export {OriginDestinationSelectController, DatetimeController, TimeController, DateController, CalendarController, CircleMapController, JoinAllOneController};

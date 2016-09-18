@@ -1,5 +1,5 @@
 // Component for select origin and destination of a journey.
-import {OriginDestinationSelectController, DatetimeController, CalendarController, CircleMapController}
+import {OriginDestinationSelectController, DatetimeController, DateController, TimeController, CalendarController, CircleMapController}
   from './journeys.controller';
 
 
@@ -27,6 +27,25 @@ const DatetimeComponent = {
   }
 };
 
+const DateComponent = {
+  controller: DateController,
+  templateUrl: "/partials/journeys/date.html",
+  bindings: {
+    value: '@',
+    fieldName: '@',
+    fieldId: '@',
+  }
+};
+
+const TimeComponent = {
+  controller: TimeController,
+  templateUrl: "/partials/journeys/time.html",
+  bindings: {
+    value: '@',
+    fieldName: '@',
+    fieldId: '@',
+  }
+};
 
 const CalendarComponent = {
   controller: CalendarController,
@@ -50,4 +69,4 @@ const CircleMapComponent = {
   }
 };
 
-export {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, CircleMapComponent};
+export {OriginDestinationSelectComponent, DatetimeComponent, DateComponent, TimeComponent, CalendarComponent, CircleMapComponent};

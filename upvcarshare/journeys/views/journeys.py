@@ -2,6 +2,8 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 import datetime
+
+import pytz
 from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -10,10 +12,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.generic import View
 from django.utils.translation import ugettext_lazy as _
+from django.utils.timezone import make_naive
 
 from journeys import GOING
 from journeys.exceptions import AlreadyAPassenger, NoFreePlaces, NotAPassenger
-from journeys.forms import SmartJourneyForm, JourneyForm, FilterForm, ConfirmRejectJourneyForm, SearchJourneyForm
+from journeys.forms import SmartJourneyForm, JourneyForm, FilterForm, \
+     ConfirmRejectJourneyForm, SearchJourneyForm
 from journeys.models import Residence, Campus, Journey, Passenger
 
 
@@ -319,22 +323,37 @@ class DeleteAllJourneyView(LoginRequiredMixin, View):
         messages.error(request, _('No puedes borrar este viaje'))
         return redirect(reverse("journeys:details", kwargs={"pk": pk}))
 
+
 class SearchJourneysView(LoginRequiredMixin, View):
     """View to search journeys."""
     template_name = "journeys/search.html"
 
     def get(self, request):
         journeys = Journey.objects.none()
-        is_query = bool(request.GET)
-        if is_query:
-            form = SearchJourneyForm(request.GET)
-            if form.is_valid():
-                journeys = form.search(user=request.user)
-        else:
-            form = SearchJourneyForm(initial={"time_window": 30})
+        initial_departure = make_naive(timezone.now().replace(second=0, minute=0) + \
+            datetime.timedelta(hours=1))
+        madrid_tz = pytz.timezone("Europe/Madrid")
+        initial_departure = madrid_tz.localize(initial_departure)
+        form = SearchJourneyForm(initial={
+            "time_window": 30,
+            "departure_date": initial_departure.strftime("%d/%m/%Y"),
+            "departure_time": initial_departure.strftime("%H:%M"),
+        })
         data = {
             "form": form,
             "journeys": journeys,
-            "is_query": is_query
+            "is_query": False
+        }
+        return render(request, self.template_name, data)
+
+    def post(self, request):
+        journeys = Journey.objects.none()
+        form = SearchJourneyForm(request.POST)
+        if form.is_valid():
+            journeys = form.search(user=request.user)
+        data = {
+            "form": form,
+            "journeys": journeys,
+            "is_query": True
         }
         return render(request, self.template_name, data)

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+import datetime
+
 import floppyforms
 from django import forms
 from django.contrib.gis.geos import GEOSGeometry
@@ -8,7 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
-from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_GOOGLE_MAPS_SRID, DEFAULT_PROJECTED_SRID
+from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_GOOGLE_MAPS_SRID, \
+     DEFAULT_PROJECTED_SRID
 from journeys.helpers import expand, make_point
 from journeys.models import Residence, Journey, Campus, Transport
 from users.models import User
@@ -144,14 +147,19 @@ class SmartJourneyForm(forms.ModelForm):
 
     class Meta:
         model = Journey
-        fields = ["origin", "destiny", "i_am_driver", "transport", "free_places", "departure", "time_window",
+        fields = ["origin", "destiny", "i_am_driver", "transport",
+                  "free_places", "departure", "time_window",
                   "arrival", "recurrence"]
         widgets = {
             "transport": forms.Select(attrs={"class": "form-control"}),
             "kind": forms.Select(attrs={"class": "form-control"}),
             "free_places": forms.NumberInput(attrs={"class": "form-control"}),
-            "departure": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
-            "arrival": floppyforms.DateTimeInput(attrs={"class": "form-control"}),
+            "departure": floppyforms.DateTimeInput(
+                attrs={"class": "form-control"}
+            ),
+            "arrival": floppyforms.DateTimeInput(
+                attrs={"class": "form-control"}
+                ),
             "time_window": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
@@ -159,7 +167,9 @@ class SmartJourneyForm(forms.ModelForm):
         self.user = kwargs.pop("user")
         super(SmartJourneyForm, self).__init__(*args, **kwargs)
         if self.user:
-            self.fields['transport'].queryset = Transport.objects.filter(user=self.user)
+            self.fields['transport'].queryset = Transport.objects.filter(
+                user=self.user
+            )
 
     def clean_origin(self):
         origin = self.cleaned_data["origin"]
@@ -279,7 +289,9 @@ class TransportForm(forms.ModelForm):
         fields = ["name", "default_places", "brand", "model", "color"]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
-            "default_places": forms.NumberInput(attrs={"class": "form-control"}),
+            "default_places": forms.NumberInput(
+                attrs={"class": "form-control"}
+            ),
             "brand": floppyforms.TextInput(attrs={"class": "form-control"}),
             "model": forms.TextInput(attrs={"class": "form-control"}),
             "color": forms.TextInput(attrs={"class": "form-control"}),
@@ -307,9 +319,17 @@ class SearchJourneyForm(forms.Form):
 
     position = forms.CharField(widget=forms.HiddenInput())
     distance = forms.CharField(widget=forms.HiddenInput())
-    departure = forms.DateTimeField(
-        label=_("Fecha y hora de salida"),
-        widget=floppyforms.DateTimeInput(attrs={"class": "form-control"})
+    departure_date = forms.DateField(
+        label=_("Fecha de salida"),
+        widget=floppyforms.DateInput(attrs={"class": "form-control"})
+    )
+    departure_time = forms.TimeField(
+        label=_("Hora de salida"),
+        widget=floppyforms.DateInput(attrs={"class": "form-control"})
+    )
+    search_by_time = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput()
     )
     time_window = forms.IntegerField(
         label=_("Margen de tiempo, en minutos"),
@@ -321,7 +341,8 @@ class SearchJourneyForm(forms.Form):
         position = self.cleaned_data["position"]
         position_point = GEOSGeometry(position, srid=DEFAULT_GOOGLE_MAPS_SRID)
         position_projected_point = make_point(
-            position_point, origin_coord_srid=DEFAULT_GOOGLE_MAPS_SRID, destiny_coord_srid=DEFAULT_PROJECTED_SRID
+            position_point, origin_coord_srid=DEFAULT_GOOGLE_MAPS_SRID,
+            destiny_coord_srid=DEFAULT_PROJECTED_SRID
         )
         return position_projected_point
 
@@ -332,8 +353,14 @@ class SearchJourneyForm(forms.Form):
     def search(self, user):
         position = self.cleaned_data["position"]
         distance = self.cleaned_data["distance"]
-        departure = self.cleaned_data["departure"]
+        departure_date = self.cleaned_data["departure_date"]
+        departure_time = self.cleaned_data["departure_time"]
+        departure = datetime.datetime.combine(departure_date, departure_time)
+        search_by_time = self.cleaned_data.get("search_by_time", False)
+        print(departure_date, departure_time)
         time_window = self.cleaned_data["time_window"]
         return Journey.objects.search(
-            user=user, position=position, distance=distance, departure=departure, time_window=time_window
+            user=user, position=position, distance=distance,
+            departure=departure, time_window=time_window,
+            search_by_time=search_by_time
         )

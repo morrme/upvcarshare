@@ -1,14 +1,29 @@
 {% load i18n %}
-<form method="get" action="">
+{{form.errors}}
+<form method="post" action="" search-journey-form show-time="{{form.search_by_time.value}}">
+    {% csrf_token %}
     <div class="form-group row">
-        <label for="{{ form.departure.auto_id }}" class="col-sm-3 form-control-label">{{ form.departure.label }}</label>
-        <div class="col-sm-3">
-            <journey-datetime field-name="{{ form.departure.name }}" field-id="{{ form.departure.auto_id }}"></journey-datetime>
-        </div>
-        <label for="{{ form.time_window.auto_id }}" class="col-sm-3 form-control-label">{{ form.time_window.label }}</label>
-        <div class="col-sm-3">
-            {{ form.time_window }}
-        </div>
+      <label for="{{ form.departure_date.auto_id }}" class="col-sm-3 form-control-label">{{ form.departure_date.label }}</label>
+      <div class="col-sm-3">
+          <journey-date field-name="{{ form.departure_date.name }}" field-id="{{ form.departure_date.auto_id }}" value={{ form.departure_date.value }}></journey-date>
+      </div>
+      <div class="col-sm-6 form-check">
+        <label class="form-check-label">
+          <input type="checkbox" class="form-check-input" ng-click="toggleTime()" name="{{ form.search_by_time.name }}"
+                 {% if form.search_by_time.value %}checked="checked"{% endif %}>
+          {% trans "¿Especificar la hora del viaje?" %}
+        </label>
+      </div>
+    </div>
+    <div class="form-group row" ng-cloak ng-hide="showTime==='False'">
+      <label for="{{ form.departure_date.auto_id }}" class="col-sm-3 form-control-label" style="padding-top:30px">{{ form.departure_time.label }}</label>
+      <div class="col-sm-3">
+          <journey-time field-name="{{ form.departure_time.name }}" field-id="{{ form.departure_time.auto_id }}"  value={{ form.departure_time.value }}></journey-time>
+      </div>
+      <label for="{{ form.time_window.auto_id }}" class="col-sm-3 form-control-label" style="padding-top:30px">{{ form.time_window.label }}</label>
+      <div class="col-sm-3" style="padding-top:30px">
+          {{ form.time_window }}
+      </div>
     </div>
     <div class="form-group row">
         <div class="col-sm-12">

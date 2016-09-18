@@ -1,0 +1,12 @@
+{% load i18n %}
+<div uib-timepicker
+     ng-model="$ctrl.picker.time"
+     ng-change="$ctrl.changed()"
+     hour-step="$ctrl.picker.hStep"
+     minute-step="$ctrl.picker.mStep"
+     show-meridian="$ctrl.picker.isMeridian">
+</div>
+<input type="hidden"
+       ng-value="$ctrl.getTime()"
+       name="[[$ctrl.fieldName]]"
+       id="[[$ctrl.fieldId]]">

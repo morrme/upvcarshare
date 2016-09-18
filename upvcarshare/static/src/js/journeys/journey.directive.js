@@ -2,6 +2,20 @@ import {JoinAllOneController} from './journeys.controller';
 import moment from 'moment';
 
 
+const SearchJourneyForm = () => ({
+  restrict: 'A',
+  link: (scope, element, attr) => {
+    if (attr.showTime !== undefined && attr.showTime !== null && attr.showTime !== "" && attr.showTime !== "None") {
+      scope.showTime = attr.showTime;
+    } else {
+      scope.showTime = "False";
+    }
+    scope.toggleTime = () => {
+      scope.showTime = scope.showTime == "False"? "True" : "False";
+    };
+  }
+});
+
 const JourneyForm = () => ({
   restrict: 'A',
   link: (scope, element, attr) => {
@@ -51,4 +65,4 @@ const JoinJourneyForm = ($uibModal) => ({
 });
 JoinJourneyForm.$inject = ["$uibModal"];
 
-export {JourneyForm, JoinJourneyForm};
+export {JourneyForm, JoinJourneyForm, SearchJourneyForm};
