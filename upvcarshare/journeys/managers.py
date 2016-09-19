@@ -144,9 +144,9 @@ class JourneyManager(models.GeoManager):
         """Search journeys using generic parameters."""
         # First, select departure filters
         if search_by_time:
-            departure_lower = departure + \
+            departure_lower = departure - \
                 datetime.timedelta(minutes=time_window)
-            departure_upper = departure - \
+            departure_upper = departure + \
                 datetime.timedelta(minutes=time_window)
         else:
             departure_lower = departure.replace(
@@ -165,8 +165,8 @@ class JourneyManager(models.GeoManager):
                     position,
                     D(m=distance)
                 ),
-                "departure__lte": departure_lower,
-                "departure__gte": departure_upper,
+                "departure__lte": departure_upper,
+                "departure__gte": departure_lower,
             }))
         now = timezone.now()
         queryset = self.available(ignore_full=ignore_full).exclude(user=user, departure__lt=now) \
@@ -175,7 +175,7 @@ class JourneyManager(models.GeoManager):
         return queryset
 
     def overlaps(self, user, departure, time_window):
-        """Returns a queryset with the overlaped journeys."""
+        """Returns a queryset with the overlapping journeys."""
         return self.filter(user=user).filter(
             departure__gte=(departure - datetime.timedelta(minutes=time_window)),
             departure__lte=(departure + datetime.timedelta(minutes=time_window))

@@ -65,6 +65,10 @@
   @extend .fa-chevron-down;
 }
 
+.fc-state-highlight {
+  background-color: #78bde8;
+}
+
 #id_i_am_driver {
   @extend .list-unstyled;
 }

@@ -36,16 +36,25 @@ const JoinJourneyForm = ($uibModal) => ({
   link: (scope, element, attr) => {
     // Initial value for join to value to one. It could be 'one' or 'all'
     scope.joinToValue = null;
+    scope.journeyId = attr.journeyId;
 
     // Function to open modal
     function openModal() {
       var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'join-all-one.html',
-        controller: JoinAllOneController
+        controller: JoinAllOneController,
+        resolve: {
+          journeyId: function () {
+            return scope.journeyId;
+          }
+        }
       });
       modalInstance.result.then( (selectedOption) => {
         scope.joinToValue = selectedOption;
+        if (typeof scope.joinToValue == "object"){
+          scope.joinToValue = scope.joinToValue.join(",");
+        }
         var field = element.find("[name='join_to']");
         field.val(selectedOption);
         element.submit();

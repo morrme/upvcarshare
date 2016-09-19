@@ -32,7 +32,7 @@
                 </div>
                 {% for field in form %}
                     {% if not field.is_hidden %}
-                    <div class="form-group row{% if field.errors %} has-danger{% endif %}" {% if field.name == "transport" or field.name == "free_places" %}ng-hide="iAmDriver == 'False'"{% endif %}>
+                    <div class="form-group row{% if field.errors %} has-danger{% endif %}" {% if field.name == "transport" or field.name == "free_places" %}ng-hide="iAmDriver == 'False'"{% elif field.name == "time_window" %}ng-hide="iAmDriver == 'True'"{% endif %}>
                         <label for="{{ field.auto_id }}" class="col-sm-4 form-control-label">{{ field.label }}</label>
                         <div class="col-sm-8">
                         {% if field.name == "residence" %}

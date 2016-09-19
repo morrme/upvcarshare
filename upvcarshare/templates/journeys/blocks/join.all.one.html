@@ -1,0 +1,12 @@
+{% load i18n %}
+<script type="text/ng-template" id="join-all-one.html">
+  <div class="modal-body text-xs-center">
+    <p class="lead">{% trans "Este viaje tiene una o más repeticiones" %}</p>
+    <button class="btn btn-lg btn-success" type="button" ng-click="one($event)">{% trans "Quiero apuntarme solo a este" %}</button>
+    <button class="btn btn-lg btn-success" type="button" ng-click="all($event)">{% trans "Quiero apuntarme a todos los viajes" %}</button>
+    <hr />
+    <recurrence-calendar journey-id="[[journeyId]]" on-delete-day="removedDay(date)" on-add-day="addedDay(date)"></recurrence-calendar>
+    <button class="btn btn-lg btn-success" type="button" ng-click="some($event)" style="margin-top: 10px"
+            ng-class="{'disabled': selectedDates.length <= 0}">{% trans "Quiero seleccionar sólo algunas fechas" %}</button>
+  </div>
+</script>

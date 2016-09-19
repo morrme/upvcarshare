@@ -20,7 +20,8 @@ class JourneysFormsTest(TestCase):
         journey = JourneyFactory(user=user, driver=user)
 
         data = {
-            "departure": journey.departure,
+            "departure_date": journey.departure.date(),
+            "departure_time": journey.departure.time(),
             "distance": 1000,
             "time_window": 30,
             "position": six.text_type(make_point(

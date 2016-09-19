@@ -446,25 +446,134 @@ CircleMapController.$inject = ["$scope", "uiGmapGoogleMapApi"];
 
 
 /**
- *
+ * Controller for the modal showed when a journey has repetitions.
  */
 class JoinAllOneController {
-
-  constructor($scope, $uibModalInstance) {
+  constructor($scope, $uibModalInstance, journeyId) {
     this.$scope = $scope;
     this.$uibModalInstance = $uibModalInstance;
+    this.journeyId = journeyId;
   }
 
   $onInit() {
+    this.$scope.selectedDates = [];
     this.$scope.one = ($event) => {
       this.$uibModalInstance.close("one");
     };
     this.$scope.all = ($event) => {
       this.$uibModalInstance.close("all");
     };
+    this.$scope.some = ($event) => {
+      if (this.$scope.selectedDates.length > 0 ) {
+        this.$uibModalInstance.close(this.$scope.selectedDates);
+      }
+    };
+    this.$scope.addedDay = (date) => {
+      this.$scope.selectedDates.push(date.format("DD/MM/YYYY"));
+    };
+    this.$scope.removedDay = (date) => {
+      this.$scope.selectedDates.splice(date.format("DD/MM/YYYY"), 1);
+    };
   }
 }
-JoinAllOneController.$inject = ["$scope", "$uibModalInstance"];
+JoinAllOneController.$inject = ["$scope", "$uibModalInstance", 'JourneyService', 'uiCalendarConfig', 'journeyId'];
 
 
-export {OriginDestinationSelectController, DatetimeController, TimeController, DateController, CalendarController, CircleMapController, JoinAllOneController};
+class RecurrenceCalendarController {
+
+  constructor($scope, JourneyService, uiCalendarConfig) {
+    this.$scope = $scope;
+    this.journeyService = JourneyService;
+    this.uiCalendarConfig = uiCalendarConfig;
+  }
+
+  processDataEvent(dataEvent) {
+    var event = {
+      "title": dataEvent.title,
+      "start": moment(dataEvent.start).toDate(),
+      "end": moment(dataEvent.end).toDate()
+    };
+    this.journeysDriver.events.push(event);
+    this.eventDates.push(moment(dataEvent.start).format("DD/MM/YYYY"));
+  }
+
+  loadEvents(url=null,) {
+    this.loadingEvents = true;
+    if (url === null) {
+      this.journeyService.getJourneyRecurrence(this.journeyId).then( (response) => {
+        response.results.forEach((dataEvent) => {
+          this.processDataEvent(dataEvent)
+        });
+        if (response.next !== null) {
+          this.loadEvents(response.next);
+        } else {
+          this.loadingEvents = false;
+          this.eventSources.push(this.journeysDriver);
+        }
+      });
+    } else {
+      this.journeyService.getByUrl(url).then( (response) => {
+        response.results.forEach((dataEvent) => {
+          this.processDataEvent(dataEvent)
+        });
+        if (response.next !== null) {
+          this.loadEvents(response.next);
+        } else {
+          this.loadingEvents = false;
+          this.eventSources.push(this.journeysDriver);
+        }
+      });
+    }
+  }
+
+  $onInit() {
+    // Selected events
+    this.eventDates = [];
+    this.selectedEvents = [];
+
+    // Show calendar whith journey
+    this.journeysDriver = {
+      color: '#2980b9',
+      textColor: '#fff',
+      events: []
+    };
+    this.loadingEvents = false;
+    this.eventSources = [];
+
+    // Calendar config object
+    this.uiConfig = {
+      calendar: {
+        editable: false,
+        defaultView: "month",
+        locale: "es",
+        header:{
+          left: 'title',
+          center: '',
+          right: 'today prev,next'
+        },
+        dayClick: (date, jsEvent, view) => {
+          // If the date is valid
+          var strDate = date.format("DD/MM/YYYY");
+          if (this.eventDates.indexOf(strDate) !== -1) {
+            if (this.selectedEvents.indexOf(strDate) !== -1) {
+              $("td[data-date="+date.format('YYYY-MM-DD')+"]").removeClass("fc-state-highlight");
+              this.selectedEvents.splice(this.selectedEvents.indexOf(strDate), 1);
+              this.onDeleteDay({date: date});
+            } else {
+              $("td[data-date="+date.format('YYYY-MM-DD')+"]").addClass("fc-state-highlight");
+              this.selectedEvents.push(strDate);
+              this.onAddDay({date: date});
+            }
+          }
+        }
+      }
+    };
+    this.loadEvents();
+  }
+}
+RecurrenceCalendarController.$inject = ["$scope", 'JourneyService', 'uiCalendarConfig'];
+
+
+export {OriginDestinationSelectController, DatetimeController, TimeController,
+  DateController, CalendarController, CircleMapController, JoinAllOneController,
+  RecurrenceCalendarController};

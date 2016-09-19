@@ -2,9 +2,11 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 from copy import copy
-
+from functools import reduce
 import datetime
+
 from django.conf import settings
+from django.db.models import Q
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib.gis.measure import D
@@ -185,6 +187,21 @@ class Journey(GisTimeStampedModel):
             return self.arrival.isoformat()
         return (self.departure + datetime.timedelta(minutes=30)).isoformat()
 
+    def recurrence_journeys(self):
+        journeys = Journey.objects.filter(pk=self.pk)
+        if self.children.exists():
+            journeys = Journey.objects.filter(
+                Q(pk__in=self.children.all().values_list("pk", flat=True)) |
+                Q(pk=self.pk)
+            )
+        elif self.parent:
+            journeys = self.parent.children.all()
+            journeys = Journey.objects.filter(
+                Q(pk__in=self.parent.children.all().values_list("pk", flat=True)) |
+                Q(pk=self.parent.pk)
+            )
+        return journeys
+
     def description(self, strip_html=False):
         """Gets a human read description of the journey."""
         if self.kind == GOING:
@@ -217,21 +234,21 @@ class Journey(GisTimeStampedModel):
         :param user:
         :param join_to:
         """
-        if self.passengers.filter(user=user).exists() or self.driver == user:
-            raise AlreadyAPassenger()
-        if self.count_passengers() < self.free_places:
-            passenger = Passenger.objects.create(
-                journey=self,
-                user=user,
-                status=UNKNOWN
-            )
-            if join_to is None or join_to == "one":
+        # Join only one
+        if join_to is None or join_to == "one":
+            if self.passengers.filter(user=user).exists() or self.driver == user:
+                raise AlreadyAPassenger()
+            if self.count_passengers() < self.free_places:
+                passenger = Passenger.objects.create(
+                    journey=self,
+                    user=user,
+                    status=UNKNOWN
+                )
                 return passenger
         # Join to recurrence
-        if join_to is not None and join_to == "all":
+        elif join_to is not None and join_to == "all":
             if self.has_recurrence:
-                journeys = self.children.all() \
-                    if self.children.exists() else self.parent.children.all()
+                journeys = self.recurrence_journeys()
                 journeys = journeys.filter(departure__gt=self.departure)
                 passengers = []
                 for journey in journeys:
@@ -240,6 +257,20 @@ class Journey(GisTimeStampedModel):
                     except (NoFreePlaces, AlreadyAPassenger):
                         pass
                 return passengers
+        # Join only some of the recurrence
+        elif join_to is not None and len(join_to.split("/")) > 0:
+            dates = map(lambda item: datetime.datetime.strptime(item, "%d/%m/%Y"), join_to.split(","))
+            conditions = [Q(departure__day=date.day, departure__month=date.month, departure__year=date.year) for date in dates]
+            journeys = self.recurrence_journeys()
+            journeys = journeys.filter(reduce(lambda x, y: x | y, conditions))
+            print(journeys)
+            passengers = []
+            for journey in journeys:
+                try:
+                    passengers.append(journey.join_passenger(user))
+                except (NoFreePlaces, AlreadyAPassenger):
+                    pass
+            return passengers
         raise NoFreePlaces()
 
     @dispatch(LEAVE)

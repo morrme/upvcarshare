@@ -148,8 +148,8 @@ class SmartJourneyForm(forms.ModelForm):
     class Meta:
         model = Journey
         fields = ["origin", "destiny", "i_am_driver", "transport",
-                  "free_places", "departure", "time_window",
-                  "arrival", "recurrence"]
+                  "free_places", "departure", "arrival", "time_window",
+                  "recurrence"]
         widgets = {
             "transport": forms.Select(attrs={"class": "form-control"}),
             "kind": forms.Select(attrs={"class": "form-control"}),
@@ -357,7 +357,6 @@ class SearchJourneyForm(forms.Form):
         departure_time = self.cleaned_data["departure_time"]
         departure = datetime.datetime.combine(departure_date, departure_time)
         search_by_time = self.cleaned_data.get("search_by_time", False)
-        print(departure_date, departure_time)
         time_window = self.cleaned_data["time_window"]
         return Journey.objects.search(
             user=user, position=position, distance=distance,
