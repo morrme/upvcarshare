@@ -30,7 +30,7 @@
                         <a class="nav-link" href="{% url "notifications:list" %}">
                             {% trans "Notificaciones" %}
                             {% if unread_notifications > 0 %}
-                                <span class="label label-pill label-danger">{{ unread_notifications }}</span>
+                                <span class="tag tag-pill tag-danger">{{ unread_notifications }}</span>
                             {% endif %}
                         </a>
                     </li>
