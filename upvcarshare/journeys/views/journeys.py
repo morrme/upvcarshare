@@ -162,7 +162,7 @@ class JoinJourneyView(LoginRequiredMixin, View):
         join_to = request.POST.get("join_to")
         try:
             journey.join_passenger(request.user, join_to)
-            if len(join_to.split("/")) > 0:
+            if join_to is not None and len(join_to.split("/")) > 0:
                 messages.success(request, _('Has solicitado unirte a alguno de los viajes disponibles'))
             elif join_to == "all":
                 messages.success(request, _('Has solicitado unirte a todos los viajes disponibles'))

@@ -1,7 +1,8 @@
 import angular from 'angular';
 import JourneyService from './journeys.service';
 import {OriginDestinationSelectComponent, DatetimeComponent, DateComponent, TimeComponent, CalendarComponent, CircleMapComponent, RecurrenceCalendarComponent} from './journeys.component';
-import {JourneyForm, JoinJourneyForm, SearchJourneyForm} from './journey.directive';
+import {JourneyForm, JoinJourneyForm, SearchJourneyForm, ConfirmPassengerForm,
+  RejectPassengerForm} from './journey.directive';
 import JoinAllOneController from './journeys.controller';
 
 import 'lodash';
@@ -36,6 +37,8 @@ const journeys = angular
   .directive('journeyForm', JourneyForm)
   .directive('searchJourneyForm', SearchJourneyForm)
   .directive('joinJourneyForm', JoinJourneyForm)
+  .directive('confirmPassengerForm', ConfirmPassengerForm)
+  .directive('rejectPassengerForm', RejectPassengerForm)
 
   // Angular Google Maps
   .config(['uiGmapGoogleMapApiProvider', (uiGmapGoogleMapApiProvider) => {

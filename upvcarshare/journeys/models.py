@@ -249,7 +249,7 @@ class Journey(GisTimeStampedModel):
         elif join_to is not None and join_to == "all":
             if self.has_recurrence:
                 journeys = self.recurrence_journeys()
-                journeys = journeys.filter(departure__gt=self.departure)
+                journeys = journeys.filter(departure__gte=self.departure)
                 passengers = []
                 for journey in journeys:
                     try:
@@ -294,14 +294,22 @@ class Journey(GisTimeStampedModel):
         """Confirms the user as passenger."""
         if not self.is_passenger(user=user, all_passengers=True):
             raise NotAPassenger()
-        self.passengers.filter(user=user).update(status=CONFIRMED)
+        # self.passengers.filter(user=user).update(status=CONFIRMED)
+        passenger = self.passengers.filter(user=user).first()
+        if passenger:
+            passengers = passenger.recurrence()
+            passengers.update(status=CONFIRMED)
 
     @dispatch(REJECT)
     def reject_passenger(self, user):
         """Confirms the user as passenger."""
         if not self.is_passenger(user=user, all_passengers=True):
             raise NotAPassenger()
-        self.passengers.filter(user=user).update(status=REJECTED)
+        # self.passengers.filter(user=user).update(status=REJECTED)
+        passenger = self.passengers.filter(user=user).first()
+        if passenger:
+            passengers = passenger.recurrence()
+            passengers.update(status=REJECTED)
 
     def is_passenger(self, user, all_passengers=False):
         """Checks if the given user is a passenger of this journey."""
@@ -366,6 +374,19 @@ class Passenger(TimeStampedModel):
 
     class Meta:
         unique_together = ["user", "journey"]
+
+    def recurrence(self):
+        journeys = self.journey.recurrence_journeys()
+        conditions = [Q(journey__pk=journey.pk) for journey in journeys]
+        passengers = Passenger.objects.filter(reduce(lambda x, y: x | y, conditions))
+        return passengers
+
+    def has_recurrence(self):
+        """Check if there is more than one request for the recourrence of
+        the journey.
+        """
+        passengers = self.recurrence()
+        return passengers.count() > 1
 
 
 @python_2_unicode_compatible

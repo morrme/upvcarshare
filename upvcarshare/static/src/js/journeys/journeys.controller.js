@@ -574,6 +574,24 @@ class RecurrenceCalendarController {
 RecurrenceCalendarController.$inject = ["$scope", 'JourneyService', 'uiCalendarConfig'];
 
 
+class ConfirmRejectPassengerController {
+  constructor($scope, $uibModalInstance) {
+    this.$scope = $scope;
+    this.$uibModalInstance = $uibModalInstance;
+  }
+
+  $onInit() {
+    this.$scope.selectedDates = [];
+    this.$scope.continue = ($event) => {
+      this.$uibModalInstance.close(true);
+    };
+    this.$scope.cancel = ($event) => {
+      this.$uibModalInstance.dismiss(false);
+    };
+  }
+}
+ConfirmRejectPassengerController.$inject = ["$scope", "$uibModalInstance"];
+
 export {OriginDestinationSelectController, DatetimeController, TimeController,
   DateController, CalendarController, CircleMapController, JoinAllOneController,
-  RecurrenceCalendarController};
+  RecurrenceCalendarController, ConfirmRejectPassengerController};
