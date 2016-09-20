@@ -214,6 +214,34 @@ class RecommendedJourneysResource(viewsets.ReadOnlyModelViewSet):
 recommended_journeys = RecommendedJourneysResource.as_view({"get": "recommended"})
 
 
+class RecurrenceJourneysResource(viewsets.ReadOnlyModelViewSet):
+    """Get recurrence journeys for a given journey.
+
+    Example:
+
+    GET /api/v1/journeys/(id)/recurrence/
+    """
+
+    queryset = Journey.objects.all()
+    serializer_class = JourneySerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def recurrence(self, request, **kwargs):
+        pk = kwargs.get('pk', None)
+        journey = get_object_or_404(Journey, pk=pk)
+        queryset = journey.recurrence_journeys()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+recurrence_journeys = RecurrenceJourneysResource.as_view({"get": "recurrence"})
+
+
 class CancelJourneyResource(viewsets.ViewSet):
     """Resource to allow to cancel a journey.
 

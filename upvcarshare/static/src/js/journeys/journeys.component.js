@@ -1,5 +1,5 @@
 // Component for select origin and destination of a journey.
-import {OriginDestinationSelectController, DatetimeController, CalendarController, CircleMapController}
+import {OriginDestinationSelectController, DatetimeController, DateController, TimeController, CalendarController, CircleMapController, RecurrenceCalendarController}
   from './journeys.controller';
 
 
@@ -21,7 +21,31 @@ const DatetimeComponent = {
   bindings: {
     value: '@',
     fieldName: '@',
-    fieldId: '@'
+    fieldId: '@',
+    overrideValue: '<',
+    onUpdate: '&'
+  }
+};
+
+
+const DateComponent = {
+  controller: DateController,
+  templateUrl: "/partials/journeys/date.html",
+  bindings: {
+    value: '@',
+    fieldName: '@',
+    fieldId: '@',
+  }
+};
+
+
+const TimeComponent = {
+  controller: TimeController,
+  templateUrl: "/partials/journeys/time.html",
+  bindings: {
+    value: '@',
+    fieldName: '@',
+    fieldId: '@',
   }
 };
 
@@ -31,6 +55,16 @@ const CalendarComponent = {
   templateUrl: "/partials/journeys/calendar.html",
   bindings: {
     userId: '@'
+  }
+};
+
+const RecurrenceCalendarComponent = {
+  controller: RecurrenceCalendarController,
+  templateUrl: "/partials/journeys/recurrence_calendar.html",
+  bindings: {
+    journeyId: '@',
+    onAddDay: '&',
+    onDeleteDay: '&'
   }
 };
 
@@ -48,4 +82,5 @@ const CircleMapComponent = {
   }
 };
 
-export {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, CircleMapComponent};
+
+export {OriginDestinationSelectComponent, DatetimeComponent, DateComponent, TimeComponent, CalendarComponent, CircleMapComponent, RecurrenceCalendarComponent};

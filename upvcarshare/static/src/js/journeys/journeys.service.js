@@ -22,6 +22,11 @@ class JourneyService {
       .then(response => response.data );
   }
 
+  getJourneyRecurrence(journeyId) {
+    return this.$http.get(`/api/v1/journeys/${journeyId}/recurrence/`)
+      .then(response => response.data );
+  }
+
   getJourneysOwned() {
     return this.$http.get("/api/v1/journeys/?owned=1")
       .then(response => response.data );

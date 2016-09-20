@@ -53,14 +53,16 @@ def expand(journey):
     from journeys.models import Journey
 
     # Finish date is 1 of september, new course
-    today = timezone.now().date()
+    today = journey.departure
     finish_date = today.replace(day=1, month=9)
     if today.month >= 9:
-        finish_date.replace(year=finish_date.year + 1)
+        finish_date = finish_date.replace(year=finish_date.year + 1)
     journeys = []
     if journey.recurrence:
         datetime_start = journey.departure + datetime.timedelta(days=1)
         datetime_end = datetime.datetime.combine(finish_date, time=datetime.time(0, 0, 0, 0))
+        if journey.recurrence.dtend:
+            datetime_end = min(journey.recurrence.dtend, datetime_end)
         for date in journey.recurrence.occurrences(dtstart=datetime_start, dtend=datetime_end):
             new_journey = Journey.objects.get(pk=journey.pk)
             new_journey.pk = None
@@ -79,4 +81,3 @@ def expand(journey):
                 )
             journeys.append(new_journey)
     return journeys
-

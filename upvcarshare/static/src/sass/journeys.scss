@@ -56,6 +56,18 @@
     @extend .fa-chevron-left;
   }
 }
+.glyphicon-chevron-up {
+  @extend .fa;
+  @extend .fa-chevron-up;
+}
+.glyphicon-chevron-down {
+  @extend .fa;
+  @extend .fa-chevron-down;
+}
+
+.fc-state-highlight {
+  background-color: #78bde8;
+}
 
 #id_i_am_driver {
   @extend .list-unstyled;

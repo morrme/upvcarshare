@@ -1,15 +1,17 @@
 import angular from 'angular';
 import JourneyService from './journeys.service';
-import {OriginDestinationSelectComponent, DatetimeComponent, CalendarComponent, CircleMapComponent} from './journeys.component';
-import {JourneyForm, JoinJourneyForm} from './journey.directive';
+import {OriginDestinationSelectComponent, DatetimeComponent, DateComponent, TimeComponent, CalendarComponent, CircleMapComponent, RecurrenceCalendarComponent} from './journeys.component';
+import {JourneyForm, JoinJourneyForm, SearchJourneyForm, ConfirmPassengerForm,
+  RejectPassengerForm} from './journey.directive';
 import JoinAllOneController from './journeys.controller';
 
+import 'lodash';
 import 'angular-ui-bootstrap';
 import 'bootstrap-ui-datetime-picker';
 import 'angular-ui-calendar';
-import 'lodash';
 import 'angular-simple-logger';
 import 'angular-google-maps';
+
 
 
 const journeys = angular
@@ -26,11 +28,17 @@ const journeys = angular
 
   .component('originDestinationSelect', OriginDestinationSelectComponent)
   .component('journeyDatetime', DatetimeComponent)
+  .component('journeyDate', DateComponent)
+  .component('journeyTime', TimeComponent)
   .component('calendar', CalendarComponent)
   .component('circleMap', CircleMapComponent)
+  .component('recurrenceCalendar', RecurrenceCalendarComponent)
 
   .directive('journeyForm', JourneyForm)
+  .directive('searchJourneyForm', SearchJourneyForm)
   .directive('joinJourneyForm', JoinJourneyForm)
+  .directive('confirmPassengerForm', ConfirmPassengerForm)
+  .directive('rejectPassengerForm', RejectPassengerForm)
 
   // Angular Google Maps
   .config(['uiGmapGoogleMapApiProvider', (uiGmapGoogleMapApiProvider) => {

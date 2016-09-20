@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="form-group row">
-    <label class="col-sm-4 form-control-label">{% trans "Lugar de origen" %}</label>
+    <label class="col-sm-4 form-control-label">{% trans "Lugar de origen*" %}</label>
     <div class="col-sm-8">
         <div class="row">
             <div class="col-sm-7">
@@ -14,7 +14,7 @@
             <div class="col-sm-5">
                 {% block residence_action %}
                     <div class="btn-group pull-xs-right" role="group" aria-label="{% trans "Acciones" %}">
-                        <a href="{% url "journeys:create-residence" %}" class="btn btn-success-outline">{% trans "Crear nuevo lugar" %}</a>
+                        <a href="{% url "journeys:create-residence" %}" class="btn btn-outline-success">{% trans "Crear nuevo lugar" %}</a>
                     </div>
                 {% endblock %}
             </div>
@@ -22,12 +22,11 @@
     </div>
 </div>
 <div class="form-group row">
-    <label class="col-sm-4 form-control-label">{% trans "Lugar de destino" %}</label>
+    <label class="col-sm-4 form-control-label">{% trans "Lugar de destino*" %}</label>
     <div class="col-sm-8">
         <div class="row">
             <div class="col-sm-7">
                 <select class="form-control"
-
                         ng-disabled="$ctrl.originSelected == null"
                         ng-change="$ctrl.changeDestiny()"
                         ng-model="$ctrl.destinySelected"

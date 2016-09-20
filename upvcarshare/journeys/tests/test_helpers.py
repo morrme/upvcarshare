@@ -5,6 +5,8 @@ import datetime
 
 import recurrence
 from django.contrib.gis.geos import Point
+from django.utils.timezone import make_naive
+
 from test_plus import TestCase
 
 from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID
@@ -37,15 +39,34 @@ class JourneysHelpersTest(TestCase):
 
     def test_expand(self):
         journey = JourneyFactory()
+        journey.departure = journey.departure.replace(month=1)
+        journey.save()
 
         rule = recurrence.Rule(recurrence.DAILY)
         pattern = recurrence.Recurrence(
-            dtstart=datetime.datetime.now() + datetime.timedelta(days=1),
-            dtend=datetime.datetime.now() + datetime.timedelta(days=20),
+            dtstart=make_naive(journey.departure) + datetime.timedelta(days=1),
+            dtend=make_naive(journey.departure) + datetime.timedelta(days=20),
             rrules=[rule, ]
         )
 
         journey.recurrence = pattern
         journey.save()
         journeys = expand(journey)
-        self.assertEquals(45, len(journeys))
+        self.assertEquals(22, len(journeys))
+
+    def test_expand_september(self):
+        journey = JourneyFactory()
+        journey.departure = journey.departure.replace(month=9)
+        journey.save()
+
+        rule = recurrence.Rule(recurrence.DAILY)
+        pattern = recurrence.Recurrence(
+            dtstart=make_naive(journey.departure) + datetime.timedelta(days=1),
+            dtend=make_naive(journey.departure) + datetime.timedelta(days=20),
+            rrules=[rule, ]
+        )
+
+        journey.recurrence = pattern
+        journey.save()
+        journeys = expand(journey)
+        self.assertEquals(22, len(journeys))

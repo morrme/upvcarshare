@@ -32,6 +32,7 @@ def recommended_condition(journey, override_distance=None):
         "departure__gte": journey.departure - datetime.timedelta(minutes=journey.time_window),
     }
 
+
 class ResidenceManager(models.GeoManager):
 
     def smart_create(self, user):
@@ -138,8 +139,23 @@ class JourneyManager(models.GeoManager):
             .order_by("departure")
         return queryset
 
-    def search(self, user, position, distance, departure, time_window, ignore_full=False):
+    def search(self, user, position, distance, departure, time_window,
+               search_by_time=True, ignore_full=False):
         """Search journeys using generic parameters."""
+        # First, select departure filters
+        if search_by_time:
+            departure_lower = departure - \
+                datetime.timedelta(minutes=time_window)
+            departure_upper = departure + \
+                datetime.timedelta(minutes=time_window)
+        else:
+            departure_lower = departure.replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+            departure_upper = departure.replace(
+                hour=23, minute=59, second=59, microsecond=999
+            )
+        # Then, run search
         kinds = [GOING, RETURN]
         conditions = []
         for kind in kinds:
@@ -149,8 +165,8 @@ class JourneyManager(models.GeoManager):
                     position,
                     D(m=distance)
                 ),
-                "departure__lte": departure + datetime.timedelta(minutes=time_window),
-                "departure__gte": departure - datetime.timedelta(minutes=time_window),
+                "departure__lte": departure_upper,
+                "departure__gte": departure_lower,
             }))
         now = timezone.now()
         queryset = self.available(ignore_full=ignore_full).exclude(user=user, departure__lt=now) \
@@ -159,7 +175,7 @@ class JourneyManager(models.GeoManager):
         return queryset
 
     def overlaps(self, user, departure, time_window):
-        """Returns a queryset with the overlaped journeys."""
+        """Returns a queryset with the overlapping journeys."""
         return self.filter(user=user).filter(
             departure__gte=(departure - datetime.timedelta(minutes=time_window)),
             departure__lte=(departure + datetime.timedelta(minutes=time_window))

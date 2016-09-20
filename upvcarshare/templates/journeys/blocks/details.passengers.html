@@ -25,17 +25,31 @@
                     </td>
                 {% else %}
                     <td colspan="2">
-                        <form method="post" action="{% url "journeys:confirm" passenger.pk %}" style="display: inline-block">
+                        <form method="post" action="{% url "journeys:confirm" passenger.pk %}" style="display: inline-block" {% if passenger.has_recurrence %}confirm-passenger-form{% endif %}>
                             {% csrf_token %}
-                                <input type="hidden" name="return_to" value="{{ request.path }}">
-                                <input type="hidden" name="user" value="{{ passenger.user.pk }}">
-                                <button type="submit" class="btn btn-success">{% trans "Confirmar" %}</button>
+                            <input type="hidden" name="return_to" value="{{ request.path }}">
+                            <input type="hidden" name="user" value="{{ passenger.user.pk }}">
+                            <button type="submit" class="btn btn-success">{% trans "Confirmar" %}</button>
+                            <script type="text/ng-template" id="confirm-passenger.html">
+                              <div class="modal-body text-xs-center">
+                                <p class="lead">{% trans "El usuario ha solicitado apuntarse a más de una de las ocurrencias de este viaje" %}</p>
+                                <button class="btn btn-lg btn-danger" type="button" ng-click="cancel($event)">{% trans "Cancelar" %}</button>
+                                <button class="btn btn-lg btn-success" type="button" ng-click="continue($event)">{% trans "Confirmar para todos" %}</button>
+                              </div>
+                            </script>
                         </form>
-                        <form method="post" action="{% url "journeys:reject" passenger.pk %}" style="display: inline-block">
+                        <form method="post" action="{% url "journeys:reject" passenger.pk %}" style="display: inline-block" {% if passenger.has_recurrence %}reject-passenger-form{% endif %}>
                             {% csrf_token %}
                             <input type="hidden" name="return_to" value="{{ request.path }}">
                             <input type="hidden" name="user" value="{{ passenger.user.pk }}">
                             <button type="submit" class="btn btn-danger">{% trans "Rechazar" %}</button>
+                            <script type="text/ng-template" id="reject-passenger.html">
+                              <div class="modal-body text-xs-center">
+                                <p class="lead">{% trans "El usuario ha solicitado apuntarse a más de una de las ocurrencias de este viaje" %}</p>
+                                <button class="btn btn-lg btn-danger" type="button" ng-click="cancel($event)">{% trans "Cancelar" %}</button>
+                                <button class="btn btn-lg btn-success" type="button" ng-click="continue($event)">{% trans "Rechazar para todos" %}</button>
+                              </div>
+                            </script>
                         </form>
                     </td>
                 {% endif %}

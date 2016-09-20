@@ -5,6 +5,7 @@
 .messenger {
   .messages-list {
     height: 500px;
+    padding-bottom: 90px;
     overflow-y: scroll;
   }
   .message {
@@ -15,3 +16,15 @@
   }
 }
 
+.messenger-form {
+  display: inline-block;
+  position: fixed;
+  left:0px;
+  bottom:0px;
+  width: 100%;
+  form {
+    padding: 15px;
+    background-color: #fff;
+    border-top: 1px solid #eee;
+  }
+}

@@ -1,0 +1,20 @@
+{% load i18n %}
+<div class="input-group">
+    <input type="text"
+           class="form-control"
+           uib-datepicker-popup="[[$ctrl.picker.format]]"
+           ng-model="$ctrl.picker.date"
+           is-open="$ctrl.picker.opened"
+           datepicker-options="$ctrl.picker.dateOptions"
+           ng-required="true"
+           close-text="{% trans "Cerrar" %}"
+           name="[[$ctrl.fieldName]]"
+           id="[[$ctrl.fieldId]]">
+    <span class="input-group-addon">
+        <button type="button"
+                class="btn btn-default"
+                ng-click="$ctrl.openCalendar($event)"
+                style="background: transparent; padding: 0"
+        ><i class="fa fa-calendar"></i></button>
+    </span>
+</div>

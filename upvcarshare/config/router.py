@@ -6,7 +6,7 @@ from rest_framework.routers import SimpleRouter
 
 from journeys.api.v1.resources import TransportResource, ResidenceResource, CampusResource, JourneyResource, \
     join_journey, leave_journey, recommended_journeys, cancel_journey, journey_messages, MessageResource, \
-    confirm_journey, reject_journey
+    confirm_journey, reject_journey, recurrence_journeys
 from notifications.api.v1.resources import NotificationResource
 from users.api.v1.resources import me
 
@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^journeys/recommended/$', recommended_journeys, kwargs={'pk': None}, name='all-recommended-journeys'),
     url(r'^journeys/(?P<pk>[^/.]+)/cancel/$', cancel_journey, name='cancel-journeys'),
     url(r'^journeys/(?P<pk>[^/.]+)/recommended/$', recommended_journeys, name='recommended-journeys'),
+    url(r'^journeys/(?P<pk>[^/.]+)/recurrence/$', recurrence_journeys, name='recurrence-journeys'),
     url(r'^journeys/(?P<pk>[^/.]+)/join/$', join_journey, name='join-journey'),
     url(r'^journeys/(?P<pk>[^/.]+)/confirm/$', confirm_journey, name='confirm-journey'),
     url(r'^journeys/(?P<pk>[^/.]+)/reject/$', reject_journey, name='reject-journey'),
