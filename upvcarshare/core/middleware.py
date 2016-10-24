@@ -11,9 +11,14 @@ class TimezoneMiddleware(object):
     """
     default_tzname = "Europe/Madrid"
 
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
         tzname = request.session.get('django_timezone')
         if tzname:
             timezone.activate(pytz.timezone(tzname))
         else:
             timezone.activate(pytz.timezone(self.default_tzname))
+        response = self.get_response(request)
+        return response
