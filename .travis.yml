@@ -5,10 +5,12 @@ language: python
 python:
   - "3.5"
 
+env:
+  - SPATIALITE_LIBRARY_PATH=mod_spatialite
+
 before_install:
   - pip install --quiet coveralls
   - pip install codecov
-
 
 install:
   - pip install -r requirements/test.txt
