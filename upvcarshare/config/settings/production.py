@@ -6,7 +6,7 @@ from config.settings.base import *
 # ------------------------------------------------------------------------------
 # Hosts/domain names that are valid for this site
 # See https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['example.com'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[PROJECT_DOMAIN])
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -19,8 +19,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
-    'default': env.db(
-        'DATABASE_URL', default='spatialite://{}'.format(str(APPS_DIR.path('{}.db'.format(PROJECT_NAME.lower()))))
-    ),
+    # Sample: oraclegis://USER:PASSWORD@HOST:PORT/NAME
+    'default': env.db('DATABASE_URL'),
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True
