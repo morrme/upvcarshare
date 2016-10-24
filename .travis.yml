@@ -1,14 +1,20 @@
 # Config file for automatic testing at travis-ci.org
+sudo: true
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libsqlite3-0 libspatialite3
+  - pip install --quiet coveralls
+  - pip install codecov
+
 
 language: python
 
 python:
   - "3.5"
 
-before_install:
-  - pip install --quiet coveralls
-  - pip install codecov
-
+env:
+  - SPATIALITE_LIBRARY_PATH="/usr/lib/libspatialite.so.3"
 
 install:
   - pip install -r requirements/test.txt
