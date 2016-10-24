@@ -3,7 +3,7 @@ sudo: true
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq spatialite
+  - sudo apt-get install -qq libspatialite7
   - pip install --quiet coveralls
   - pip install codecov
 
