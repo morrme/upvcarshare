@@ -1,0 +1,3 @@
+[run]
+include = upvcarshare/*
+omit = *migrations*, *tests*
