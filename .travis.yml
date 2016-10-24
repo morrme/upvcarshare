@@ -1,0 +1,20 @@
+# Config file for automatic testing at travis-ci.org
+
+language: python
+
+python:
+  - "3.5"
+
+before_install:
+  - pip install --quiet coveralls
+  - pip install codecov
+
+
+install:
+  - pip install -r requirements/test.txt
+
+script:
+  - coverage run runtests.py
+
+after_success:
+  - coveralls

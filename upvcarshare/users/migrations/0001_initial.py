@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                 ('default_address', models.TextField(blank=True, null=True)),
                 ('default_distance', models.PositiveIntegerField(blank=True, default=500, null=True)),
-                ('default_position', django.contrib.gis.db.models.fields.PointField(blank=True, null=True, srid=2062)),
+                ('default_position', django.contrib.gis.db.models.fields.PointField(blank=True, null=True, srid=2062, verbose_name='posición en el mapa por defecto')),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions')),
             ],

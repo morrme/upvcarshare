@@ -286,7 +286,7 @@ class CalendarController {
       calendar: {
         editable: false,
         defaultView: "agendaWeek",
-        lang: "es",
+        locale: "es",
         header:{
           left: 'title',
           center: '',

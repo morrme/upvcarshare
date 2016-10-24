@@ -133,7 +133,7 @@ class SmartJourneyForm(forms.ModelForm):
     destiny = forms.CharField(widget=forms.HiddenInput())
 
     i_am_driver = forms.BooleanField(
-        label=_("¿Soy conductor?"),
+        label=_("¿Soy conductor?*"),
         required=False,
         initial=False,
         widget=forms.RadioSelect(

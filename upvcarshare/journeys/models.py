@@ -131,8 +131,8 @@ class Journey(GisTimeStampedModel):
     )
     kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de viaje"))
     free_places = models.PositiveIntegerField(default=4, verbose_name=_("plazas libres"), blank=True, null=True)
-    departure = models.DateTimeField(verbose_name=_("fecha y hora de salida"))
-    arrival = models.DateTimeField(verbose_name=_("fecha y hora de llegada estimada"), null=True, blank=True)
+    departure = models.DateTimeField(verbose_name=_("fecha y hora de salida*"))
+    arrival = models.DateTimeField(verbose_name=_("fecha y hora de llegada estimada*"), null=True, blank=True)
     time_window = models.PositiveIntegerField(
         verbose_name=_("ventana de tiempo"),
         help_text=_("Se buscaran por los viajes que salgan hasta con estos minutos de antelación"),
