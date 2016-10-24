@@ -6,7 +6,7 @@ python:
   - "3.5"
 
 env:
-  - SPATIALITE_LIBRARY_PATH=mod_spatialite
+  - SPATIALITE_LIBRARY_PATH=""
 
 before_install:
   - pip install --quiet coveralls
