@@ -55,6 +55,9 @@ node_modules
 # virtual environments
 .env
 
+# Coverages
+.coverage
+
 # Project specific
 upvcarshare/public
 upvcarshare/static/dist/css
