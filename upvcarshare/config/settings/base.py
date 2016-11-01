@@ -6,6 +6,10 @@ import environ
 from django.core.urlresolvers import reverse_lazy
 
 env = environ.Env()
+env.DB_SCHEMES.update({
+    'oracle': 'django.db.backends.oracle',
+    'oraclegis': 'django.contrib.gis.db.backends.oracle',
+})  # Add support for Oracle and Oracle GIS to Django Environ
 
 # PATH CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -159,6 +163,10 @@ THIRD_PARTY_APPS = (
     'rest_framework_gis',
     'rest_framework.authtoken',
     'recurrence',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.openid',
 )
 
 PROJECT_APPS = (
@@ -215,11 +223,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_ADAPTER = 'users.adapter.AccountAdapter'
 
 # Custom user app defaults
 # Select the correct user model
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = 'users:redirect'
+LOGIN_REDIRECT_URL = reverse_lazy('home')
 LOGIN_URL = reverse_lazy('users:sign-in')
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -240,7 +249,21 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
+
+SOCIALACCOUNT_PROVIDERS = {
+    'openid': {
+        'SERVERS': [
+            {
+                "id": "upv",
+                "name": "upv",
+                "openid_url": "https://yo.rediris.es/soy/@upv.es"
+            }
+        ]
+    }
+}
+
 
 # TESTING CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -333,3 +356,5 @@ REST_FRAMEWORK = {
 # GOOGLE MAPS
 # ------------------------------------------------------------------------------
 GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY', default="AIzaSyAUuXiJ-kthJMHdXerksxYbqIbrRFrVfG4")
+
+

@@ -1,5 +1,6 @@
 {% extends "header.html" %}
 {% load i18n %}
+{% load socialaccount %}
 
 {% block section_title %}
     <div class="row">
@@ -30,6 +31,11 @@
                     </div>
                 </div>
             </form>
+
+            <a href="{% provider_login_url "openid" openid="https://yo.rediris.es/soy/@upv.es" next=next %}" class="btn btn-primary">
+                {% trans "Acceso con credenciales UPV" %}
+            </a>
+
         </div>
     </div>
 {% endblock content %}
