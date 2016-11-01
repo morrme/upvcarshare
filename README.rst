@@ -45,6 +45,15 @@ Install ``cx_Oracle`` from PIP::
 
     env ARCHFLAGS="-arch $ARCH" pip install cx_Oracle
 
+Environment Variables
+---------------------
+List of environment variables that the project needs to work in production:
+
+- ``DJANGO_ALLOWED_HOSTS="example.com"``
+- ``DJANGO_SETTINGS_MODULE="config.settings.production"``
+- ``DJANGO_SECRET_KEY="verylongstringwithnumbers"``
+- ``DATABASE_URL="oraclegis://dbuser:dbpass@db.server.com:1521/dbname"``
+
 Static files
 ------------
 
