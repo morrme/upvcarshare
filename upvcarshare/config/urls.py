@@ -24,6 +24,14 @@ urlpatterns += [
     url(r'^partials/(?P<name>.+)\.html', PartialsTemplateView.as_view(), name="partials-template"),
 ]
 
+# OpenID URLs
+urlpatterns += [
+    url(r"^accounts/signup/$", default_views.page_not_found, kwargs={'exception': Exception('Page not Found')}),
+    url(r"^accounts/login/$", default_views.page_not_found, kwargs={'exception': Exception('Page not Found')}),
+    url(r"^accounts/logout/$", default_views.page_not_found, kwargs={'exception': Exception('Page not Found')}),
+    url(r'^accounts/', include('allauth.urls')),
+]
+
 # Admin URLs
 admin.site.site_header = _('UPV Car Share Admin')
 urlpatterns += [
