@@ -21,6 +21,7 @@ DATABASES = {
         'DATABASE_URL', default='spatialite:///{}'.format(str(ROOT_DIR.path('{}.db'.format(PROJECT_NAME.lower()))))
     ),
 }
+DATABASES['default']['PORT'] = str(DATABASES['default']['PORT'])  # Fix a problem with Oracle connector
 DATABASES['default']['ATOMIC_REQUESTS'] = True
 SPATIALITE_LIBRARY_PATH = env('SPATIALITE_LIBRARY_PATH', default='/usr/local/lib/mod_spatialite.dylib')
 

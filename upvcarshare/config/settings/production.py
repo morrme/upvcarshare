@@ -22,4 +22,5 @@ DATABASES = {
     # Sample: oraclegis://USER:PASSWORD@HOST:PORT/NAME
     'default': env.db('DATABASE_URL'),
 }
+DATABASES['default']['PORT'] = str(DATABASES['default']['PORT'])  # Fix a problem with Oracle connector
 DATABASES['default']['ATOMIC_REQUESTS'] = True

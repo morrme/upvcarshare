@@ -6,6 +6,10 @@ import environ
 from django.core.urlresolvers import reverse_lazy
 
 env = environ.Env()
+env.DB_SCHEMES.update({
+    'oracle': 'django.db.backends.oracle',
+    'oraclegis': 'django.contrib.gis.db.backends.oracle',
+})  # Add support for Oracle and Oracle GIS to Django Environ
 
 # PATH CONFIGURATION
 # ------------------------------------------------------------------------------
