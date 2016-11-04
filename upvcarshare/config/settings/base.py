@@ -334,7 +334,7 @@ LOGGING = {
         },
         # Email admins when 500 error occurs
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins', 'console_prod'],
             'level': 'ERROR',
             'propagate': False,
         },
