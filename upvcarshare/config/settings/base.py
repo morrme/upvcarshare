@@ -222,7 +222,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Some really nice defaults
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_ADAPTER = 'users.adapter.AccountAdapter'
 
 # Custom user app defaults
