@@ -12,7 +12,7 @@
 {% endblock section_title %}
 
 {% block residence_action %}
-    <div class="btn-group pull-xs-right" role="group" aria-label="{% trans "Acciones" %}">
+    <div class="btn-group float-xs-right" role="group" aria-label="{% trans "Acciones" %}">
         <a href="{% url "journeys:edit-residence" journey.residence.pk %}" class="btn btn-secondary">{% trans "Editar lugar" %}</a>
         <a href="{% url "journeys:create-residence" %}" class="btn btn-secondary">{% trans "Crear nuevo lugar" %}</a>
     </div>

@@ -81,9 +81,10 @@ class JourneyManager(models.GeoManager):
             queryset = queryset.filter(kind=kind)
         if ignore_full:
             return queryset
-        return queryset.\
-            annotate(total_passengers=Count("passengers")).\
-            filter(total_passengers__lt=F("free_places"))
+        # NOTE: annotate QuerySet method has problems with Oracle, so, we have to
+        # look for an other way to make this query.
+        # queryset.annotate(total_passengers=Count("passengers")).filter(total_passengers__lt=F("free_places"))
+        return queryset.filter(total_passengers__lt=F("free_places"))
 
     def nearby(self, geometry, distance, kind=None):
         """Gets available nearby journeys.

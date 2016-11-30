@@ -131,6 +131,7 @@ class Journey(GisTimeStampedModel):
     )
     kind = models.PositiveIntegerField(choices=JOURNEY_KINDS, verbose_name=_("tipo de viaje"))
     free_places = models.PositiveIntegerField(default=4, verbose_name=_("plazas libres"), blank=True, null=True)
+    total_passengers = models.PositiveIntegerField(default=0, verbose_name=_("total pasajeros"), blank=True, null=True)
     departure = models.DateTimeField(verbose_name=_("fecha y hora de salida*"))
     arrival = models.DateTimeField(verbose_name=_("fecha y hora de llegada estimada*"), null=True, blank=True)
     time_window = models.PositiveIntegerField(
@@ -281,6 +282,10 @@ class Journey(GisTimeStampedModel):
         if not self.is_passenger(user=user):
             raise NotAPassenger()
         self.passengers.filter(user=user).delete()
+        self.total_passengers -= 1
+        if self.total_passengers < 0:
+            self.total_passengers = 0
+        self.save()
 
     @dispatch(THROW_OUT)
     def throw_out(self, user):
@@ -299,6 +304,8 @@ class Journey(GisTimeStampedModel):
         if passenger:
             passengers = passenger.recurrence()
             passengers.update(status=CONFIRMED)
+            self.total_passengers += 1
+            self.save()
 
     @dispatch(REJECT)
     def reject_passenger(self, user):
@@ -323,7 +330,8 @@ class Journey(GisTimeStampedModel):
         """
         if self.driver == self.user:
             return Journey.objects.none()
-        return Journey.objects.recommended(user=self.user, kind=self.kind, journey=self, ignore_full=ignore_full)
+        result = Journey.objects.recommended(user=self.user, kind=self.kind, journey=self, ignore_full=ignore_full)
+        return result
 
     def needs_driver(self):
         """Checks if the journey needs a driver."""
