@@ -103,6 +103,33 @@ class DatetimeController {
       },
       timeOptions: {
         showMeridian: false
+      },
+      buttonBar: {
+        show: true,
+        now: {
+          show: true,
+          text: 'Ahora'
+        },
+        today: {
+          show: true,
+          text: 'Hoy'
+        },
+        clear: {
+          show: true,
+          text: 'Limpiar'
+        },
+        date: {
+          show: true,
+          text: 'Fecha'
+        },
+        time: {
+          show: true,
+          text: 'Hora'
+        },
+        close: {
+          show: true,
+          text: 'Cerrar'
+        }
       }
     };
     // Call to onUpdate when $ctrl.picker.date changes.
@@ -129,7 +156,7 @@ class DatetimeController {
   }
 
 }
-DatetimeController.$inject = ['$scope']
+DatetimeController.$inject = ['$scope'];
 
 
 class DateController {

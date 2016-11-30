@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="input-group">
     <input type="text"
            class="form-control"
@@ -6,6 +7,7 @@
            is-open="$ctrl.picker.open"
            datepicker-options="$ctrl.picker.dateOptions"
            timepicker-options="$ctrl.picker.timeOptions"
+           button-bar="$ctrl.picker.buttonBar"
            name="[[$ctrl.fieldName]]"
            id="[[$ctrl.fieldId]]">
     <span class="input-group-addon">
