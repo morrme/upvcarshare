@@ -15,6 +15,11 @@ require("fullcalendar");
 // General Angular 1.5 App
 // -----------------------------------------------------------------------------
 import angular from 'angular';
+require("angular-i18n/angular-locale_es-es");
+
+
+// Project modules
+// -----------------------------------------------------------------------------
 import Common from './common';
 import Messenger from './messenger';
 import Journeys from './journeys';
