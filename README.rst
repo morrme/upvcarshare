@@ -47,6 +47,7 @@ Install ``cx_Oracle`` from PIP::
 
 Environment Variables
 ---------------------
+
 List of environment variables that the project needs to work in production:
 
 - ``DJANGO_ALLOWED_HOSTS="example.com"``
@@ -59,3 +60,11 @@ Static files
 
 The default folder for Django's ``STATICFILES_DIRS`` value is ``/static/dist/``, therefore all
 static data have to be created by **gulp**.
+
+Run tests
+---------
+
+To run the tests using Docker::
+
+    $ docker-compose -f dev.yml run app python3 manage.py test --settings=config.settings.test
+
