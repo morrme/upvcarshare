@@ -12,6 +12,7 @@ from rest_framework.authtoken.models import Token
 
 from core.files import UploadToDir
 from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_DISTANCE, DEFAULT_WGS84_SRID
+from users.helpers import UPVLoginDataService, from_roles_to_groups
 
 
 @python_2_unicode_compatible
@@ -87,10 +88,19 @@ class User(AbstractUser):
         self.default_position = position
         return self.default_position
 
+    def update_groups(self):
+        """Updates the groups using the UPV service."""
+        username = self.email.split("@")[0]
+        user_data = UPVLoginDataService.user_data(username=username)
+        roles = user_data.get("roles")
+        groups = from_roles_to_groups(roles)
+        self.groups.add(*groups)
+
     def save(self, *args, **kwargs):
         """Override to create API Token."""
         created = self.pk is None
         result = super(User, self).save(*args, **kwargs)
+        self.update_groups()
         if created:
             Token.objects.create(user=self)
         return result

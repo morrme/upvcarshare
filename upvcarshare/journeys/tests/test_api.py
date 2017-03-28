@@ -2,8 +2,8 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 import json
-import random
 
+import random
 from django.contrib.gis.geos import Point
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -12,35 +12,43 @@ from journeys import GOING, RETURN, DEFAULT_PROJECTED_SRID
 from journeys.models import Transport, Journey
 from journeys.tests.factories import TransportFactory, ResidenceFactory, CampusFactory, JourneyFactory, MessageFactory
 from users.tests.factories import UserFactory
+from users.tests.mocks import UPVLoginDataService
+
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class TransportsAPITests(APITestCase):
 
-    def setUp(self):
-        self.user = UserFactory()
-        self.transports = [TransportFactory(user=self.user) for _ in range(5)]
-        self.other_transport = TransportFactory(user=UserFactory())
-
     def test_get_transports(self):
+        user = UserFactory()
+        transports = [TransportFactory(user=user) for _ in range(5)]
+        TransportFactory(user=UserFactory())
         url = "/api/v1/transports/"
-        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_data = json.loads(response.content.decode('utf-8'))
-        self.assertEquals(len(self.transports), len(response_data['results']))
+        self.assertEquals(len(transports), len(response_data['results']))
 
     def test_update_transport(self):
-        url = "/api/v1/transports/{}/".format(self.transports[0].pk)
+        user = UserFactory()
+        transports = [TransportFactory(user=user) for _ in range(5)]
+        url = "/api/v1/transports/{}/".format(transports[0].pk)
         data = {
             "default_places": 2
         }
-        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=user)
         response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        transport = Transport.objects.get(pk=self.transports[0].pk)
+        transport = Transport.objects.get(pk=transports[0].pk)
         self.assertEquals(2, transport.default_places)
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class ResidenceAPITest(APITestCase):
 
     def test_get_residences(self):
@@ -54,6 +62,7 @@ class ResidenceAPITest(APITestCase):
         self.assertEquals(len(residences), len(response_data['results']))
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class CampusAPITest(APITestCase):
 
     def test_get_residences(self):
@@ -68,6 +77,7 @@ class CampusAPITest(APITestCase):
         self.assertEquals(len(campus) + 3, len(response_data['results']))
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class JourneyAPITest(APITestCase):
 
     @staticmethod
@@ -209,6 +219,7 @@ class JourneyAPITest(APITestCase):
         self.assertEquals(2, len(response_data['results']))
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class MessageAPITest(APITestCase):
 
     def test_get_messages_journey(self):

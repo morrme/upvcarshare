@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 import datetime
+
 import six
 from test_plus import TestCase
 
@@ -10,8 +11,15 @@ from journeys.forms import SearchJourneyForm
 from journeys.helpers import make_point
 from journeys.tests.factories import JourneyFactory
 from users.tests.factories import UserFactory
+from users.tests.mocks import UPVLoginDataService
+
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class JourneysFormsTest(TestCase):
 
     def test_search_form(self):
