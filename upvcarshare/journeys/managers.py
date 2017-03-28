@@ -47,8 +47,24 @@ class ResidenceManager(models.GeoManager):
         )
 
 
+class JourneyQuerySet(models.QuerySet):
+
+    def visible(self, user=None):
+        """Journey visible for the given user."""
+        if user is not None:
+            return self.filter(user__groups=user.groups.all())
+        return self
+
+
 class JourneyManager(models.GeoManager):
     """Manager for Journeys."""
+
+    def get_queryset(self):
+        return JourneyQuerySet(self.model, using=self._db)
+
+    def visible(self, user=None):
+        """Journey visible for the given user."""
+        return self.get_queryset().visible(user=user)
 
     def smart_create(self, user, origin, destination, departure, transport=None):
         """Enhanced method to create journeys"""
@@ -70,13 +86,14 @@ class JourneyManager(models.GeoManager):
             data["free_places"] = transport.default_places
         return self.create(**data)
 
-    def available(self, kind=None, ignore_full=False):
+    def available(self, user=None, kind=None, ignore_full=False):
         """Gets all available journeys.
+        :param user:
         :param kind: GOING, RETURN
         :param ignore_full:
         """
         now = timezone.now()
-        queryset = self.filter(driver__isnull=False, departure__gt=now)
+        queryset = self.visible(user).filter(driver__isnull=False, departure__gt=now)
         if kind is not None:
             queryset = queryset.filter(kind=kind)
         if ignore_full:
@@ -93,7 +110,7 @@ class JourneyManager(models.GeoManager):
         :param kind: GOING, RETURN
         """
 
-        nearby = self.available(kind)
+        nearby = self.available(kind=kind)
         if kind is not None:
             key = "residence{}" if kind == GOING else "campus{}"
             key = key.format("__position__distance_lte")
@@ -135,7 +152,7 @@ class JourneyManager(models.GeoManager):
         if not conditions:
             return self.none()
         now = timezone.now()
-        queryset = self.available(kind=kind, ignore_full=ignore_full).exclude(user=user, departure__lt=now)\
+        queryset = self.available(user=user, kind=kind, ignore_full=ignore_full).exclude(user=user, departure__lt=now)\
             .filter(reduce(lambda x, y: x | y, conditions))\
             .order_by("departure")
         return queryset
@@ -170,7 +187,7 @@ class JourneyManager(models.GeoManager):
                 "departure__gte": departure_lower,
             }))
         now = timezone.now()
-        queryset = self.available(ignore_full=ignore_full).exclude(user=user, departure__lt=now) \
+        queryset = self.available(user=user, ignore_full=ignore_full).exclude(user=user, departure__lt=now) \
             .filter(reduce(lambda x, y: x | y, conditions)) \
             .order_by("departure")
         return queryset

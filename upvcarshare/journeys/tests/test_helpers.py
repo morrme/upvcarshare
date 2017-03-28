@@ -6,15 +6,21 @@ import datetime
 import recurrence
 from django.contrib.gis.geos import Point
 from django.utils.timezone import make_naive
-
 from test_plus import TestCase
 
 from journeys import DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID
 from journeys.helpers import make_point_wgs84, make_point_projected, date_to_datetime, first_day_current_week, \
     last_day_current_week, expand
 from journeys.tests.factories import JourneyFactory
+from users.tests.mocks import UPVLoginDataService
+
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class JourneysHelpersTest(TestCase):
 
     def test_make_point_wgs84(self):

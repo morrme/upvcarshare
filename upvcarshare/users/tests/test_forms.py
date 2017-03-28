@@ -5,8 +5,15 @@ from test_plus import TestCase
 
 from users.forms import SignInForm
 from users.tests.factories import UserFactory
+from users.tests.mocks import UPVLoginDataService
+
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class SigInFormTests(TestCase):
     user_factory = UserFactory
 

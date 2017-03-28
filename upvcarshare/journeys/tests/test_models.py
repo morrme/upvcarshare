@@ -13,8 +13,15 @@ from journeys.exceptions import AlreadyAPassenger, NotAPassenger
 from journeys.models import Journey, Passenger, Residence
 from journeys.tests.factories import ResidenceFactory, CampusFactory, TransportFactory, JourneyFactory
 from users.tests.factories import UserFactory
+from users.tests.mocks import UPVLoginDataService
+
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class JourneyTest(TestCase):
     """Test related with Journey model and manager methods."""
 
@@ -130,7 +137,7 @@ class JourneyTest(TestCase):
         user3 = UserFactory()
         residence3 = ResidenceFactory(user=user3, position=Point(882454.58, 545877.33, srid=DEFAULT_PROJECTED_SRID))
         JourneyFactory(user=user3, residence=residence3, campus=campus)
-        self.assertEquals(Journey.objects.available(kind=GOING).count(), 2)
+        self.assertEquals(Journey.objects.available(user=user3, kind=GOING).count(), 2)
 
     def test_available_return_query(self):
         # Creates the available journeys with driver...
@@ -145,7 +152,7 @@ class JourneyTest(TestCase):
         user3 = UserFactory()
         residence3 = ResidenceFactory(user=user3, position=Point(865621.24, 545877.33, srid=DEFAULT_PROJECTED_SRID))
         JourneyFactory(user=user3, residence=residence3, campus=campus, kind=RETURN)
-        self.assertEquals(Journey.objects.available(kind=RETURN).count(), 1)
+        self.assertEquals(Journey.objects.available(user=user3, kind=RETURN).count(), 1)
 
     def test_available_query(self):
         # Creates the available journeys with driver...
@@ -160,7 +167,7 @@ class JourneyTest(TestCase):
         user3 = UserFactory()
         residence3 = ResidenceFactory(user=user3, position=Point(865621.24, 545274.90, srid=DEFAULT_PROJECTED_SRID))
         JourneyFactory(user=user3, residence=residence3, campus=campus, kind=RETURN)
-        self.assertEquals(Journey.objects.available().count(), 2)
+        self.assertEquals(Journey.objects.available(user=user3).count(), 2)
 
     def test_nearby_query(self):
         # Creates the available journeys with driver...
@@ -248,6 +255,7 @@ class JourneyTest(TestCase):
         self.assertTrue(Journey.objects.get(pk=journey.pk).disabled)
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class ResidenceTest(TestCase):
 
     def test_smart_create(self):

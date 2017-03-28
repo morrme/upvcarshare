@@ -10,26 +10,32 @@ from journeys import GOING, RETURN
 from journeys.models import Journey, Residence, Passenger
 from journeys.tests.factories import JourneyFactory, ResidenceFactory, CampusFactory
 from users.tests.factories import UserFactory
+from users.tests.mocks import UPVLoginDataService
+
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class JourneyViewTests(TestCase):
     user_factory = UserFactory
 
-    def setUp(self):
-        self.user = self.make_user(username="foo")
-
     def test_get_create_journey(self):
+        user = self.make_user(username="foo")
         url_name = "journeys:create"
         self.assertLoginRequired(url_name)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name)
             self.response_200(response=response)
 
     def test_post_create_journey(self):
+        user = self.make_user(username="foo")
         self.assertLoginRequired("journeys:create")
-        with self.login(self.user):
+        with self.login(user):
             data = {
-                "origin": "residence:%s" % ResidenceFactory(user=self.user).pk,
+                "origin": "residence:%s" % ResidenceFactory(user=user).pk,
                 "destiny": "campus:%s" % CampusFactory().pk,
                 "free_places": 4,
                 "time_window": 30,
@@ -41,10 +47,11 @@ class JourneyViewTests(TestCase):
             self.assertEquals(1, Journey.objects.count())
 
     def test_post_create_arrival_journey(self):
+        user = self.make_user(username="foo")
         self.assertLoginRequired("journeys:create")
-        with self.login(self.user):
+        with self.login(user):
             data = {
-                "origin": "residence:%s" % ResidenceFactory(user=self.user).pk,
+                "origin": "residence:%s" % ResidenceFactory(user=user).pk,
                 "destiny": "campus:%s" % CampusFactory().pk,
                 "free_places": 4,
                 "time_window": 30,
@@ -57,10 +64,11 @@ class JourneyViewTests(TestCase):
             self.assertEquals(1, Journey.objects.count())
 
     def test_post_create_bad_arrival_journey(self):
+        user = self.make_user(username="foo")
         self.assertLoginRequired("journeys:create")
-        with self.login(self.user):
+        with self.login(user):
             data = {
-                "origin": "residence:%s" % ResidenceFactory(user=self.user).pk,
+                "origin": "residence:%s" % ResidenceFactory(user=user).pk,
                 "destiny": "campus:%s" % CampusFactory().pk,
                 "free_places": 4,
                 "time_window": 30,
@@ -73,10 +81,11 @@ class JourneyViewTests(TestCase):
             self.assertEquals(0, Journey.objects.count())
 
     def test_post_create_bad_departure_journey(self):
+        user = self.make_user(username="foo")
         self.assertLoginRequired("journeys:create")
-        with self.login(self.user):
+        with self.login(user):
             data = {
-                "origin": "residence:%s" % ResidenceFactory(user=self.user).pk,
+                "origin": "residence:%s" % ResidenceFactory(user=user).pk,
                 "destiny": "campus:%s" % CampusFactory().pk,
                 "free_places": 4,
                 "time_window": 30,
@@ -89,20 +98,22 @@ class JourneyViewTests(TestCase):
             self.assertEquals(0, Journey.objects.count())
 
     def test_get_edit_journey(self):
-        journey = JourneyFactory(user=self.user)
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user)
         url_name = "journeys:edit"
         self.assertLoginRequired(url_name, pk=journey.pk)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name, pk=journey.pk)
             self.response_200(response=response)
 
     def test_post_edit_journey(self):
-        journey = JourneyFactory(user=self.user, kind=GOING)
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user, kind=GOING)
         url_name = "journeys:edit"
         self.assertLoginRequired(url_name, pk=journey.pk)
-        with self.login(self.user):
+        with self.login(user):
             data = {
-                "residence": ResidenceFactory(user=self.user).pk,
+                "residence": ResidenceFactory(user=user).pk,
                 "campus": CampusFactory().pk,
                 "kind": RETURN,
                 "free_places": 4,
@@ -116,40 +127,45 @@ class JourneyViewTests(TestCase):
             self.assertEquals(RETURN, journey.kind)
 
     def test_get_recommended_journey(self):
+        user = self.make_user(username="foo")
         url_name = "journeys:recommended"
         self.assertLoginRequired(url_name)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name)
             self.response_200(response=response)
 
     def test_get_recommended_journey_filter(self):
+        user = self.make_user(username="foo")
         url_name = "journeys:recommended"
         self.assertLoginRequired(url_name)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name, data={"distance": 200, "kind": GOING})
             self.response_200(response=response)
 
     def test_get_list_journey(self):
+        user = self.make_user(username="foo")
         url_name = "journeys:list"
         self.assertLoginRequired(url_name)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name)
             self.response_200(response=response)
 
     def test_post_join(self):
-        journey = JourneyFactory(user=self.user, kind=GOING)
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user, kind=GOING)
         url_name = "journeys:join"
         self.assertLoginRequired(url_name, pk=journey.pk)
-        with self.login(self.user):
+        with self.login(user):
             response = self.post(url_name=url_name, pk=journey.pk)
             self.response_302(response=response)
 
     def test_post_join_recurrence_all(self):
-        journey = JourneyFactory(user=self.user, kind=GOING)
-        journeys = [JourneyFactory(user=self.user, kind=GOING, parent=journey) for _ in range(10)]
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user, kind=GOING)
+        journeys = [JourneyFactory(user=user, kind=GOING, parent=journey) for _ in range(10)]
         url_name = "journeys:join"
         self.assertLoginRequired(url_name, pk=journey.pk)
-        with self.login(self.user):
+        with self.login(user):
             data = {
                 "join_to": "all"
             }
@@ -158,11 +174,12 @@ class JourneyViewTests(TestCase):
             self.assertEquals(len(journeys) + 1, Passenger.objects.count())
 
     def test_post_join_recurrence_one(self):
-        journey = JourneyFactory(user=self.user, kind=GOING)
-        [JourneyFactory(user=self.user, kind=GOING, parent=journey) for _ in range(10)]
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user, kind=GOING)
+        [JourneyFactory(user=user, kind=GOING, parent=journey) for _ in range(10)]
         url_name = "journeys:join"
         self.assertLoginRequired(url_name, pk=journey.pk)
-        with self.login(self.user):
+        with self.login(user):
             data = {
                 "join_to": "one"
             }
@@ -171,94 +188,101 @@ class JourneyViewTests(TestCase):
             self.assertEquals(1, Passenger.objects.count())
 
     def test_post_leave(self):
-        journey = JourneyFactory(user=self.user, kind=GOING)
-        journey.join_passenger(self.user)
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user, kind=GOING)
+        journey.join_passenger(user)
         url_name = "journeys:leave"
         self.assertLoginRequired(url_name, pk=journey.pk)
-        with self.login(self.user):
+        with self.login(user):
             response = self.post(url_name=url_name, pk=journey.pk)
             self.response_302(response=response)
 
     def test_post_throw_out(self):
-        journey = JourneyFactory(user=self.user, kind=GOING)
-        passenger = journey.join_passenger(self.user)
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user, kind=GOING)
+        passenger = journey.join_passenger(user)
         url_name = "journeys:throw-out"
         self.assertLoginRequired(url_name, pk=passenger.pk)
-        with self.login(self.user):
+        with self.login(user):
             response = self.post(url_name=url_name, pk=passenger.pk)
             self.response_302(response=response)
 
     def test_cancel_journey(self):
-        journey = JourneyFactory(user=self.user)
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user)
         url_name = "journeys:cancel"
         self.assertLoginRequired(url_name, pk=journey.pk)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name, pk=journey.pk)
             self.response_200(response=response)
 
     def test_post_cancel_journey(self):
-        journey = JourneyFactory(user=self.user)
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user)
         url_name = "journeys:cancel"
         self.assertLoginRequired(url_name, pk=journey.pk)
-        with self.login(self.user):
+        with self.login(user):
             response = self.post(url_name, pk=journey.pk)
             self.response_302(response=response)
             self.assertTrue(Journey.objects.get(pk=journey.pk).disabled)
 
     def test_delete_journey(self):
-        journeys = [JourneyFactory(user=self.user) for _ in range(10)]
-        journey = JourneyFactory(user=self.user)
+        user = self.make_user(username="foo")
+        journeys = [JourneyFactory(user=user) for _ in range(10)]
+        journey = JourneyFactory(user=user)
         url_name = "journeys:delete"
         self.assertLoginRequired(url_name, pk=journey.pk)
         self.assertEquals(len(journeys) + 1, Journey.objects.count())
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name, pk=journey.pk)
             self.response_302(response=response)
             self.assertFalse(Journey.objects.filter(pk=journey.pk).exists())
             self.assertEquals(len(journeys), Journey.objects.count())
 
     def test_delete_parent_journeys(self):
-        journey = JourneyFactory(user=self.user)
-        journeys = [JourneyFactory(user=self.user, parent=journey) for _ in range(10)]
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user)
+        journeys = [JourneyFactory(user=user, parent=journey) for _ in range(10)]
         url_name = "journeys:delete"
         self.assertLoginRequired(url_name, pk=journey.pk)
         self.assertEquals(len(journeys) + 1, Journey.objects.count())
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name, pk=journey.pk)
             self.response_302(response=response)
             self.assertFalse(Journey.objects.filter(pk=journey.pk).exists())
             self.assertEquals(len(journeys), Journey.objects.count())
 
     def test_delete_all_journeys(self):
-        journey = JourneyFactory(user=self.user)
-        journeys = [JourneyFactory(user=self.user, parent=journey) for _ in range(10)]
+        user = self.make_user(username="foo")
+        journey = JourneyFactory(user=user)
+        journeys = [JourneyFactory(user=user, parent=journey) for _ in range(10)]
         other_journeys = [JourneyFactory() for _ in range(5)]
         url_name = "journeys:delete-all"
         self.assertLoginRequired(url_name, pk=journey.pk)
         self.assertEquals(len(journeys) + len(other_journeys) + 1, Journey.objects.count())
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name, pk=journey.pk)
             self.response_302(response=response)
             self.assertFalse(Journey.objects.filter(pk=journey.pk).exists())
             self.assertEquals(len(other_journeys), Journey.objects.count())
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class ResidenceViewTests(TestCase):
     user_factory = UserFactory
 
-    def setUp(self):
-        self.user = self.make_user(username="foo")
-
     def test_get_create_residence(self):
+        user = self.make_user(username="foo")
         url_name = "journeys:create-residence"
         self.assertLoginRequired(url_name)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name)
             self.response_200(response=response)
 
     def test_post_create_residence(self):
+        user = self.make_user(username="foo")
         self.assertLoginRequired("journeys:create-residence")
-        with self.login(self.user):
+        with self.login(user):
             data = {
                 "name": "Home",
                 "address": "foo",
@@ -270,18 +294,20 @@ class ResidenceViewTests(TestCase):
             self.assertEquals(1, Residence.objects.count())
 
     def test_get_edit_residence(self):
-        residence = ResidenceFactory(user=self.user)
+        user = self.make_user(username="foo")
+        residence = ResidenceFactory(user=user)
         url_name = "journeys:edit-residence"
         self.assertLoginRequired(url_name, pk=residence.pk)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name, pk=residence.pk)
             self.response_200(response=response)
 
     def test_post_edit_residence(self):
-        residence = ResidenceFactory(user=self.user)
+        user = self.make_user(username="foo")
+        residence = ResidenceFactory(user=user)
         url_name = "journeys:edit-residence"
         self.assertLoginRequired(url_name, pk=residence.pk)
-        with self.login(self.user):
+        with self.login(user):
             data = {
                 "name": "Home",
                 "address": "bar",
@@ -294,24 +320,27 @@ class ResidenceViewTests(TestCase):
             self.assertEquals(data["address"], residence.address)
 
     def test_residences(self):
-        ResidenceFactory(user=self.user)
+        user = self.make_user(username="foo")
+        ResidenceFactory(user=user)
         url_name = "journeys:residences"
         self.assertLoginRequired(url_name)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name)
             self.response_200(response=response)
 
     def test_delete_residence(self):
-        residence = ResidenceFactory(user=self.user)
+        user = self.make_user(username="foo")
+        residence = ResidenceFactory(user=user)
         url_name = "journeys:delete-residence"
         self.assertLoginRequired(url_name, pk=residence.pk)
-        with self.login(self.user):
+        with self.login(user):
             response = self.get(url_name, pk=residence.pk)
             self.response_302(response=response)
 
     def test_no_delete_residence(self):
+        initial_user = self.make_user(username="foo")
         user = UserFactory()
-        residence = ResidenceFactory(user=self.user)
+        residence = ResidenceFactory(user=initial_user)
         url_name = "journeys:delete-residence"
         self.assertLoginRequired(url_name, pk=residence.pk)
         with self.login(user):

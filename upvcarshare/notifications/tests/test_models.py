@@ -9,12 +9,16 @@ from journeys.tests.factories import ResidenceFactory, JourneyFactory
 from notifications import JOIN, LEAVE
 from notifications.models import Notification
 from users.tests.factories import UserFactory
+from users.tests.mocks import UPVLoginDataService
+
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 
+@mock.patch('users.models.UPVLoginDataService', new=UPVLoginDataService)
 class NotificationTests(TestCase):
-
-    def setUp(self):
-        self.user = UserFactory()
 
     @staticmethod
     def _make_journey(user=None, kind=GOING):
@@ -24,16 +28,18 @@ class NotificationTests(TestCase):
         return JourneyFactory(user=user, residence=origin, campus=destination, kind=kind)
 
     def test_join_generation(self):
+        initial_user = UserFactory()
         user = UserFactory()
-        journey = self._make_journey(self.user)
+        journey = self._make_journey(initial_user)
         journey.join_passenger(user)
-        self.assertEquals(1, Notification.objects.filter(user=self.user, verb=JOIN).count())
+        self.assertEquals(1, Notification.objects.filter(user=initial_user, verb=JOIN).count())
 
     def test_leave_generation(self):
+        initial_user = UserFactory()
         user = UserFactory()
-        journey = self._make_journey(self.user)
+        journey = self._make_journey(initial_user)
         journey.join_passenger(user)
         journey.confirm_passenger(user)
         journey.leave_passenger(user)
-        self.assertEquals(1, Notification.objects.filter(user=self.user, verb=JOIN).count())
-        self.assertEquals(1, Notification.objects.filter(user=self.user, verb=LEAVE).count())
+        self.assertEquals(1, Notification.objects.filter(user=initial_user, verb=JOIN).count())
+        self.assertEquals(1, Notification.objects.filter(user=initial_user, verb=LEAVE).count())
