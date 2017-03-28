@@ -66,3 +66,4 @@ upvcarshare/static/dist/img
 upvcarshare/static/dist/fonts
 upvcarshare/media
 notebooks/
+.env
