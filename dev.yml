@@ -1,0 +1,16 @@
+# Docker-compose file to launch services during the development.
+version: '2'
+
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: ./compose/app/Dockerfile-dev
+    container_name: upvcarshare-app
+    command: /start-dev.sh
+    env_file: .env
+    volumes:
+      - .:/app
+    ports:
+      - "8888:8888"
