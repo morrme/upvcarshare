@@ -38,12 +38,13 @@ Unpack both files to that directory, and create symlinks::
 
     cd /usr/local/lib/
     ln -s $ORACLE_HOME/libclntsh.dylib.12.1 libclntsh.dylib.12.1
+    ln -s $ORACLE_HOME/libclntsh.dylib.12.1 libclntsh.dylib
     ln -s $ORACLE_HOME/libocci.dylib.12.1 libocci.dylib.12.1
     ln -s $ORACLE_HOME/libnnz12.dylib libnnz12.dylib
 
 Install ``cx_Oracle`` from PIP::
 
-    env ARCHFLAGS="-arch $ARCH" pip install cx_Oracle
+    env ARCHFLAGS="-arch $ARCH" pip install cx-Oracle==5.2.1
 
 Environment Variables
 ---------------------

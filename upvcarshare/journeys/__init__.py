@@ -18,9 +18,9 @@ PASSENGER_STATUSES = (
 # Uses projected coordinate system for Spain.
 # See: https://epsg.io/2062
 DEFAULT_PROJECTED_SRID = 2062
-DEFAULT_WGS84_SRID = 4326
-DEFAULT_GOOGLE_MAPS_SRID = 3857
+# DEFAULT_WGS84_SRID = 4326
+DEFAULT_WGS84_SRID = DEFAULT_GOOGLE_MAPS_SRID = 4326
 # Distance in meters
 DEFAULT_DISTANCE = 500
-# Time window in minutes
+# Time window in minutesg
 DEFAULT_TIME_WINDOW = 30

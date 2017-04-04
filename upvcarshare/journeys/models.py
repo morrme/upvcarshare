@@ -63,7 +63,7 @@ class Place(GisTimeStampedModel):
     def google_maps_link(self):
         """Gets a link to Google Maps position"""
         point = make_point(
-            self.position, origin_coord_srid=DEFAULT_PROJECTED_SRID, destiny_coord_srid=DEFAULT_GOOGLE_MAPS_SRID
+            self.position, origin_coord_srid=DEFAULT_PROJECTED_SRID, destiny_coord_srid=DEFAULT_WGS84_SRID
         )
         return "http://www.google.com/maps/place/{},{}".format(
             point.coords[1], point.coords[0]

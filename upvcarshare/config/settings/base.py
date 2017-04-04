@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
-from os.path import basename
+from os.path import basename, join
 from sys import path
 
 import environ
 from django.core.urlresolvers import reverse_lazy
 
-env = environ.Env()
-env.DB_SCHEMES.update({
-    'oracle': 'django.db.backends.oracle',
-    'oraclegis': 'django.contrib.gis.db.backends.oracle',
-})  # Add support for Oracle and Oracle GIS to Django Environ
 
 # PATH CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -40,6 +35,16 @@ PROJECT_DOMAIN = '%s.com' % PROJECT_NAME.lower()
 # Add our project to our pythonpath, this way we don't need to type our project
 # name in our dotted import paths:
 path.append(CONFIG_ROOT)
+
+# ENV CONFIGURATION
+# ------------------------------------------------------------------------------
+# See: http://django-environ.readthedocs.io/en/latest/
+env = environ.Env()
+env.read_env(join(DJANGO_ROOT, '.env'))
+env.DB_SCHEMES.update({
+    'oracle': 'django.db.backends.oracle',
+    'oraclegis': 'django.contrib.gis.db.backends.oracle',
+})  # Add support for Oracle and Oracle GIS to Django Environ
 
 # DEBUG CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -360,5 +365,6 @@ GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY', default="AIzaSyAUuXiJ-kthJMHdXe
 
 # UPV CREDENTIALS
 # ------------------------------------------------------------------------------
+UPV_LOGIN_IGNORE = False
 UPV_LOGIN_DATA_USERNAME = env("UPV_LOGIN_DATA_USERNAME")
 UPV_LOGIN_DATA_PASSWORD = env("UPV_LOGIN_DATA_PASSWORD")
