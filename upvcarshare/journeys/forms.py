@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
 from journeys import JOURNEY_KINDS, GOING, RETURN, DEFAULT_GOOGLE_MAPS_SRID, \
-     DEFAULT_PROJECTED_SRID
+    DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID
 from journeys.helpers import expand, make_point
 from journeys.models import Residence, Journey, Campus, Transport
 from users.models import User
@@ -37,9 +37,9 @@ class ResidenceForm(forms.ModelForm):
 
     def clean_position(self):
         position = self.cleaned_data["position"]
-        position_point = GEOSGeometry(position, srid=DEFAULT_GOOGLE_MAPS_SRID)
+        position_point = GEOSGeometry(position, srid=DEFAULT_WGS84_SRID)
         position_projected_point = make_point(
-            position_point, origin_coord_srid=DEFAULT_GOOGLE_MAPS_SRID, destiny_coord_srid=DEFAULT_PROJECTED_SRID
+            position_point, origin_coord_srid=DEFAULT_WGS84_SRID, destiny_coord_srid=DEFAULT_PROJECTED_SRID
         )
         return position_projected_point
 

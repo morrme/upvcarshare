@@ -5,23 +5,32 @@ import floppyforms
 from django import forms
 from django.contrib.gis import admin
 
-from core.widgets import GMapsPointWidget
-from journeys.helpers import make_point_projected
-from journeys.models import Residence, Journey, Campus, Message, Transport,\
+from core.widgets import OsmPointWidget
+from journeys import DEFAULT_GOOGLE_MAPS_SRID, DEFAULT_PROJECTED_SRID, DEFAULT_WGS84_SRID
+from journeys.helpers import make_point_projected, make_point
+from journeys.models import Residence, Journey, Campus, Message, Transport, \
     Passenger
 
 
 class PlaceAdminForm(forms.ModelForm):
 
-    position = floppyforms.gis.PointField(widget=GMapsPointWidget(), srid=3857)
+    position = floppyforms.gis.PointField(widget=OsmPointWidget(), srid=DEFAULT_WGS84_SRID)
 
     class Meta:
         model = Residence
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        super(PlaceAdminForm, self).__init__(*args, **kwargs)
+        self.initial["position"] = make_point(
+            self.initial["position"],
+            origin_coord_srid=DEFAULT_PROJECTED_SRID,
+            destiny_coord_srid=DEFAULT_WGS84_SRID
+        )
+
     def clean_position(self):
         position = self.cleaned_data["position"]
-        position = make_point_projected(position, origin_coord_srid=3857)
+        position = make_point_projected(position, origin_coord_srid=DEFAULT_WGS84_SRID)
         return position
 
     def save(self, commit=True):

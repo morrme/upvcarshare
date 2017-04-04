@@ -332,8 +332,7 @@ class SearchJourneysView(LoginRequiredMixin, View):
 
     def get(self, request):
         journeys = Journey.objects.none()
-        initial_departure = make_naive(timezone.now().replace(second=0, minute=0) + \
-            datetime.timedelta(hours=1))
+        initial_departure = make_naive(timezone.now().replace(second=0, minute=0) + datetime.timedelta(hours=1))
         madrid_tz = pytz.timezone("Europe/Madrid")
         initial_departure = madrid_tz.localize(initial_departure)
         form = SearchJourneyForm(initial={
