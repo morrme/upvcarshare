@@ -38,3 +38,9 @@ EMAIL_BACKEND = env(
 NOTEBOOK_ARGUMENTS = [
     '--port=8000',
 ]
+
+# UPV CREDENTIALS
+# ------------------------------------------------------------------------------
+UPV_LOGIN_IGNORE = True
+UPV_LOGIN_DATA_USERNAME = env("UPV_LOGIN_DATA_USERNAME")
+UPV_LOGIN_DATA_PASSWORD = env("UPV_LOGIN_DATA_PASSWORD")

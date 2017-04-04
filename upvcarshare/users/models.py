@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, AbstractUser, UserManager
 from django.contrib.gis.db import models
@@ -90,6 +91,8 @@ class User(AbstractUser):
 
     def update_groups(self):
         """Updates the groups using the UPV service."""
+        if settings.UPV_LOGIN_IGNORE:
+            return
         username = self.email.split("@")[0]
         user_data = UPVLoginDataService.user_data(username=username)
         roles = user_data.get("roles")

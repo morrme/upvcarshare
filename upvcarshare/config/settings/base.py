@@ -360,5 +360,6 @@ GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY', default="AIzaSyAUuXiJ-kthJMHdXe
 
 # UPV CREDENTIALS
 # ------------------------------------------------------------------------------
+UPV_LOGIN_IGNORE = False
 UPV_LOGIN_DATA_USERNAME = env("UPV_LOGIN_DATA_USERNAME")
 UPV_LOGIN_DATA_PASSWORD = env("UPV_LOGIN_DATA_PASSWORD")
