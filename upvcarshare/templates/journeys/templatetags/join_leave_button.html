@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load journeys_tags %}
 {% if not journey_item.needs_driver and not journey_item|is_passenger:request.user and journey_item.are_there_free_places %}
-    <form method="post" action="{% url "journeys:join" journey_item.pk %}" join-journey-form journey-id="{{ journey_item.pk }}">
+    <form method="post" action="{% url "journeys:join" journey_item.pk %}" {% if journey_item.has_recurrence %}join-journey-form journey-id="{{ journey_item.pk }}"{% endif %}>
         {% csrf_token %}
         <input type="hidden" name="return_to" value="{{ request.path }}">
         {% if journey_item.disabled or passenger.status == UNKNOWN or passenger.status == REJECTED %}
@@ -17,6 +17,9 @@
             <input type="hidden" name="join_to" value="one">
             <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
           {% else %}
+            {# --- START modal for all or one journey --- #}
+            {% include "journeys/blocks/join.all.one.html" %}
+            {# --- END for all or one journey --- #}
             <input type="hidden" name="join_to" ng-value="joinToValue">
             <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
           {% endif %}
@@ -29,6 +32,3 @@
         <button type="submit" class="btn btn-danger">{% trans "Abandonar" %}</button>
     </form>
 {% endif %}
-{# --- START modal for all or one journey --- #}
-{% include "journeys/blocks/join.all.one.html" %}
-{# --- END for all or one journey --- #}
