@@ -17,9 +17,6 @@
             <input type="hidden" name="join_to" value="one">
             <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
           {% else %}
-            {# --- START modal for all or one journey --- #}
-            {% include "journeys/blocks/join.all.one.html" %}
-            {# --- END for all or one journey --- #}
             <input type="hidden" name="join_to" ng-value="joinToValue">
             <button type="submit" class="btn btn-success">{% trans "Unirse" %}</button>
           {% endif %}
@@ -32,3 +29,6 @@
         <button type="submit" class="btn btn-danger">{% trans "Abandonar" %}</button>
     </form>
 {% endif %}
+{# --- START modal for all or one journey --- #}
+{% include "journeys/blocks/join.all.one.html" %}
+{# --- END for all or one journey --- #}
