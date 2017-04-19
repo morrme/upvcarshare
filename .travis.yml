@@ -15,8 +15,8 @@ python:
 
 env:
   - SPATIALITE_LIBRARY_PATH="/usr/lib/libspatialite.so.3"
-  - UPV_LOGIN_DATA_USERNAME=dummy
-  - UPV_LOGIN_DATA_PASSWORD=dummy
+  - UPV_LOGIN_DATA_USERNAME="dummy"
+  - UPV_LOGIN_DATA_PASSWORD="dummy"
 
 install:
   - pip install -r requirements/test.txt
