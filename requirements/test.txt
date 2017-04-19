@@ -1,4 +1,4 @@
 -r base.txt
 coverage==4.0.3
 django-test-plus==1.0.16
-factory_boy==2.7.0
+factory_boy==2.8.1
