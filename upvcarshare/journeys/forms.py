@@ -22,7 +22,7 @@ class ResidenceForm(forms.ModelForm):
 
     position = forms.CharField(
         label=_("Posición en el mapa"),
-        help_text=_("Selecciona la posición en el mapa y establece el radio máximo al que te quieres deplazar"),
+        help_text=_("Selecciona la posición en el mapa y establece el radio máximo al que te quieres desplazar"),
         widget=forms.HiddenInput()
     )
     distance = forms.FloatField(widget=forms.HiddenInput())
