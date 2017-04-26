@@ -97,7 +97,9 @@ class JourneyForm(forms.ModelForm):
         now = timezone.now()
         if departure < now:
             raise forms.ValidationError(_("No puedes crear viajes en el pasado"))
-        if Journey.objects.overlaps(self.user, departure, time_window).exists():
+        overlaps = Journey.objects.overlaps(self.user, departure, time_window)
+        if (self.instance.pk and overlaps.exclude(pk=self.instance.pk).exists()) or \
+            (self.instance.pk is None and overlaps.exists()):
             raise forms.ValidationError(_("Ya tienes un viaje que sale muy cerca de esta hora"))
         return departure
 
