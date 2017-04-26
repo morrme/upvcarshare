@@ -13,29 +13,9 @@
 {% block content %}
     <div class="row">
         <div class="col-xs-12">
-            <form method="post" action="">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="form-group row{% if field.errors %} has-danger{% endif %}">
-                        <label for="{{ field.auto_id }}" class="col-sm-2 form-control-label">{{ field.label }}</label>
-                        <div class="col-sm-10">
-                            {{ field }}
-                            <span class="text-muted">{{ field.help_text }}</span>
-                            <span class="text-muted">{{ field.errors }}</span>
-                        </div>
-                    </div>
-                {% endfor %}
-                <div class="form-group row">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary">{% trans "Entrar" %}</button>
-                    </div>
-                </div>
-            </form>
-
             <a href="{% provider_login_url "openid" openid="https://yo.rediris.es/soy/@upv.es" next=next %}" class="btn btn-primary">
                 {% trans "Acceso con credenciales UPV" %}
             </a>
-
         </div>
     </div>
 {% endblock content %}
