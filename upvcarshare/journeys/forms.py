@@ -91,6 +91,13 @@ class JourneyForm(forms.ModelForm):
             self.fields['residence'].queryset = Residence.objects.filter(user=self.user)
             self.fields['transport'].queryset = Transport.objects.filter(user=self.user)
 
+    def clean_free_places(self):
+        free_places = self.cleaned_data["free_places"]
+        transport = self.cleaned_data["transport"]
+        if transport is not None and free_places > transport.default_places:
+            raise forms.ValidationError(_("No puedes ofertar más plazas que las que tienes en el transporte"))
+        return free_places
+
     def clean_departure(self):
         departure = self.cleaned_data["departure"]
         time_window = self.cleaned_data.get("time_window", 30)
