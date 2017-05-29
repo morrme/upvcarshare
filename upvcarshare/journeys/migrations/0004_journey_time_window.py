@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='journey',
             name='time_window',
-            field=models.PositiveIntegerField(blank=True, default=30, help_text='Se buscaran por los trayectos que salgan hasta con estos minutos de antelación', verbose_name='ventana de tiempo'),
+            field=models.PositiveIntegerField(blank=True, default=30, help_text='Se buscarán por los trayectos que salgan hasta con estos minutos de antelación', verbose_name='ventana de tiempo'),
         ),
     ]
