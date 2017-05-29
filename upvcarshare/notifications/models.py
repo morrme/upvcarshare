@@ -74,7 +74,7 @@ class Notification(TimeStampedModel):
                     "date": localize(self.target.departure),
                 }
             elif self.verb == THROW_OUT:
-                value = _("%(user)s te ha <strong>expulsado</strong> el viaje <strong>%(journey)s</strong> del %(date)s") % {
+                value = _("%(user)s te ha <strong>expulsado</strong> del viaje <strong>%(journey)s</strong> del %(date)s") % {
                     "user": six.text_type(self.actor),
                     "journey": six.text_type(self.target).lower(),
                     "date": localize(self.target.departure),
