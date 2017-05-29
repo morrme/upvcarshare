@@ -373,6 +373,12 @@ class Journey(GisTimeStampedModel):
             return self.passengers.filter(status=CONFIRMED)
         return Passenger.objects.none()
 
+    def save(self, **kwargs):
+        """Override save to set the default time window value. Default value not set in Oracle."""
+        if not self.time_window:
+            self.time_window = DEFAULT_TIME_WINDOW
+        return super(Journey, self).save(**kwargs)
+
 
 class Passenger(TimeStampedModel):
     """A user who has joined a journey."""
